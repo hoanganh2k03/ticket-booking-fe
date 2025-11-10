@@ -1,0 +1,321 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-image: url('/assets/images/soccer_field.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #006400;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.navbar .logo span {
+    text-decoration: none; /* Đảm bảo không có gạch chân */
+    color: white; /* Đặt màu cụ thể cho span để không bị ảnh hưởng bởi thẻ a */
+    display: inline-block;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center; /* Căn giữa logo theo chiều ngang */
+    align-items: center;
+    cursor: pointer;
+}
+
+.navbar span {
+    margin-left: 10px; /* Khoảng cách giữa logo và hình ảnh */
+}
+
+.navbar .logo img {
+    height: 40px;  /* Điều chỉnh kích thước logo nếu cần */
+    width: auto;
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    color: #32cd32;
+}
+
+.navbar .search-bar {
+    flex-grow: 1;
+    margin: 0 20px;
+    position: relative;
+}
+
+.search-bar input:focus,
+.search-bar select:focus,
+.search-bar button:focus {
+    outline: none; /* Ẩn viền khi focus vào các phần tử */
+}
+
+.navbar .search-bar input {
+    width: 30%;
+    padding: 8px;
+    border: none;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 14px;
+}
+
+/* Filter Button */
+.filter-btn {
+    background-color: #32cd32;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+}
+
+.filter-btn:hover {
+    background-color: #28a745;
+}
+
+/* Filter Form */
+.filter-form {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background-color: rgba(56, 142, 60, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    z-index: 1000;
+    width: 300px;
+    border: 1px solid #32cd32;
+}
+
+.filter-form.active {
+    display: block;
+}
+
+.filter-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.filter-form input,
+.filter-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.filter-form .buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter-form button {
+    background-color: #32cd32;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filter-form button:hover {
+    background-color: #28a745;
+}
+
+.filter-form .clear-btn {
+    background-color: #ff4444;
+}
+
+.filter-form .clear-btn:hover {
+    background-color: #cc0000;
+}
+
+/* Matches section */
+.whats-new {
+    padding: 50px 100px;
+}
+
+.whats-new h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.event-card {
+    background-color: rgba(56, 142, 60, 0.7);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #32cd32;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.event-card .logos {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.event-card .logos img.team-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 2px solid #32cd32;
+    background-color: white;
+}
+
+.event-card .logos .vs {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffeb3b;
+}
+
+.event-card .event-info {
+    text-align: center;
+    color: #f1f1f1;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.event-card .event-info h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #ffeb3b;
+}
+
+.event-card .event-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.event-card .event-info .info-row .left {
+    text-align: left;
+}
+
+.event-card .event-info .info-row .right {
+    text-align: right;
+}
+
+.event-card .event-info .info-row p {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.event-card .event-info .description {
+    font-size: 14px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+@media (max-width: 768px) {
+    .whats-new {
+        padding: 30px 20px;
+    }
+
+    .navbar .search-bar input {
+        width: 50%;
+    }
+
+    .filter-form {
+        width: 90%;
+        right: 5%;
+    }
+}
+
+
+/* Chỉnh sửa cho dropdown menu */
+.user-actions #user-icon {
+    position: relative; /* Đảm bảo vị trí của dropdown được căn chính xác */
+    cursor: pointer;
+}
+
+/* Ẩn dropdown mặc định */
+#user-dropdown {
+    display: none; /* Ẩn dropdown */
+    position: absolute;
+    top: 50px; /* Đặt vị trí dropdown dưới icon */
+    right: 20px; /* Đặt nó ở phía bên phải */
+    background-color: #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    min-width: 160px;
+    z-index: 1000;
+}
+
+/* Các mục trong dropdown */
+#user-dropdown a {
+    display: block;
+    padding: 12px;
+    color: #333;
+    text-decoration: none;
+}
+
+/* Thay đổi màu khi hover */
+#user-dropdown a:hover {
+    background-color: #f1f1f1;
+}
+
+#user-dropdown.active {
+    display: block; /* Hiển thị dropdown */
+}

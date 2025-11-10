@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Đơn hàng</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/components/navbar.css">
+    <link rel="stylesheet" href="/assets/styles/customer/return_ticket.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <div class="navbar" id="navbar-placeholder"></div>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Hoàn Vé</h1>
+
+        <!-- Filter Section -->
+        <div class="filter-section mb-4">
+            <div class="row g-3">
+                <!-- <div class="col-md-3">
+                    <select id="orderStatusFilter" class="form-select">
+                        <option value="">Trạng thái đơn</option>
+                        <option value="received">Thành công</option>
+                        <option value="cancelled">Đã hủy</option>
+                        <option value="pending">Đang xử lý</option>
+                    </select>
+                </div> -->
+                <div class="col-md-3">
+                    <select id="priceSort" class="form-select">
+                        <option value="">Sắp xếp giá</option>
+                        <option value="asc">Thấp đến Cao</option>
+                        <option value="desc">Cao đến Thấp</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="stadiumFilter" class="form-select">
+                        <option value="">Tất cả sân vận động</option>
+                        <!-- Stadium options will be dynamically populated -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" id="dateFilter" class="form-control" placeholder="Chọn ngày">
+                </div>
+                <div class="col-md-3">
+                    <select id="dateSort" class="form-select">
+                        <option value="">Sắp xếp thời gian</option>
+                        <option value="desc">Mới nhất</option>
+                        <option value="asc">Cũ nhất</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button id="resetFilters" class="btn btn-secondary w-100">Xóa bộ lọc</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="order-list" class="order-list">
+            <!-- Orders will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Modal for Reason -->
+    <div id="reasonModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lý do Hoàn vé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="reason-text" class="form-control" placeholder="Nhập lý do hoàn vé tại đây..." rows="5"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="submit-reason">Gửi Lý Do</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script type="module" src="/js/services/customer/return_ticket.js"></script>
+    <script src="/js/components/navbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Danh sách Trận đấu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap + Icons + DataTables -->
+  <link rel="stylesheet" href="/libs/bootstrap/bootstrap.min.css" />
+  <link rel="stylesheet" href="/libs/bootstrap-icons/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="/libs/datatables/datatables.min.css" />
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #c62828, #b71c1c);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .table thead {
+      background-color: #b71c1c;
+      color: white;
+    }
+
+    .table tbody tr:hover {
+      background-color: #ffebee;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #searchMatchInput {
+      max-width: 300px;
+    }
+    .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* nền đen mờ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+/* Nút đóng */
+.modal-content .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-dribbble me-2"></i>Danh sách Trận đấu</h4>
+        <div class="btn-group">
+          <a href="/pages/admin/events/add_match.html" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1"></i> Tạo trận đấu mới
+          </a>
+          <a href="/pages/admin/events/match_history.html" class="btn btn-light">
+            <i class="bi bi-clock-history me-1"></i> Lịch sử thay đổi trận đấu
+          </a>
+        </div>
+
+      </div>
+      <div class="card-body">
+        <div class="toolbar">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchMatchInput" class="form-control" placeholder="Tìm theo mô tả, đội, sân...">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="matchTable" class="table table-bordered table-striped" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mô Tả</th>
+                <th>Vòng</th>
+                <th>Đội 1</th>
+                <th>Đội 2</th>
+                <th>Sân</th>
+                <th>Giải</th>
+                <th>Thời gian</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dữ liệu sẽ được render bằng JavaScript -->
+               <!-- Modal overlay -->
+<div id="updateModal" class="modal-overlay" style="display: none;">
+  <div class="modal-content" id="updateModalContent">
+    <!-- Nội dung form sẽ được chèn vào đây -->
+  </div>
+</div>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="/libs/jquery/jquery.min.js"></script>
+  <script src="/libs/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="/libs/datatables/datatables.min.js"></script>
+  <script src="/libs/sweetalert2/sweetalert2.all.min.js"></script>
+
+  <!-- Logic -->
+  <script type="module" src="/js/pages/admin/events/matchs.js"></script>
+
+  
+</body>
+</html>

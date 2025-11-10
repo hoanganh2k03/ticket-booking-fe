@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Ticket Booking</title>
+    <link rel="stylesheet" href="/assets/styles/customer/main.css">
+    <!-- Thêm Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo" class="logo-link" onclick="window.location.href='/pages/customer/index.html'">
+            <img src="/assets/images/logo.png" alt="WEBOOK Logo" />
+            <span>SportsTix</span>
+        </div>
+        <div class="search-bar">
+            <input id="search-input" type="text" placeholder="Tìm kiếm trên sportstix.com">
+            <button class="filter-btn" id="filter-btn">Filter</button>
+            <div class="filter-form" id="filter-form">
+                <label for="filter-date">Date</label>
+                <input type="date" id="filter-date">
+                <label for="filter-team">Team</label>
+                <select id="filter-team">
+                    <option value="">All Teams</option>
+                    <!-- Các đội tuyển sẽ được thêm động bằng JavaScript -->
+                </select>
+                <label for="filter-league">League</label>
+                <select id="filter-league">
+                    <option value="">All Leagues</option>
+                    <!-- Options sẽ được thêm động bằng JavaScript -->
+                </select>
+                <label for="filter-stadium">Stadium</label>
+                <select id="filter-stadium">
+                    <option value="">All Stadiums</option>
+                    <!-- Options sẽ được thêm động bằng JavaScript -->
+                </select>
+                <label for="filter-time-sort">Sort by Time</label>
+                <select id="filter-time-sort">
+                    <option value="">Default</option>
+                    <option value="asc">Earliest First</option>
+                    <option value="desc">Latest First</option>
+                </select>
+                <div class="buttons">
+                    <button id="apply-filter">Apply</button>
+                    <button id="clear-filter" class="clear-btn">Clear</button>
+                </div>
+            </div>
+        </div>
+        <div class="user-actions nav-links">
+            <a id="login-link" href="#">Đăng nhập</a> <!-- Nút đăng nhập -->
+            <a id="logout-link" href="#">Đăng xuất</a> <!-- Nút đăng xuất -->
+            <a id="user-icon" href="#"><i class="fas fa-user"></i></a> <!-- Icon người dùng -->
+            <div id="user-dropdown" class="dropdown-menu">
+                <a href="#" id="personal-info">Thông tin cá nhân</a>
+                <a href="#" id="booked-tickets">Vé đã đặt</a>
+                <a href="#" id="ticket-returns">Đổi trả vé</a>
+            </div>
+        </div>        
+    </nav>
+
+    <!-- What's new section -->
+    <section class="whats-new">
+        <div class="event-grid" id="match-cards">
+        </div>
+    </section>
+
+    <section class="pagination" id="pagination"></section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script src="/js/pages/customer/main.js"></script>
+    <script type="module" src="/js/services/customer/match.js"></script>
+</body>
+</html>

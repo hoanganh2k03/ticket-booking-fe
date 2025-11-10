@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách Giải đấu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap + Icons -->
+  <link href="/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/libs/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/assets/libs/datatables/datatables.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #34495e, #2c3e50);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .table thead {
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    .table tbody tr:hover {
+      background-color: #ecf0f1;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #searchLeagueInput {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-trophy-fill me-2"></i>Danh sách Giải đấu</h4>
+        <a href="/pages/admin/events/add_leagues.html" class="btn btn-light">
+          <i class="bi bi-plus-circle me-1"></i>Thêm giải đấu
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="toolbar">
+          <div class="input-group" id="searchGroup">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchLeagueInput" class="form-control" placeholder="Tìm tên hoặc loại giải đấu">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="leagueTable" class="table table-bordered table-striped" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Tên giải</th>
+                <th>Loại giải đấu</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Ngày tạo</th>
+                <th>Ngày cập nhật</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dữ liệu JS render -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/assets/libs/jquery/jquery.min.js"></script>
+  <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/libs/datatables/datatables.min.js"></script>
+  <script src="/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
+  <script type="module" src="/js/pages/admin/events/leagues.js"></script>
+</body>
+</html>

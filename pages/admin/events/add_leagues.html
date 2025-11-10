@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thêm Giải Đấu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header text-white bg-primary d-flex justify-content-between">
+        <h4 class="mb-0"><i class="bi bi-trophy-fill me-2"></i>Thêm Giải Đấu Mới</h4>
+        <button type="button" class="btn btn-light" onclick="window.history.back()">
+          <i class="bi bi-arrow-return-left"></i> Quay lại
+        </button>
+        
+      </div>
+      <div class="card-body">
+        <form id="addLeagueForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="league_name" class="form-label">Tên giải đấu</label>
+              <input type="text" id="league_name" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label for="league_type" class="form-label">Loại giải đấu</label>
+              <select id="league_type" class="form-select" required>
+                <option value="">-- Chọn loại giải --</option>
+                <option value="0">Giải Vô địch quốc gia</option>
+                <option value="1">Giải Đấu loại trực tiếp</option>
+                <option value="2">Giải Giao hữu</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="start_date" class="form-label">Ngày bắt đầu</label>
+              <input type="date" id="start_date" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label for="end_date" class="form-label">Ngày kết thúc</label>
+              <input type="date" id="end_date" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-save2 me-1"></i> Lưu giải đấu
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script  src="/js/services/admin/tickets.js"></script>
+
+  <script type="module">
+    import CONFIG from "../../../js/utils/settings.js";
+    const BASE_URL = CONFIG.BASE_URL;
+
+
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+
+    // Gợi ý ngày kết thúc >= 3 tháng sau ngày bắt đầu
+    startDateInput.addEventListener('change', () => {
+      const start = new Date(startDateInput.value);
+      if (!isNaN(start)) {
+        const minEndDate = new Date(start);
+        minEndDate.setMonth(minEndDate.getMonth() + 3);
+        endDateInput.min = minEndDate.toISOString().split('T')[0];
+      }
+    });
+
+    document.getElementById('addLeagueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const league_name = document.getElementById('league_name').value.trim();
+      const league_type = parseInt(document.getElementById('league_type').value);
+      const start_date = startDateInput.value;
+      const end_date = endDateInput.value;
+      // ------------
+      const specialCharRegex = /[^a-zA-Z0-9\sÀ-ỹ]/; // Cho phép tiếng Việt và khoảng trắng
+
+      if (!league_name) {
+        Swal.fire('Lỗi', 'Tên giải không được để trống.', 'error');
+        return;
+      }
+
+      if (specialCharRegex.test(league_name)) {
+        Swal.fire('Lỗi', 'Tên giải không được chứa ký tự đặc biệt.', 'error');
+        return;
+      }
+      if (isNaN(league_type)) {
+        Swal.fire('Lỗi', 'Vui lòng chọn loại giải đấu.', 'error');
+        return;
+      }
+      const start = new Date(start_date);
+      const end = new Date(end_date);
+      const minEnd = new Date(start);
+      minEnd.setMonth(minEnd.getMonth() + 3);
+
+      if (end < minEnd) {
+        Swal.fire('Lỗi', 'Ngày kết thúc phải cách ngày bắt đầu ít nhất 3 tháng.', 'error');
+        return;
+      }
+
+      const payload = {
+        league_name,
+        league_type,
+        start_date,
+        end_date
+      };
+
+      fetch(`${BASE_URL}/api/events/leagues/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Không thể tạo giải đấu');
+          return res.json();
+        })
+        .then(data => {
+          Swal.fire('Thành công', 'Giải đấu đã được thêm!', 'success').then(() => {
+            window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/leagues';
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          Swal.fire('Lỗi', 'Không thể thêm giải đấu', 'error');
+        });
+    });
+  </script>
+</body>
+</html>

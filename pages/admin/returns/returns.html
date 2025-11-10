@@ -1,0 +1,231 @@
+<div class="returns-page">
+    <style>
+        :root {
+            /* Nền chung */
+            --bg: #f5f5f5;
+            /* Header trên cùng */
+            --header-bg: #06203b;
+            /* Màu nhấn (đường viền, button chính) */
+            --accent: #f39c12;
+            /* Nền card */
+            --card-bg: #ffffff;
+            /* Chữ tối */
+            --text-dark: #2c3e50;
+            /* Chữ sáng */
+            --text-light: #ffffff;
+            /* Font chính */
+            --font: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: var(--font);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header top */
+        .header {
+            background: var(--header-bg);
+            color: var(--text-light);
+            border-radius: .75rem;
+            padding: 1rem 1.5rem;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .header .bi {
+            font-size: 1rem;
+            vertical-align: middle;
+        }
+
+        /* Card chính */
+        .card-main {
+            background: var(--card-bg);
+            border: none;
+            border-top: 4px solid var(--accent);
+            border-radius: .75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Search bar */
+        .search-bar input {
+            width: 100%;
+            max-width: 350px;
+            background: var(--card-bg);
+            border: 1px solid #ddd;
+            border-radius: .25rem;
+            padding: .5rem .75rem;
+        }
+
+        /* Bảng data */
+        table.dataTable {
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        table.dataTable thead th {
+            background: rgba(13, 110, 253, 0.1);
+            color: #004085;
+            border: none;
+            border-bottom: 2px solid var(--accent);
+            padding: .75rem;
+            font-weight: 600;
+            border-radius: 3px;
+        }
+
+        table.dataTable tbody tr {
+            background: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: background .2s;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: #f1f1f1;
+        }
+
+        table.dataTable td {
+            padding: .75rem;
+            color: var(--text-dark);
+        }
+
+        /* Button tròn */
+        .btn-round {
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        /* Modal header */
+        .modal-header {
+            background: var(--header-bg);
+            color: var(--text-light);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+
+        /* Form trong modal */
+        .modal-content {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+    </style>
+
+    <div id="sidebar-container"></div>
+    <div class="container py-4">
+        <div class="d-flex align-items-center mb-3 header">
+            <div class="title"><i class="bi bi-arrow-counterclockwise me-2 text-primary"></i>Yêu cầu Hoàn Vé</div>
+            <div class="ms-auto search-bar">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm..." />
+            </div>
+        </div>
+
+        <div class="card card-main mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="returns-table" class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Khách hàng</th>
+                                <th>Mã vé</th>
+                                <th>Giá gốc</th>
+                                <th>Lý do</th>
+                                <th>Ngày gửi</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Process Modal -->
+        <div class="modal fade" id="processModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Xử lý Hoàn Vé</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="processForm">
+                            <input type="hidden" id="processReturnId">
+                            <div class="mb-3">
+                                <label class="form-label">Hình thức hoàn tiền</label>
+                                <select id="refundMethod" class="form-select" required>
+                                    <option value="bank_card">Thẻ ngân hàng</option>
+                                    <option value="transfer">Chuyển khoản</option>
+                                    <option value="cash">Tiền mặt</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Số tiền hoàn (VNĐ)</label>
+                                <input type="number" id="refundAmount" class="form-control" readonly />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ghi chú</label>
+                                <textarea id="processNote" class="form-control" rows="2"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" id="btnProcess" class="btn btn-success">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reject Modal -->
+        <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Từ chối Hoàn Vé</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="rejectForm">
+                            <input type="hidden" id="rejectReturnId">
+                            <div class="mb-3">
+                                <label class="form-label">Lý do từ chối</label>
+                                <textarea id="rejectNote" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" id="btnReject" class="btn btn-danger">Từ chối</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+<script type="module" src="/js/pages/admin/returns/returns.js"></script>

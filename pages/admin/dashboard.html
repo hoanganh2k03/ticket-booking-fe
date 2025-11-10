@@ -1,0 +1,181 @@
+<div class="dashboard">
+  <style>
+    :root {
+      --light: #ffffff;
+      --cream: #F6F1DE;
+      --navy: #3E3F5B;
+      --sage: #8AB2A6;
+      --mint: #ACD3A8;
+    }
+
+    body {
+      background-color: var(--light);
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-text {
+      justify-content: center !important;
+    }
+
+    .card-title {
+      font-weight: 600;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    .bg-navy {
+      background-color: var(--navy);
+      color: white;
+    }
+
+    .bg-sage {
+      background-color: var(--sage);
+      color: white;
+    }
+
+    .bg-mint {
+      background-color: var(--mint);
+      color: white;
+    }
+
+    .bg-cream {
+      background-color: var(--cream);
+      color: #333;
+    }
+
+    #applyFilters {
+      background: linear-gradient(135deg, var(--sage), var(--mint));
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.6rem 1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #applyFilters:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+
+  <div class="container my-4">
+    <h2 class="mb-4 fw-bold text-dark">Dashboard</h2>
+
+    <!-- Filter Controls -->
+    <div class="row mb-3">
+      <div class="col-md-2 ">
+        <label for="startDate" class="form-label">Từ ngày</label>
+        <input type="date" id="startDate" class="form-control" />
+      </div>
+
+      <div class="col-md-2">
+        <label for="endDate" class="form-label">Đến ngày</label>
+        <input type="date" id="endDate" class="form-control" />
+      </div>
+
+      <!-- Chọn giải đấu -->
+      <div class="filter-wide col-md-4">
+        <label class="form-label">Giải đấu</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-trophy"></i></span>
+          <select id="filterTournament" class="form-select">
+            <option value="">Tất cả</option>
+            <!-- options động -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Chọn trận đấu -->
+      <div class="filter-wide col-md-4">
+        <label class="form-label">Trận đấu</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-controller"></i></span>
+          <select id="filterMatch" class="form-select">
+            <option value="">Tất cả</option>
+            <!-- options động -->
+          </select>
+        </div>
+      </div>
+
+      <div class="row d-flex justify-content-end">
+      <div class="col-md-3 mt-3 text-end">
+        <button id="applyFilters" class="btn btn-primary w-100">Áp dụng</button>
+      </div>
+    </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4" id="summary-cards">
+      <div class="col-md-3 mb-3">
+        <div class="card bg-navy p-3">
+          <div class="card-body text-center">
+            <h5 class="card-title">Tổng doanh thu</h5>
+            <h3 class="card-text" id="totalRevenue">--</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-sage p-3">
+          <div class="card-body text-center">
+            <h5 class="card-title">Vé đã bán hôm nay</h5>
+            <h3 class="card-text" id="ticketsSoldToday">--</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-mint p-3">
+          <div class="card-body text-center">
+            <h5 class="card-title">Tỷ lệ lấp đầy</h5>
+            <h3 class="card-text" id="overallFillRate">--</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-danger p-3 text-white">
+          <div class="card-body text-center">
+            <h5 class="card-title">Hoàn vé</h5>
+            <h3 class="card-text" id="totalReturns">--</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card bg-cream">
+          <div class="card-body">
+            <h5 class="card-title">Doanh thu theo ngày</h5>
+            <div class="chart-container">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card bg-cream">
+          <div class="card-body">
+            <h5 class="card-title">Tỷ lệ lấp đầy các trận</h5>
+            <div class="chart-container">
+              <canvas id="fillRateChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="/js/pages/admin/dashboard.js"></script>

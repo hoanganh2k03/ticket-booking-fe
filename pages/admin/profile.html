@@ -1,0 +1,294 @@
+<div class="profile">
+
+  <style>
+    :root {
+      --main-bg: #f8f9fa;
+      --accent: #007bff;
+      --text-primary: #343a40;
+      --card-bg: #ffffff;
+      --radius: 8px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--main-bg);
+      color: var(--text-primary);
+    }
+
+    .header {
+      height: 120px;
+      background: linear-gradient(135deg, #0062cc, #007bff);
+    }
+
+    .main-container {
+      position: relative;
+      max-width: 900px;
+      margin: -60px auto 40px;
+      padding: 20px;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border: 5px solid #fff;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      background: #ddd;
+    }
+
+    .profile-name {
+      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    .profile-role {
+      text-align: center;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 30px;
+    }
+
+    .card-info {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    /* Thông tin cá nhân list */
+    .info-list {
+      display: grid;
+      grid-template-columns: 150px auto;
+      row-gap: 12px;
+      column-gap: 30px;
+    }
+
+    .info-list dt {
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .info-list dd {
+      margin: 0;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: var(--radius) !important;
+      border: 1px solid #ced4da !important;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    }
+
+    .btn-edit {
+      border: none !important;
+      border-radius: var(--radius) !important;
+      padding: 10px 25px;
+      font-weight: 500;
+    }
+
+    .d-none {
+      display: none;
+    }
+
+    .change-password-form {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    .change-password-form .card-title {
+      margin-bottom: 20px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .change-password-form .form-label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .change-password-form .form-control {
+      border-radius: var(--radius) !important;
+      border: 1px solid #ced4da !important;
+      padding: 10px;
+    }
+
+    .change-password-form .form-control:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    }
+
+    .change-password-form .btn-accent {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-weight: 500;
+    }
+
+    .change-password-form .btn-accent:hover {
+      background: #0056b3;
+    }
+  </style>
+  <div>
+    <div class="header"></div>
+
+    <div class="main-container">
+      <img src="https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg" alt="Avatar"
+        class="avatar">
+      <h2 class="profile-name" id="full-name">Nguyễn Văn Admin</h2>
+      <p class="profile-role" id="role">Quản trị viên hệ thống</p>
+
+      <!-- <div class="card-info">
+        <h5>Thống kê nhanh</h5>
+        <div class="info-grid stats-grid">
+          <div class="text-center">
+            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+            <div>150</div>
+            <small class="text-muted">Người dùng</small>
+          </div>
+          <div class="text-center">
+            <i class="fas fa-tasks fa-2x text-success mb-2"></i>
+            <div>45</div>
+            <small class="text-muted">Dự án</small>
+          </div>
+          <div class="text-center">
+            <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+            <div>12</div>
+            <small class="text-muted">Thông báo</small>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="text-end mb-3">
+        <button id="btn-edit-info" class="btn btn-edit btn-primary me-2">Chỉnh sửa thông tin</button>
+        <button id="btn-change-password-toggle" class="btn btn-edit btn-warning">Đổi mật khẩu</button>
+      </div>
+
+      <div class="card-info">
+        <h5>Thông tin cá nhân</h5>
+        <dl class="info-list">
+          <dt>ID:</dt>
+          <dd id="user-id">1001</dd>
+          <dt>Họ và tên:</dt>
+          <dd id="name">Nguyễn Văn Admin</dd>
+          <dt>Ngày sinh:</dt>
+          <dd id="user-birthdate">15/05/1990</dd>
+          <dt>Giới tính:</dt>
+          <dd id="user-gender">Nam</dd>
+          <dt>Điện thoại:</dt>
+          <dd id="user-phone">+84 123 456 789</dd>
+          <dt>Email:</dt>
+          <dd id="user-email">admin@example.com</dd>
+          <dt>CCCD:</dt>
+          <dd id="user-citizen-id">123456789012</dd>
+          <dt>Địa chỉ:</dt>
+          <dd id="user-address">123 Đường Láng, Hà Nội, Việt Nam</dd>
+        </dl>
+      </div>
+
+      <!-- Chỉnh sửa thông tin cá nhân -->
+      <div id="edit-info-section" class="card-info edit-form d-none">
+        <h5>Chỉnh sửa thông tin</h5>
+        <form>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Họ và tên</label>
+              <input type="text" class="form-control" id="full_name" value="Nguyễn Văn Admin">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Tên đăng nhập</label>
+              <input type="text" class="form-control" id="username" value="nguyenadmin" disabled>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" class="form-control" id="date_of_birth" value="1990-05-15">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Giới tính</label>
+              <select class="form-select" id="gender">
+                <option value="0" selected>Nam</option>
+                <option value="1">Nữ</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Số điện thoại</label>
+              <input type="tel" class="form-control" id="phone_number" value="+84 123 456 789">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" value="admin@example.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Địa chỉ</label>
+              <textarea class="form-control" id="address" rows="2">123 Đường Láng, Hà Nội, Việt Nam</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Ảnh đại diện</label>
+              <input type="file" class="form-control" id="image" accept="image/*">
+            </div>
+          </div>
+          <div class="mt-4 text-end">
+            <button type="button" id="btn-save-info" class="btn btn-primary">Lưu thay đổi</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Đổi mật khẩu -->
+      <div id="change-password-section" class="card-info change-password-form d-none">
+        <h5 class="card-title">Đổi mật khẩu</h5>
+        <form id="form-change-password">
+          <div class="mb-3">
+            <label for="old_password" class="form-label">Mật khẩu cũ</label>
+            <input type="password" class="form-control" id="old_password" placeholder="Nhập mật khẩu cũ">
+          </div>
+          <div class="mb-3">
+            <label for="new_password" class="form-label">Mật khẩu mới</label>
+            <input type="password" class="form-control" id="new_password" placeholder="Nhập mật khẩu mới">
+          </div>
+          <div class="mb-3">
+            <label for="confirm_new_password" class="form-label">Xác nhận mật khẩu mới</label>
+            <input type="password" class="form-control" id="confirm_new_password" placeholder="Nhập lại mật khẩu mới">
+          </div>
+          <div class="text-end">
+            <button type="button" id="btn-doi-mat-khau" class="btn btn-accent">Đổi mật khẩu</button>
+          </div>
+        </form>
+      </div>
+
+
+    </div>
+  </div>
+  <script type="module" src="/js/pages/admin/profile.js"></script>

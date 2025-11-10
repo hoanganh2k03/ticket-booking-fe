@@ -1,0 +1,244 @@
+<div class="revenue-report">
+  <style>
+    :root {
+      --primary: #132236;
+      --primary-light: rgba(19, 34, 54, 0.1);
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --muted: #666666;
+      --border-radius: 8px;
+      --font-sans: "Segoe UI", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 2rem;
+      font-size: 1.75rem;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: flex-end;
+    }
+
+    .controls .field {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .controls label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .controls input[type="date"],
+    .controls button {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border-radius: var(--border-radius);
+      border: 1px solid #ccc;
+    }
+
+    .controls button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .controls button:hover {
+      background: #0f1f31;
+      transform: translateY(-2px);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+
+    .card h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 50px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    thead {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:nth-child(even) {
+      background: var(--primary-light);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 320px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .controls .field {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    /* Container mới cho các nút hành động */
+    .controls .actions {
+      display: flex;
+      gap: 0.5rem;
+      /* không cho flex-grow, để giữ đúng kích thước nút */
+      flex: none;
+    }
+
+    .controls .actions button {
+      width: auto;
+      /* tự co theo nội dung */
+      padding: 0.6rem 1.2rem;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <header>Báo cáo Doanh thu</header>
+
+  <div class="container">
+
+    <div class="controls">
+      <!-- Ô chọn ngày -->
+      <div class="field">
+        <label for="start-date">Từ ngày</label>
+        <input type="date" id="start-date">
+      </div>
+      <div class="field">
+        <label for="end-date">Đến ngày</label>
+        <input type="date" id="end-date">
+      </div>
+
+      <!-- Gom cả 3 nút vào đây -->
+      <div class="actions">
+        <button id="load-btn" class="btn btn-primary">Xem báo cáo</button>
+        <button id="export-report-pdf" class="btn btn-outline-primary">Xuất PDF</button>
+        <button id="export-report-excel" class="btn btn-outline-success">Xuất Excel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tổng doanh thu theo thời gian</h2>
+      <div class="chart-wrapper">
+        <canvas id="revenue-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Doanh thu theo Trận đấu</h2>
+      <div class="export-buttons mb-3">
+      </div>
+      <div class="table-container">
+        <table id="table-by-match">
+          <thead>
+            <tr>
+              <th>Mã trận</th>
+              <th>Tên trận</th>
+              <th>Ngày trận</th>
+              <th>Doanh thu (₫)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Doanh thu theo Khu vực</h2>
+      <div class="export-buttons mb-3">
+      </div>
+      <div class="table-container">
+        <table id="table-by-section">
+          <thead>
+            <tr>
+              <th>Mã khu vực</th>
+              <th>Tên khu vực</th>
+              <th>Doanh thu (₫)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script type="module" src="/js/pages/admin/reports/revenue.js"></script>

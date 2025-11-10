@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cập nhật Đội Bóng</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header bg-primary text-white d-flex justify-content-between">
+        <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i>Cập nhật Đội Bóng</h4>
+        <button class="btn btn-light"  onclick="window.history.back()">
+          <i class="bi bi-arrow-return-left"></i> Quay lại
+        </button>
+      </div>
+      <div class="card-body">
+        <form id="teamForm">
+          <div class="mb-3">
+            <label for="team_name" class="form-label">Tên đội</label>
+            <input type="text" class="form-control" id="team_name" name="team_name" required />
+          </div>
+          <div class="mb-3">
+            <label for="head_coach" class="form-label">HLV trưởng</label>
+            <input type="text" class="form-control" id="head_coach" name="head_coach" required />
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Mô tả</label>
+            <textarea class="form-control" id="description" name="description" required></textarea>
+          </div>
+
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check-circle me-1"></i> Cập nhật đội bóng
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script type="module">
+    import CONFIG from "../../../js/utils/settings.js";
+    const BASE_URL = CONFIG.BASE_URL;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // Lấy id đội bóng từ URL (edit_team.html?id=123)
+      const params = new URLSearchParams(window.location.search);
+      const teamId = params.get('id');
+      
+      if (!teamId) {
+        Swal.fire("Lỗi", "Không xác định được ID của đội bóng", "error");
+        return;
+      }
+
+      // Tải thông tin đội bóng từ API
+      fetch(`${BASE_URL}/api/events/teams/${teamId}/`)
+        .then(response => response.json())
+        .then(data => {
+          if (data) {
+            // Điền dữ liệu vào form
+            document.getElementById('team_name').value = data.team_name;
+            document.getElementById('head_coach').value = data.head_coach;
+            document.getElementById('description').value = data.description;
+          } else {
+            console.error('Không có dữ liệu cho đội bóng này');
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi khi tải dữ liệu đội bóng:', error);
+          Swal.fire("Lỗi", "Không thể tải dữ liệu đội bóng", "error");
+        });
+    });
+
+    document.getElementById("teamForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const params = new URLSearchParams(window.location.search);
+  const teamId = params.get('id');
+
+  // Kiểm tra nếu không có teamId
+  if (!teamId) {
+    Swal.fire("Lỗi", "Không xác định được ID đội bóng", "error");
+    return;
+  }
+
+  // Lấy thông tin từ form
+  const teamName = form.team_name.value.trim();
+  const headCoach = form.head_coach.value.trim();
+  const description = form.description.value.trim();
+
+  // Kiểm tra các trường hợp không hợp lệ
+  if (!teamName || !headCoach || !description) {
+    Swal.fire("Lỗi", "Bạn phải điền đầy đủ thông tin đội bóng!", "error");
+    return;
+  }
+
+  // Chuẩn bị dữ liệu
+  const teamData = {
+    team_name: teamName,
+    head_coach: headCoach,
+    description: description
+  };
+
+  try {
+    console.log("Dữ liệu đội bóng:", teamData);
+
+    const res = await fetch(`${BASE_URL}/api/events/teams/${teamId}/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(teamData)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      Swal.fire("Thành công", "Cập nhật đội bóng thành công!", "success")
+        .then(() => window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/teams');
+    } else {
+      let errorMessage = "Cập nhật đội bóng thất bại!";
+
+      if (data.team_name && data.team_name[0].includes("already exists")) {
+        errorMessage = "Đội bóng đã tồn tại.";
+      } else if (data.head_coach) {
+        errorMessage = "Tên huấn luyện viên không hợp lệ.";
+      } else if (data.description) {
+        errorMessage = "Mô tả đội bóng không hợp lệ.";
+      } else if (data.detail) {
+        errorMessage = data.detail;
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
+    }
+  } catch (err) {
+    console.error("🔥 Lỗi kết nối:", err);
+    Swal.fire("Lỗi", "Không thể kết nối đến server", "error");
+  }
+});
+
+  </script>
+</body>
+</html>

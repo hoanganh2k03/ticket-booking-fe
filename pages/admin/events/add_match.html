@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tạo Trận Đấu Mới</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header bg-primary text-white d-flex justify-content-between">
+        <h4 class="mb-0"><i class="bi bi-dribbble me-2"></i>Tạo Trận Đấu Mới</h4>
+        <button type="button" class="btn btn-light"  onclick="window.history.back()">
+          <i class="bi bi-arrow-return-left"></i> Quay lại
+        </button>
+      </div>
+      <div class="card-body">
+        <form id="createMatchForm">
+          <div class="row g-3">
+            <!-- Ngày giờ trận đấu -->
+            <div class="col-md-4">
+              <label for="match_date" class="form-label">Ngày giờ trận đấu</label>
+              <input type="datetime-local" class="form-control" id="match_date" name="match_date" required />
+              <small id="dateError" class="text-danger" style="display: none;">Thời gian phải lớn hơn hiện tại!</small>
+            </div>
+      
+            <!-- Mô tả -->
+            <div class="col-md-4">
+              <label for="description" class="form-label">Mô tả</label>
+              <input type="text" class="form-control" name="description" required />
+            </div>
+      
+            <!-- Giải đấu -->
+            <div class="col-md-4">
+              <label for="leagueSelect" class="form-label">Giải đấu</label>
+              <select class="form-control" name="league" id="leagueSelect" required>
+                <option value="">Chọn giải đấu</option>
+              </select>
+            </div>
+      
+            <!-- Vòng đấu -->
+            <div class="col-md-4">
+              <label for="roundSelect" class="form-label">Vòng đấu</label>
+              <select class="form-control" name="round" id="roundSelect" required>
+                <option value="">-- Chọn vòng đấu --</option>
+              </select>
+            </div>
+      
+            <!-- Sân vận động -->
+            <div class="col-md-6">
+              <label for="stadiumSelect" class="form-label">Sân vận động</label>
+              <select class="form-control" name="stadium_id" id="stadiumSelect" required>
+                <option value="">Chọn sân vận động</option>
+              </select>
+            </div>
+      
+            <!-- Đội 1 -->
+            <div class="col-md-6">
+              <label for="team1Select" class="form-label">Đội 1</label>
+              <select class="form-control" name="team_1" id="team1Select" required>
+                <option value="">Chọn đội 1</option>
+              </select>
+            </div>
+      
+            <!-- Đội 2 -->
+            <div class="col-md-6">
+              <label for="team2Select" class="form-label">Đội 2</label>
+              <select class="form-control" name="team_2" id="team2Select" required>
+                <option value="">Chọn đội 2</option>
+              </select>
+            </div>
+          </div>
+      
+          <!-- Nút tạo trận đấu -->
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check-circle me-1"></i> Tạo trận đấu
+            </button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- JS Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script type="module">
+    import CONFIG from "../../../js/utils/settings.js";
+    const BASE_URL = CONFIG.BASE_URL;
+    // Set min datetime to current time
+    const matchDateInput = document.getElementById('match_date');
+    const now = new Date();
+    matchDateInput.min = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+    matchDateInput.addEventListener('input', function () {
+      const selectedDate = new Date(this.value);
+      if (selectedDate <= new Date()) {
+        document.getElementById('dateError').style.display = 'block';
+        this.setCustomValidity("Thời gian phải lớn hơn hiện tại.");
+      } else {
+        document.getElementById('dateError').style.display = 'none';
+        this.setCustomValidity("");
+      }
+    });
+
+    // Load dropdown options
+    fetch(`${BASE_URL}/api/events/creat/stadiums/`)
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById('stadiumSelect');
+        data.data.forEach(stadium => {
+          const option = document.createElement('option');
+          option.value = stadium.stadium_id;
+          option.textContent = stadium.stadium_name;
+          select.appendChild(option);
+        });
+      });
+
+    fetch(`${BASE_URL}/api/events/creat/leagues/`)
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById('leagueSelect');
+        data.data.forEach(league => {
+          const option = document.createElement('option');
+          option.value = league.league_name;
+          option.textContent = league.league_name;
+          select.appendChild(option);
+        });
+      });
+
+      fetch(`${BASE_URL}/api/events/creat/teams/`)
+    .then(res => res.json())
+    .then(data => {
+      const select1 = document.getElementById('team1Select');
+      const select2 = document.getElementById('team2Select');
+
+      data.data.forEach(team => {
+        const option1 = document.createElement('option');
+        option1.value = team.team_id;
+        option1.textContent = team.team_name;
+        select1.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = team.team_id;
+        option2.textContent = team.team_name;
+        select2.appendChild(option2);
+      });
+
+      function updateVisibility(selectedValue, otherSelect) {
+        Array.from(otherSelect.options).forEach(option => {
+          if (option.value === '') return; // không ẩn option mặc định
+          option.hidden = (option.value === selectedValue);
+        });
+      }
+
+      select1.addEventListener('change', () => {
+        updateVisibility(select1.value, select2);
+      });
+
+      select2.addEventListener('change', () => {
+        updateVisibility(select2.value, select1);
+      });
+    });
+// check trùng trận trong sân
+// 
+    // Submit form
+    document.getElementById('createMatchForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const selectedDate = new Date(formData.get("match_date"));
+
+      if (selectedDate <= new Date()) {
+        Swal.fire('Lỗi', 'Thời gian trận đấu phải lớn hơn hiện tại!', 'error');
+        return;
+      }
+
+      const data = {
+        match_date: selectedDate.toISOString(),
+        description: formData.get("description"),
+        round: formData.get("round"),
+        stadium_id: parseInt(formData.get("stadium_id")),
+        league: formData.get("league"),
+        team_1: parseInt(formData.get("team_1")),
+        team_2: parseInt(formData.get("team_2"))
+      };
+
+      fetch(`${BASE_URL}/api/events/matches/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(res => res.json())
+        .then(response => {
+  if (response.status === "success") {
+    Swal.fire('Thành công', 'Đã tạo trận đấu mới!', 'success')
+      .then(() => {
+        // Quay lại trang trước đó
+        window.history.back(); // hoặc: window.location.replace(document.referrer);
+      });
+  } else {
+    Swal.fire('Lỗi', response.message || 'Không thể tạo trận đấu. Vui lòng kiểm tra dữ liệu.', 'error');
+  }
+})
+
+
+
+        .catch(err => {
+          console.error('Lỗi tạo trận:', err);
+          Swal.fire('Lỗi', 'Không thể kết nối đến server.', 'error');
+        });
+    });
+    
+    //
+     // Lắng nghe sự kiện thay đổi lựa chọn giải đấu
+  document.getElementById("leagueSelect").addEventListener("change", function () {
+    const leagueValue = this.value;
+    const roundSelect = document.getElementById("roundSelect");
+
+    // Reset lại nội dung vòng đấu
+    roundSelect.innerHTML = '<option value="">-- Chọn vòng đấu --</option>';
+
+    // Lấy dữ liệu giải đấu từ API để kiểm tra league_type
+    fetch(`${BASE_URL}/api/events/creat/leagues/`)
+      .then(res => res.json())
+      .then(data => {
+        const selectedLeague = data.data.find(league => league.league_name === leagueValue);
+        
+        if (selectedLeague) {
+          const leagueType = selectedLeague.league_type;
+          let options = [];
+
+          if (leagueType === 0) {
+            // Giải vô địch quốc gia, hiển thị 40 vòng đấu
+            for (let i = 1; i <= 40; i++) {
+              options.push(` ${i}`);
+            }
+          } else if (leagueType === 1) {
+            // Giải tranh cúp, hiển thị các vòng đấu đặc biệt
+            options = [" sơ loại"," Bảng", " 1/16"," 1/8", " Tứ kết", "Bán kết", "Chung kết"];
+          }
+          else if (leagueType === 2) {
+          // Giao hữu
+          options = ["Giao hữu quốc tế", "Giao hữu trong nước"];
+        }
+
+          // Thêm các vòng đấu vào phần chọn vòng đấu
+          options.forEach(round => {
+            const option = document.createElement("option");
+            option.value = round;
+            option.textContent = round;
+            roundSelect.appendChild(option);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Lỗi khi tải dữ liệu giải đấu:', error);
+      });
+  }
+);
+  </script>
+</body>
+</html>

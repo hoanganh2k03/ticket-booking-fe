@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Tạo vé trận đấu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0/dist/css/bootstrap-select.min.css"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: #f1f3f5;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #172234, #2a3450);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .toolbar .form-control,
+    .toolbar .form-select {
+      border-radius: .5rem;
+    }
+
+    .toolbar .btn {
+      border-radius: .5rem;
+    }
+
+    .table {
+      border-radius: .5rem;
+      overflow: hidden;
+    }
+
+    .table thead {
+      background: #172234;
+      color: #fff;
+    }
+
+    .table tbody tr:hover {
+      background: #e9ecef;
+    }
+
+    .pagination .page-item .page-link {
+      border-radius: .5rem;
+      margin: 0 .25rem;
+    }
+
+    .pagination .active .page-link {
+      background: #f39c12;
+      border-color: #f39c12;
+      color: #fff;
+    }
+
+    .modal-header {
+      background: #172234;
+      color: #fff;
+    }
+
+    .modal-body .card {
+      border: none;
+      border-radius: .5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-body h6 {
+      font-size: .9rem;
+      text-transform: uppercase;
+    }
+
+    .bg-gradient {
+      background: linear-gradient(90deg, #172234, #2a3450) !important;
+    }
+
+    .time-highlight {
+      color: #e67e22;
+      /* cam nổi bật */
+      font-weight: 600;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 1rem;
+      z-index: 10;
+      padding: .75rem;
+      border-radius: .5rem;
+      background-color: rgba(255, 255, 255, 0.85);
+      /* glassmorphism */
+      backdrop-filter: blur(6px);
+      border-top: 10px solid #f39c12;
+      border-bottom: 10px solid #f39c12;
+      border-left:10px solid #f39c12;
+      border-right:10px solid #f39c12;
+      /* viền cam nổi bật */
+      /* xóa hết box-shadow */
+    }
+
+    /* Khi hover thì viền cam đậm thêm, tạo cảm giác tương tác */
+    .toolbar:hover {
+      border-top-color: #d35400;
+      border-bottom-color: #d35400;
+      
+      transition: border-top-color 0.2s ease;
+    }
+
+    /* Đảm bảo các control trong toolbar vẫn rõ ràng */
+    .toolbar .form-control,
+    .toolbar .form-select,
+    .toolbar .btn {
+      border: 1px solid #ddd;
+    }
+
+    .toolbar .form-control:focus,
+    .toolbar .form-select:focus,
+    .toolbar .btn:focus {
+      outline: none;
+      border-color: #f39c12;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+
+    <div class="container py-5">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Tạo Vé - Lịch sử tạo vé cho trận đấu</h4>
+          <a href="#" class="btn btn-light" id="backBtn">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+          </a>
+        </div>
+    
+        <div class="card-body">
+          <!-- 🔽 Bảng danh sách trận đấu -->
+          <div id="matches-list-container">
+            <div class="toolbar mb-4 d-flex flex-wrap gap-2">
+              <div class="input-group flex-grow-1">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" id="matchSearchInput" class="form-control" placeholder="Tìm kiếm trận đấu">
+              </div>
+              
+              <select id="matchTypeFilter" class="form-select" style="width: 220px;">
+                <option value="all">Tất cả trận đấu</option>
+                <option value="missing">Các trận cần tạo vé</option>
+                <option value="completed">Các trận đã kết thúc </option>
+              </select>
+              
+              <select id="pageSize" class="form-select" style="width:100px;">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <!-- //locc date -->
+               <div class="row g-2 mb-3">
+                      <div class="col-md-3">
+                        <label>Từ ngày:</label>
+                        <input type="date" id="startDate" class="form-control">
+                      </div>
+                      <div class="col-md-3">
+                        <label>Đến ngày:</label>
+                        <input type="date" id="endDate" class="form-control">
+                      </div>
+                    </div>
+
+               <!-- ---------------- -->
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table align-middle" id="matchesTable">
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Mô Tả</th>
+                    <th>Vòng</th>
+                    <th>Đội 1</th>
+                    <th>Đội 2</th>
+                    <th>Sân</th>
+                    <th>Giải</th>
+                    <th>Thời gian đấu</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Dữ liệu JS render -->
+                </tbody>
+              </table>
+            </div>
+    
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <div id="paginationInfo" class="small text-muted"></div>
+              <nav>
+                <ul class="pagination mb-0" id="pagination"></ul>
+              </nav>
+            </div>
+          </div>
+    
+          <!-- 🔽 Container hiển thị chi tiết khi nhấn "Tạo vé" -->
+         
+          <div id="content-container" style="margin-top: 30px;">
+            
+          </div>
+        </div>
+         
+        <!-- ----tạo vé và xem lịch sử tạo vé cho trận đấu-- -->
+              <!-- <div id="creatTicket-container" style="display: none;">
+
+            </div>
+          <div id="showTicket-container" style="display: none;">
+
+            </div> -->
+         <!-- ------------------------------------- -->
+      </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script type="module" src="/js/pages/admin/tickets/add_tickets.js"></script>
+    
+    </body>
+    
+</html>

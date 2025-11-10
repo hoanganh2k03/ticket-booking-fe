@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+/* Đảm bảo body và html chiếm toàn bộ màn hình */
+body,
+html {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(to bottom, #81C784, #43A047); /* Giữ gradient làm fallback */
+    background-image: url(/assets/images/soccer_field.jpg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Loại bỏ padding để hình ảnh sát cạnh */
+}
+
+/* Đặt container-custom chiếm toàn bộ màn hình */
+.container-custom {
+    height: 100vh; /* Chiếm toàn bộ chiều cao viewport */
+    border-radius: 0; /* Loại bỏ border-radius để hình ảnh sát cạnh */
+    overflow: hidden;
+    box-shadow: none; /* Loại bỏ shadow nếu không cần thiết */
+}
+
+/* Đảm bảo login-form vẫn ở giữa */
+.login-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 1rem;
+    padding: 2rem 2.5rem;
+    width: 320px;
+    color: white;
+    z-index: 1; /* Đảm bảo form nằm trên hình ảnh */
+}
+
+.login-form h2 {
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    user-select: none;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: 9999px;
+    padding-right: 2.5rem;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #43A047; /* Brighter green color */
+    box-shadow: 0 0 0 0.05rem rgba(67, 160, 71, 0.5); /* Brighter green shadow */
+    color: white;
+}
+
+.input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+}
+
+.form-check-label {
+    user-select: none;
+}
+
+.btn-login {
+    background: #43A047; /* Brighter green background */
+    color: white;
+    border-radius: 9999px;
+    font-weight: 600;
+    padding: 0.5rem 1rem; /* Điều chỉnh padding để nút gọn hơn */
+    transition: background-color 0.2s ease;
+    display: block; /* Đảm bảo nút là block để căn chỉnh */
+    margin-left: auto; /* Căn lề phải */
+}
+
+.btn-login:hover {
+    background: rgba(67, 160, 71, 0.9); /* Darker green on hover */
+    color: white;
+}
+
+.form-text a {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.form-text a:hover {
+    text-decoration: underline;
+}
+
+.form-footer {
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 1rem;
+    user-select: none;
+}
+
+#show-forgot-password:hover {
+    color: #FFD54F; /* Sáng hơn khi hover */
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: white;
+}

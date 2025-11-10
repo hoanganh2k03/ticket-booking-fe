@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Lịch sử thay đổi giá vé</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #172234, #2a3450);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .table thead {
+      background-color: #172234;
+      color: white;
+    }
+
+    .table tbody tr:hover {
+      background-color: #e9ecef;
+    }
+
+    .badge-orange {
+      background-color: #f39c12;
+    }
+
+    .time-highlight {
+      color: #e67e22;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-clock-history me-2"></i>Lịch Sử Thay Đổi Giá Vé</h4>
+        <a href="#" class="btn btn-light" id="btnBack">
+  <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách vé
+</a>
+
+        
+      </div>
+      
+      <div class="card-body">
+        <div class="input-group flex-grow-1">
+          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <input type="text" id="ticketSearchInput" class="form-control" placeholder="Tìm Mã trận hoặc Mã-Tên NV thực hiện" />
+        </div>
+        <div class="table-responsive">
+          <table  id="priceHistoryTable" class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã trận </th>
+                <th>Mã khu vực</th>
+                <th>Giá cũ</th>
+                <th>Giá mới</th>
+                <th>Thời gian hiệu lực</th>
+                <th>Thời gian thay đổi</th>
+                <th>Mã-Tên NV thực hiện </th>
+                <th>Lý do</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dữ liệu JS render -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+   <!-- ✅ jQuery (cần cho DataTables) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- ✅ SweetAlert2 (hiển thị popup lỗi) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- ✅ DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/js/pages/admin/tickets/price-histories.js"></script>
+</body>
+
+</html>

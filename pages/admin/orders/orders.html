@@ -1,0 +1,682 @@
+<div class="orders-page">
+  <style>
+    :root {
+      --primary: #004085;
+      --primary-light: rgba(13, 110, 253, 0.1);
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --card-bg: #ffffff;
+      --bg: #f8f9fa;
+    }
+
+    .orders-page {
+      background-color: var(--bg);
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+
+    .orders-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 1rem;
+    }
+
+    h2 {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .filters-card {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .filters-card .form-label {
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+      color: #555;
+    }
+
+    .input-group-text {
+      background: var(--bg);
+      border-right: 0;
+    }
+
+    .form-control,
+    .form-select {
+      border-left: 0;
+    }
+
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    table.orders-table th,
+    table.orders-table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    table.orders-table th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .badge-status {
+      padding: 0.4em 0.8em;
+      font-size: 0.85rem;
+      border-radius: 0.5rem;
+    }
+
+    .badge-pending {
+      background: var(--warning);
+      color: #212529;
+    }
+
+    .badge-received {
+      background: var(--success);
+    }
+
+    .badge-cancelled {
+      background: var(--danger);
+    }
+
+    .modal-lg {
+      max-width: 800px;
+    }
+
+    /* Scrollable detail list */
+    .detail-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+
+    .detail-list th {
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .btn-primary {
+      background-color: var(--primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    .btn-outline-primary {
+      color: var(--primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary) !important;
+      color: #fff !important;
+    }
+
+    .filters-card .actions {
+      grid-column: 1 / -1;
+      justify-self: end;
+    }
+
+    .filters-card {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .filters-card .filter-wide {
+      grid-column: span 2;
+      /* chiếm 2 cột */
+    }
+
+    .badge-offline {
+      background-color: var(--primary);
+      /* xám đậm */
+      color: #ffffff;
+    }
+
+    .badge-online {
+      background-color: #f4ecec;
+      /* xanh đậm */
+      color: var(--primary);
+    }
+
+    /* Padding và bo góc */
+    #detailModal .modal-content {
+      padding: 2rem;
+      border-radius: 0.75rem;
+      background: #fff;
+    }
+
+    /* Tiêu đề */
+    #detailModal .modal-header {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    #detailModal .modal-title {
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Khoảng cách body */
+    #detailModal .modal-body {
+      margin-top: 1rem;
+    }
+
+    /* Card chung */
+    #detailModal .card {
+      border: none;
+      border-left: 4px solid var(--primary);
+      background: rgb(250, 250, 250);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    #detailModal .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Tiêu đề thẻ */
+    #detailModal .card-body h6 {
+      color: var(--secondary);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    #detailModal .card-body h6::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--accent);
+      margin-top: 4px;
+      border-radius: 2px;
+    }
+
+    /* Định dạng dl */
+    #detailModal dl.row dt {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    #detailModal dl.row dd {
+      margin: 0 0 0.75rem 0;
+      color: #333;
+    }
+
+    /* Bảng vé */
+    #detailModal table {
+      border-collapse: separate;
+      border-spacing: 0 8px;
+    }
+
+    #detailModal thead th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+
+    #detailModal tbody tr {
+      background: #fff;
+      border-radius: 0.5rem;
+    }
+
+    #detailModal tbody td {
+      vertical-align: middle;
+      border: none;
+    }
+
+    /* Footer */
+    #detailModal .modal-footer {
+      border-top: none;
+      padding-top: 1rem;
+    }
+
+    #detailModal .btn-outline-secondary {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    #detailModal .btn-outline-secondary:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* thêm vào phần <style> của modal hoặc chung */
+    .info-card {
+      background: var(--bg-light);
+      border-radius: .5rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .info-card .label {
+      font-size: .85rem;
+      text-transform: uppercase;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+    }
+
+    .info-card .value {
+      font-size: 1.2rem;
+      font-weight: 650;
+      color: var(--primary);
+    }
+
+    #customerSuggestions li:hover {
+      background-color: #f3f4f6;
+      /* Equivalent to bg-gray-100 in Tailwind CSS */
+    }
+
+    /* Custom CSS cho Thông tin Trận đấu */
+    .match-card {
+      border: 1px solid #dee2e6;
+      border-radius: .5rem;
+      overflow: hidden;
+      transition: box-shadow .3s ease;
+    }
+
+    .match-card:hover {
+      box-shadow: 0 0.75rem 1.5rem rgba(58, 59, 69, .15);
+    }
+
+    .match-card .card-header {
+      background: linear-gradient(135deg, #183f80, #183f80);
+      color: #fff;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .match-card .icon-circle {
+      width: 2rem;
+      height: 2rem;
+      background: #f8f9fc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: .75rem;
+      transition: background .3s ease;
+    }
+
+    .match-card .icon-circle:hover {
+      background: #e2e6ea;
+    }
+
+    .match-card .fw-semibold {
+      color: #3a3b45;
+    }
+
+    .match-card .match-value {
+      color: #5a5c69;
+      font-size: .95rem;
+    }
+  </style>
+
+  <div class="orders-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Quản lý Đơn hàng</h2>
+      <button id="btnAddOrder" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Đặt đơn hàng
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+      <div>
+        <label class="form-label">Tìm kiếm</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" id="filterKeyword" class="form-control" placeholder="ID / Khách hàng">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Trạng thái</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+          <select id="filterStatus" class="form-select">
+            <option value="">Tất cả</option>
+            <option value="pending">Đang chờ</option>
+            <option value="received">Đã nhận</option>
+            <option value="cancelled">Đã hủy</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Hình thức</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
+          <select id="filterMethod" class="form-select">
+            <option value="">Tất cả</option>
+            <option value="online">Trực tuyến</option>
+            <option value="offline">Trực tiếp</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Từ ngày</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+          <input type="date" id="filterFrom" class="form-control">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Đến ngày</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+          <input type="date" id="filterTo" class="form-control">
+        </div>
+      </div>
+
+      <!-- Chọn giải đấu -->
+      <div class="filter-wide">
+        <label class="form-label">Giải đấu</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-trophy"></i></span>
+          <select id="filterTournament" class="form-select">
+            <option value="">Tất cả</option>
+            <!-- options động -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Chọn trận đấu -->
+      <div class="filter-wide">
+        <label class="form-label">Trận đấu</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-controller"></i></span>
+          <select id="filterMatch" class="form-select">
+            <option value="">Tất cả</option>
+            <!-- options động -->
+          </select>
+        </div>
+      </div>
+
+
+      <!-- Buttons -->
+      <div class="actions d-flex gap-2 justify-content-end">
+        <button class="btn btn-outline-primary" id="btnFilter">
+          <i class="bi bi-filter"></i> Áp dụng
+        </button>
+        <button class="btn btn-outline-secondary" id="btnReset">
+          <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Table -->
+    <div class="table-container mb-4">
+      <table class="table table-hover orders-table mb-0">
+        <thead>
+          <tr>
+            <th data-key="order_id">Mã đơn</th>
+            <th data-key="user">Khách hàng</th>
+            <th data-key="total_amount">Tổng tiền</th>
+            <th data-key="order_status">Trạng thái</th>
+            <th data-key="order_method">Hình thức</th>
+            <th data-key="created_at">Ngày đặt</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody">
+          <!-- populate via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav>
+      <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+  </div>
+
+  <!-- Modal chi tiết thông tin order -->
+  <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+
+        <!-- Header -->
+        <div class="modal-header">
+          <h5 class="modal-title text-primary fw-bold">
+            Chi tiết Đơn hàng #<span id="detailOrderId"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+
+          <div class="row g-4">
+            <!-- Thông tin Đơn hàng -->
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-md-4">
+                <div class="info-card">
+                  <div class="label"><i class="bi bi-person-fill"></i> Khách hàng</div>
+                  <div id="detailUser" class="value"></div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="info-card">
+                  <div class="label"><i class="bi bi-currency-dollar"></i> Tổng tiền</div>
+                  <div id="detailAmount" class="value"></div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="info-card">
+                  <div class="label"><i class="bi bi-clock-history"></i> Trạng thái</div>
+                  <div id="detailStatus" class="value"></div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="info-card">
+                  <div class="label"><i class="bi bi-wallet2"></i> Hình thức</div>
+                  <div id="detailMethod" class="value"></div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="info-card">
+                  <div class="label"><i class="bi bi-calendar-event"></i> Ngày đặt</div>
+                  <div id="detailDate" class="value"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thông tin Trận đấu (Grid 2 cột) -->
+            <div class="row g-3 mb-4">
+              <div class="col-12">
+                <div class="card match-card">
+                  <div class="card-header">
+                    <h6 class="mb-0">Thông tin Trận đấu</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-chat-left-text-fill text-primary"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Mô tả</div>
+                          <div id="detailMatchDesc" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-trophy-fill text-warning"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Giải đấu</div>
+                          <div id="detailMatchLeague" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-geo-alt-fill text-danger"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Sân vận động</div>
+                          <div id="detailMatchStadium" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-people-fill text-success"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Đội 1</div>
+                          <div id="detailMatchTeam1" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-people-fill text-success"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Đội 2</div>
+                          <div id="detailMatchTeam2" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-list-ol text-info"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Vòng</div>
+                          <div id="detailMatchRound" class="match-value">–</div>
+                        </div>
+                      </div>
+                      <div class="col d-flex align-items-start">
+                        <div class="icon-circle">
+                          <i class="bi bi-clock-fill text-secondary"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Thời gian</div>
+                          <div id="detailMatchTime" class="match-value">–</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+            <!-- Thông tin Thanh toán -->
+            <div class="col-12">
+              <div class="card shadow-sm h-100">
+                <div class="card-body">
+                  <h6 class="fw-semibold text-secondary mb-3">Thông tin Thanh toán</h6>
+                  <div class="table-responsive">
+                    <table class="table table-bordered text-center mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Phương thức</th>
+                          <th>Trạng thái</th>
+                          <th>Mã giao dịch</th>
+                        </tr>
+                      </thead>
+                      <tbody id="payTableBody">
+                        <!-- populate bởi JS -->
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Chi tiết Vé -->
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h6 class="fw-semibold text-secondary mb-3">Chi tiết Vé</h6>
+                  <div class="table-responsive">
+                    <table class="table table-bordered mb-0 text-center">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Khu vực</th>
+                          <th>Ghế</th>
+                          <th>Tổng thanh toán</th>
+                          <th>Khuyến mãi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="detailItems"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer border-0 pt-0">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chọn khách hàng -->
+  <div class="modal fade" id="addOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Chọn Khách hàng</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Customer datalist input -->
+          <div class="mb-3">
+            <label for="customerInput" class="form-label">Khách hàng</label>
+            <input class="form-control" list="customerDatalist" id="customerInput" placeholder="Nhập tên khách hàng">
+            <datalist id="customerDatalist">
+              <!-- Options will be populated by JS -->
+            </datalist>
+          </div>
+          <div class="text-center my-2">Hoặc</div>
+          <a href="javascript:void(0)" class="btn btn-outline-secondary w-100" id="btnAddCustomer">
+            <i class="bi bi-person-plus"></i> Thêm Khách mới
+          </a>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnNextOrder" class="btn btn-primary">
+            Tiếp theo <i class="bi bi-chevron-right"></i>
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script type="module" src="/js/pages/admin/orders/orders.js"></script>

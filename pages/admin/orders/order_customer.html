@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Ticket Booking - Admin</title>
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet" />
+  <style>
+    /* Color variables */
+    :root {
+      --primary: #004085;
+      --primary-light: rgba(13, 110, 253, 0.1);
+      --success: #3ae495;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --card-bg: #ffffff;
+      --bg: #f8f9fa;
+    }
+
+    /* Global Styles */
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: #1f2937;
+    }
+
+    h5,
+    .match-title,
+    #detail-teams {
+      font-weight: 600;
+    }
+
+    .form-label,
+    .match-meta,
+    #total-display {
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--primary);
+      padding: 1rem;
+    }
+
+    .navbar-brand {
+      color: #fff !important;
+    }
+
+    #main {
+      margin-top: 1.5rem;
+    }
+
+    /* Filters */
+    #match-filter .input-group-text {
+      background: var(--card-bg);
+      border-right: 0;
+    }
+
+    #match-filter .form-control,
+    #match-filter .form-select {
+      border-radius: 0 0.375rem 0.375rem 0;
+    }
+
+    /* Match Cards */
+    .match-card {
+      border-left: 4px solid var(--primary);
+      background: var(--card-bg);
+      border-radius: .5rem;
+      padding: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .match-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px var(--primary-light);
+    }
+
+    .match-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .match-meta {
+      color: #4b5563;
+      font-size: .875rem;
+    }
+
+    /* Booking Form */
+    #booking-form {
+      background: var(--card-bg);
+      border-radius: .75rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+    }
+
+    #booking-form h5 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    #booking-form .form-label {
+      font-weight: 500;
+    }
+
+    #sections .form-check {
+      margin-bottom: .5rem;
+    }
+
+    #sections .form-check-input {
+      accent-color: var(--primary);
+    }
+
+    #quantity-group,
+    #promo-group {
+      margin-top: .75rem;
+    }
+
+    /* Total Display */
+    #total-display {
+      background: var(--primary-light);
+      padding: .75rem 1rem;
+      border-radius: .5rem;
+      text-align: center;
+      margin: 1rem 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Confirm Button */
+    #confirm-btn {
+      background: var(--success);
+      border-color: var(--success);
+      font-weight: 600;
+    }
+
+    #confirm-btn:hover {
+      background: #157347;
+      /* slightly darker success */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #main .row {
+        flex-direction: column;
+      }
+    }
+
+    #price-breakdown {
+      background: var(--primary-light);
+      padding: 1rem;
+      border-radius: .5rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+
+    #price-breakdown hr {
+      margin: .5rem 0;
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <a class="navbar-brand" href="#"><i class="fas fa-ticket-alt me-2"></i>GoalTix Admin</a>
+      <div>
+        <button id="home-btn" class="btn btn-light me-2">
+          <i class="fas fa-arrow-left me-2"></i>Trở về
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div id="main" class="container-fluid">
+    <div class="row g-4">
+      <!-- Left: Filters & Matches -->
+      <div class="col-lg-6">
+        <div id="match-filter" class="d-flex gap-2">
+          <div class="input-group flex-grow-1">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input id="search-input" type="text" class="form-control" placeholder="Search matches...">
+          </div>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-trophy"></i></span>
+            <select id="league-filter" class="form-select">
+              <option value="">Tất cả giải đấu</option>
+            </select>
+          </div>
+        </div>
+        <div id="match-cards" class="row row-cols-1 row-cols-md-2 g-3 mt-3">
+          <!-- Cards here -->
+        </div>
+      </div>
+
+      <!-- Right: Booking Form -->
+      <div class="col-lg-6">
+        <div id="booking-form">
+          <h5><i class="fas fa-pencil-alt me-2"></i>Đơn hàng</h5>
+          <!-- Customer Input -->
+          <div class="mb-3">
+            <label for="customer-input" class="form-label">Khách hàng</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input list="customer-list" id="customer-input" class="form-control" placeholder="ID or Phone">
+            </div>
+            <datalist id="customer-list"></datalist>
+          </div>
+
+          <!-- Match & Details -->
+          <div id="match-detail" style="display:none;">
+            <div class="p-3 mb-3" style="background: var(--primary-light); border-radius:.5rem;">
+              <h6 class="match-title mb-1" id="detail-teams"></h6>
+              <p class="match-meta mb-0"><i class="fas fa-calendar-alt me-1"></i><span id="detail-time"></span></p>
+              <p class="match-meta mb-0"><i class="fas fa-map-marker-alt me-1"></i><span id="detail-stadium"></span></p>
+            </div>
+
+            <!-- Section Selection -->
+            <label class="form-label">Khu vực</label>
+            <div id="sections" class="mb-3"></div>
+
+            <!-- Quantity & Promo in Two Columns -->
+            <!-- <div class="row">
+              <div class="col-sm-4" id="quantity-group" style="display:none;">
+                <label class="form-label">Số lượng</label>
+                <input type="number" id="quantity-input" class="form-control" min="1" value="1">
+              </div>
+              <div class="col-sm-8" id="promo-group">
+                <label for="promo-select" class="form-label">Khuyến mãi</label>
+                <select id="promo-select" class="form-select">
+                  <option value="">-- Hiện chưa có khuyến mãi nào --</option>
+                </select>
+              </div>
+              <div id="sections" class="mb-3"></div>
+            </div> -->
+
+            <!-- Total Display -->
+            <div id="price-breakdown" class="mb-3">
+              <div class="d-flex justify-content-between">
+                <span><strong>Tổng tiền vé:</strong></span>
+                <span>VND <span id="subtotal-price">0.00</span></span>
+              </div>
+              <div class="d-flex justify-content-between text-danger">
+                <span><strong>Tổng giảm:</strong></span>
+                <span>–VND <span id="discount-amount">0.00</span></span>
+              </div>
+              <hr>
+              <div class="d-flex justify-content-between">
+                <span><strong>Tổng thanh toán:</strong></span>
+                <span>VND <span id="total-price">0.00</span></span>
+              </div>
+            </div>
+
+
+            <!-- Payment Method Field -->
+            <div class="mb-3">
+              <label for="payment-method" class="form-label">Phương thức thanh toán</label>
+              <select id="payment-method" class="form-select">
+                <option value="cash">Tiền mặt</option>
+                <!-- <option value="card">Thẻ tín dụng</option> -->
+                <option value="transfer">Chuyển khoản</option>
+              </select>
+            </div>
+
+            <!-- Confirm Button -->
+            <button id="confirm-btn" class="btn w-100">
+              <i class="fas fa-check me-2"></i>Confirm Booking
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script type="module" src="/js/pages/admin/orders/order_customer.js"></script>
+
+
+</body>
+
+</html>

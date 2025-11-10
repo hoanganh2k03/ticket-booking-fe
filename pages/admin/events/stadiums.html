@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách Sân vận động</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap + Icons + DataTables -->
+  <link href="/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/libs/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/assets/libs/datatables/datatables.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #c62828, #b71c1c);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .table thead {
+      background-color: #b71c1c;
+      color: white;
+    }
+
+    .table tbody tr:hover {
+      background-color: #ffebee;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #searchStadiumInput {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-geo-alt-fill me-2"></i>Danh sách Sân vận động</h4>
+        <a href="/pages/admin/events/add_stadiums.html" class="btn btn-light">
+          <i class="bi bi-plus-circle me-1"></i> Thêm Sân mới
+        </a>
+      </div>
+      <div class="card-body">
+
+  <!-- Vùng chứa danh sách sân vận động -->
+  <div id="stadium-container">
+    <div class="toolbar">
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" id="searchStadiumInput" class="form-control" placeholder="Tìm theo tên sân hoặc địa điểm">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table id="stadiumTable" class="table table-bordered table-striped" style="width: 100%;">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên sân</th>
+            <th>Địa điểm</th>
+            <th>Sức chứa</th>
+            <th>Layout</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dữ liệu sẽ được render bằng JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vùng chứa danh sách khu vực của một sân cụ thể -->
+  <div id="section-container" style="display: none;">
+    <!-- Sẽ được cập nhật bằng JavaScript khi người dùng bấm "Xem khu vực" -->
+  </div>
+ <div id="seatContainer-container" style="display: none;">
+    <!-- Sẽ được cập nhật bằng JavaScript khi người dùng bấm "Xem khu vực" -->
+  </div>
+</div>
+
+    </div>
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="/assets/libs/jquery/jquery.min.js"></script>
+  <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/libs/datatables/datatables.min.js"></script>
+  <script src="/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
+
+  <!-- JS Logic -->
+  <script type="module" src="/js/pages/admin/events/stadiums.js"></script>
+
+</body>
+</html>

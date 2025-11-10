@@ -1,0 +1,377 @@
+<div class="employee-page">
+
+  <style>
+    :root {
+      --primary-color: #004085;
+      --primary-shadow: rgba(0, 64, 133, 0.2);
+    }
+
+    body {
+      background-color: #eef2f7;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary {
+      color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color) !important;
+      color: #fff !important;
+    }
+
+    /* Filters card */
+    .card.filters {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .card.filters .card-body {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      border-left: 6px solid var(--primary-color);
+      background: #fff;
+      padding: 1.5rem;
+    }
+
+    .card.filters .input-group {
+      flex: 1 1 200px;
+      max-width: 240px;
+    }
+
+    .card.filters .input-group .input-group-text {
+      background: #fff;
+    }
+
+    /* Table container */
+    .table-responsive {
+      background: #fff;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    .table thead th {
+      border-bottom: 2px solid #e9ecef;
+      font-weight: 600;
+    }
+
+    .table tbody tr {
+      cursor: pointer;
+    }
+
+    /* Pagination active */
+    .pagination .page-item.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+
+    /* 1) Đổi nền của modal-body thành nhạt nhẹ */
+    #detailModal .modal-body {
+      background: #f8f9fa;
+      padding: 1.5rem;
+    }
+
+    /* 2) Đóng khung thông tin bên phải thành một card */
+    #detailModal .modal-body .col-md-8 {
+      background: #fff;
+      border-radius: .5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+    }
+
+    /* 3) Grid cho <dl> với cột label cố định, value linh hoạt */
+    #detailModal dl {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      row-gap: .75rem;
+      column-gap: 1.5rem;
+      margin: 0;
+    }
+
+    /* 4) Label phải căn đều, màu nổi */
+    #detailModal dt {
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary-color);
+      padding-right: .5rem;
+    }
+
+    /* 5) Value chỉ là text, có border-bottom nhẹ thay cho background */
+    #detailModal dd {
+      margin: 0;
+      padding: .25rem 0;
+      border-bottom: 1px solid #e9ecef;
+      color: #495057;
+    }
+
+    /* 6) Bỏ border dòng cuối */
+    #detailModal dd:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    /* 7) Avatar & tên cân chỉnh */
+    #detailModal .col-md-4.text-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+    }
+
+    #detailModal .col-md-4.text-center h5 {
+      font-size: 1.25rem;
+      margin: .75rem 0 .5rem;
+    }
+
+    #detailModal .col-md-4.text-center .badge {
+      font-size: .9rem;
+      padding: .45em 1em;
+    }
+
+    /* 8) Giảm border header/footer */
+    #detailModal .modal-header,
+    #detailModal .modal-footer {
+      border: none;
+      padding: .75rem 1.5rem;
+    }
+  </style>
+
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Quản lý Nhân viên</h2>
+      <button id="btnAdd" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill"></i> Thêm Nhân viên
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card filters mb-4">
+      <div class="card-body">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" id="filterName" class="form-control" placeholder="Họ & Tên">
+        </div>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+          <input type="text" id="filterEmail" class="form-control" placeholder="Email">
+        </div>
+        <div class="input-group ">
+          <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+          <input type="text" id="filterPhone" class="form-control" placeholder="Số ĐT">
+        </div>
+        <div class="input-group ">
+          <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+          <input type="date" id="filterFrom" class="form-control" placeholder="Từ ngày">
+        </div>
+        <div class="input-group ">
+          <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+          <input type="date" id="filterTo" class="form-control" placeholder="Đến ngày">
+        </div>
+
+        <div class="ms-auto d-flex gap-2">
+          <button class="btn btn-outline-primary" id="btnFilter">
+            <i class="bi bi-filter"></i> Lọc
+          </button>
+          <button class="btn btn-outline-secondary " id="btnReset">
+            <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive mb-3">
+      <table id="employeeTable" class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th data-key="id">ID <i class="fa fa-sort"></i></th>
+            <th data-key="full_name">Họ &amp; Tên <i class="fa fa-sort"></i></th>
+            <th data-key="role">Vai trò <i class="fa fa-sort"></i></th>
+            <th data-key="gender">Giới tính <i class="fa fa-sort"></i></th>
+            <th data-key="is_active">Trạng thái <i class="fa fa-sort"></i></th>
+            <th data-key="updated_at">Cập nhật <i class="fa fa-sort"></i></th>
+          </tr>
+        </thead>
+        <tbody id="employeeTableBody">
+          <!-- JS populate -->
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Pagination -->
+    <nav>
+      <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+  </div>
+
+  <!-- Modal Chi tiết Nhân viên -->
+  <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Thông tin Nhân viên</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row gx-4 gy-3">
+            <!-- Cột avatar + tên + vai trò -->
+            <div class="col-md-4 text-center">
+              <img id="detailImage" src="" alt="Ảnh nhân viên" class="img-fluid rounded-circle mb-3"
+                style="width:120px;height:120px;object-fit:cover;">
+              <h5 id="detailName" class="mb-1"></h5>
+              <span id="detailRole" class="badge bg-primary mt-3"></span>
+            </div>
+            <!-- Cột thông tin chi tiết -->
+            <div class="col-md-8">
+              <dl class="row mb-0">
+                <dt class="col-4">ID</dt>
+                <dd class="col-sm-8" id="detailId"></dd>
+
+                <dt class="col">CCCD</dt>
+                <dd class="col-sm-8" id="detailCitizen"></dd>
+
+                <dt class="col">Email</dt>
+                <dd class="col-sm-8" id="detailEmail"></dd>
+
+                <dt class="col">SĐT</dt>
+                <dd class="col-sm-8" id="detailPhone"></dd>
+
+                <dt class="col">Ngày sinh</dt>
+                <dd class="col-sm-8 ms-0" id="detailDob"></dd>
+
+                <dt class="col">Giới tính</dt>
+                <dd class="col-sm-8" id="detailGender"></dd>
+
+                <dt class="col">Địa chỉ</dt>
+                <dd class="col-sm-8" id="detailAddress"></dd>
+
+                <dt class="col">Ngày tạo</dt>
+                <dd class="col-sm-8" id="detailCreated"></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Modal Thêm/Cập nhật Nhân viên -->
+  <div class="modal fade" id="employeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <form class="modal-content" id="employeeForm" enctype="multipart/form-data">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Thêm / Cập nhật Nhân viên</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Hidden ID -->
+          <input type="hidden" id="employeeId" name="id">
+
+          <div class="container-fluid">
+            <div class="row g-3">
+              <!-- Họ & Tên -->
+              <div class="col-md-6">
+                <label for="fullName" class="form-label">Họ & Tên</label>
+                <input type="text" id="fullName" name="full_name" class="form-control" placeholder="Nguyễn Văn A"
+                  required>
+              </div>
+              <!-- CCCD -->
+              <div class="col-md-6">
+                <label for="citizenId" class="form-label">CCCD</label>
+                <input type="text" id="citizenId" name="citizen_id" class="form-control" placeholder="012345678"
+                  required>
+              </div>
+              <!-- Email -->
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="a.van@example.com"
+                  required>
+              </div>
+              <!-- Số ĐT -->
+              <div class="col-md-6">
+                <label for="phoneNumber" class="form-label">Số ĐT</label>
+                <input type="text" id="phoneNumber" name="phone_number" class="form-control" placeholder="0987654321"
+                  required>
+              </div>
+              <!-- Ngày sinh -->
+              <div class="col-md-6">
+                <label for="dateOfBirth" class="form-label">Ngày sinh</label>
+                <input type="date" id="dateOfBirth" name="date_of_birth" class="form-control" required>
+              </div>
+              <!-- Giới tính -->
+              <div class="col-md-6">
+                <label for="gender" class="form-label">Giới tính</label>
+                <select id="gender" name="gender" class="form-select" required>
+                  <option value="0" selected>Nam</option>
+                  <option value="1">Nữ</option>
+                </select>
+              </div>
+              <!-- Vai trò -->
+              <div class="col-md-6">
+                <label for="role" class="form-label">Vai trò</label>
+                <select id="role" name="role" class="form-select" required>
+                  <option value="staff">Nhân viên</option>
+                  <option value="admin">Quản trị viên</option>
+                </select>
+              </div>
+              <!-- Ảnh -->
+              <div class="col-md-6">
+                <label for="image" class="form-label">Ảnh</label>
+                <input type="file" id="image" name="image" class="form-control" accept="image/*">
+              </div>
+              <!-- Địa chỉ -->
+              <div class="col-12">
+                <label for="address" class="form-label">Địa chỉ</label>
+                <textarea id="address" name="address" class="form-control" rows="2"
+                  placeholder="Số nhà, đường, phường..." required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận khóa tài khoản -->
+  <div class="modal fade" id="confirmDisableModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Xác nhận</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Bạn có chắc chắn muốn khóa tài khoản nhân viên này không?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" id="confirmDisableBtn" class="btn btn-danger">Khóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<script type="module" src="/js/pages/admin/employees/employees.js"></script>

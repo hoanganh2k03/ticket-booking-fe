@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/components/navbar.css">
+    <link rel="stylesheet" href="/assets/styles/customer/match_detail.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <div class="navbar" id="navbar-placeholder"></div>
+
+    <div id="match-detail-container" class="container mt-5">
+        <h1 class="text-center mb-4">Chi tiết trận đấu</h1>
+
+        <div class="row">
+            <!-- Left Column: Match Details -->
+            <div class="col-md-6">
+                <!-- Match header -->
+                <div class="match-header mb-4">
+                    <div class="text-center">
+                        <img id="team1-logo" alt="Team 1 Logo" class="team-logo">
+                        <h3 id="match-title" class="match-title">Đội 1 và Đội 2</h3>
+                        <img id="team2-logo" alt="Team 2 Logo" class="team-logo">
+                    </div>
+                </div>
+
+                <!-- Match information -->
+                <div class="match-info mb-4">
+                    <p><strong>🏆 Giải</strong> <span id="league"></span></p>
+                    <p><strong>🔄 Vòng</strong> <span id="round"></span></p>
+                    <p><strong>📅 Thời gian</strong> <span id="match-time"></span></p>
+                    <p><strong>🏟️ Sân vận động</strong> <span id="stadium"></span></p>
+                    <p><strong>Mô tả:</strong> <span id="description"></span></p>
+                </div>
+
+                <!-- Stadium Layout -->
+                <div class="stadium-layout mb-4">
+                    <h2 class="text-center mb-3">Bố cục sân vận động</h2>
+                    <div id="stadium-layout-container" class="stadium-layout-container">
+                        <img id="stadium-layout-image" src="" alt="Stadium Layout" class="stadium-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Available Tickets and Order Button -->
+            <div class="col-md-6">
+                <!-- Ticket Information -->
+                <h2 class="text-center mb-4">Các vé đang bán</h2>
+                <div id="ticket-container" class="row">
+                    <!-- Ticket data will be displayed here -->
+                </div>
+
+                <!-- Total Cost and Order Button -->
+                <div class="text-center mt-4">
+                    <p><strong>Tổng tiền:</strong> <span id="total-order-cost">0.00</span> VND <small>(chưa tính tiền khuyến mãi)</small></p>
+                    <button id="order-button" class="btn btn-success" style="display: none;">Thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script type="module" src="/js/services/customer/match_detail.js"></script>
+    <script src="/js/components/navbar.js"></script>
+</body>
+</html>

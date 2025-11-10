@@ -1,0 +1,198 @@
+<div class="customers-page">
+  <style>
+    :root {
+      --primary-color: #004085;
+      --primary-shadow: rgba(0, 64, 133, 0.2);
+    }
+
+    body {
+      background-color: #eef2f7;
+    }
+
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-card {
+      background: #ffffff;
+      border-left: 0.5rem solid var(--primary-color);
+      box-shadow: 0 0.75rem 1.5rem var(--primary-shadow);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary {
+      color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color) !important;
+      color: #fff !important;
+    }
+
+    .text-primary {
+      color: var(--primary-color) !important;
+    }
+
+    .table thead th {
+      cursor: pointer;
+    }
+
+    .modal-content {
+      border-radius: 1rem;
+    }
+
+    .form-control,
+    .btn {
+      height: 3rem;
+    }
+
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-right: none;
+      color: var(--primary-color);
+    }
+
+    .input-group .form-control {
+      border-left: none;
+    }
+
+    .btn:not(.btn-icon) {
+      height: 3rem;
+      line-height: 1;
+      padding: 0 1rem;
+    }
+
+    .btn-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      padding: 0;
+      line-height: 1;
+    }
+  </style>
+
+  <div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+      <div class="col-lg-6">
+        <h2 class="mb-0">Quản lý Khách hàng</h2>
+      </div>
+      <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
+        <button id="btnAdd" class="btn btn-primary"><i class="fa fa-plus me-2"></i>Thêm khách hàng</button>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card filter-card mb-4 p-4">
+      <form id="filterForm">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-user"></i></span>
+              <input type="text" id="searchInput" class="form-control" placeholder="Tên khách hàng">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+              <input type="email" id="emailFilter" class="form-control" placeholder="Email">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-phone"></i></span>
+              <input type="text" id="phoneFilter" class="form-control" placeholder="Số ĐT">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="date" id="fromDate" class="form-control" title="Từ ngày">
+              </div>
+              <div class="col-6">
+                <input type="date" id="toDate" class="form-control" title="Đến ngày">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col text-end">
+            <button type="button" id="btnFilter" class="btn btn-outline-primary me-2"><i
+                class="fa fa-filter me-1"></i>Lọc</button>
+            <button type="button" id="btnReset" class="btn btn-outline-secondary"><i
+                class="fa fa-rotate-left me-1"></i>Đặt lại</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card mb-3">
+      <div class="table-responsive p-3">
+        <table class="table table-hover align-middle mb-0 bg-white" id="customerTable">
+          <thead class="bg-light">
+            <tr>
+              <th data-key="id">ID <i class="fa fa-sort"></i></th>
+              <th data-key="full_name">Họ & Tên <i class="fa fa-sort"></i></th>
+              <th data-key="email">Email <i class="fa fa-sort"></i></th>
+              <th data-key="phone_number">SĐT <i class="fa fa-sort"></i></th>
+              <th data-key="created_at">Ngày tạo <i class="fa fa-sort"></i></th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <nav>
+        <ul class="pagination justify-content-center my-3"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Modal Thêm/Sửa -->
+  <div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4">
+        <form id="customerForm">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="modalTitle">Thêm Khách hàng</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="customerId">
+            <div class="mb-3">
+              <label class="form-label">Họ & Tên</label>
+              <input type="text" id="fullName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" id="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Số ĐT</label>
+              <input type="text" id="phone" class="form-control" required>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Huỷ</button>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- External JS -->
+<script type="module" src="/js/pages/admin/customers/customers.js"></script>

@@ -1,0 +1,245 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-image: url('/assets/images/soccer_field.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: black;
+    min-height: 100vh;
+}
+
+#match-detail-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 50px;
+}
+
+h1 {
+    font-size: 36px;
+    color: #006400;
+}
+
+h2 {
+    font-size: 28px;
+    color: #006400;
+}
+
+.match-header .team-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.match-header .match-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.match-info p {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.match-info strong {
+    color: #006400;
+}
+
+.stadium-layout {
+    background-color: #eaf1e4;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stadium-layout-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 2px solid #006400;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.stadium-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#ticket-container .ticket-card {
+    background-color: #eaf1e4;
+    border: 1px solid #006400;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+#ticket-container .ticket-card:hover {
+    transform: scale(1.05);
+}
+
+.ticket-card p {
+    margin: 8px 0;
+}
+
+.ticket-card .buy-btn {
+    background-color: #32cd32;
+    color: white;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s, opacity 0.3s;
+}
+
+.ticket-card .buy-btn:hover {
+    background-color: #228b22;
+}
+
+.ticket-card .buy-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.ticket-card .cancel-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-left: 10px;
+    font-size: 1rem;
+}
+
+.ticket-card .cancel-btn:hover {
+    background-color: #b02a37;
+    transform: translateY(-2px);
+}
+
+.ticket-card .cancel-btn:active {
+    transform: translateY(0);
+}
+
+.ticket-card select[id^="quantity-"] {
+    background-color: #ffffff;
+    border: 2px solid #006400;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
+    max-width: 100px;
+    margin: 10px 0;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23006400" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.ticket-card select[id^="quantity-"]:hover {
+    border-color: #32cd32;
+    box-shadow: 0 0 5px rgba(50, 205, 50, 0.5);
+}
+
+.ticket-card select[id^="quantity-"]:focus {
+    outline: none;
+    border-color: #32cd32;
+    box-shadow: 0 0 8px rgba(50, 205, 50, 0.7);
+}
+
+.ticket-card select[id^="promo-code-"] {
+    background-color: #ffffff;
+    border: 2px solid #006400;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px 0;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23006400" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.ticket-card select[id^="promo-code-"]:hover {
+    border-color: #32cd32;
+    box-shadow: 0 0 5px rgba(50, 205, 50, 0.5);
+}
+
+.ticket-card select[id^="promo-code-"]:focus {
+    outline: none;
+    border-color: #32cd32;
+    box-shadow: 0 0 8px rgba(50, 205, 50, 0.7);
+}
+
+.ticket-card .promo-message {
+    color: #006400;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+#order-button {
+    font-size: 18px;
+    padding: 12px 20px;
+    width: 100%;
+    max-width: 300px;
+}
+
+#total-order-cost {
+    font-size: 20px;
+    font-weight: bold;
+    color: #006400;
+}
+
+@media (max-width: 768px) {
+    .match-header {
+        text-align: center;
+    }
+
+    .ticket-card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    .stadium-layout-container {
+        max-width: 100%;
+    }
+
+    .col-md-6 {
+        margin-bottom: 20px;
+    }
+}

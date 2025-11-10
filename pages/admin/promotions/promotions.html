@@ -1,0 +1,255 @@
+<div class="promotions-page">
+
+  <style>
+    body {
+      background: #f1f3f5;
+    }
+
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #172234, #2a3450);
+      color: #fff;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+    }
+
+    .toolbar .form-control,
+    .toolbar .form-select {
+      border-radius: .5rem;
+    }
+
+    .toolbar .btn {
+      border-radius: .5rem;
+    }
+
+    .table {
+      border-radius: .5rem;
+      overflow: hidden;
+    }
+
+    .table thead {
+      background: #172234;
+      color: #fff;
+    }
+
+    .table tbody tr:hover {
+      background: #e9ecef;
+    }
+
+    .pagination .page-item .page-link {
+      border-radius: .5rem;
+      margin: 0 .25rem;
+    }
+
+    .pagination .active .page-link {
+      background: #f39c12;
+      border-color: #f39c12;
+      color: #fff;
+    }
+
+    .modal-header {
+      background: #172234;
+      color: #fff;
+    }
+
+    .modal-body .card {
+      border: none;
+      border-radius: .5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-body h6 {
+      font-size: .9rem;
+      text-transform: uppercase;
+    }
+
+    .bg-gradient {
+      background: linear-gradient(90deg, #172234, #2a3450) !important;
+    }
+
+    .time-highlight {
+      color: #e67e22;
+      /* cam nổi bật */
+      font-weight: 600;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 1rem;
+      z-index: 10;
+      padding: .75rem;
+      border-radius: .5rem;
+      background-color: rgba(255, 255, 255, 0.85);
+      /* glassmorphism */
+      backdrop-filter: blur(6px);
+      border-top: 4px solid #f39c12;
+      /* viền cam nổi bật */
+      /* xóa hết box-shadow */
+    }
+
+    /* Khi hover thì viền cam đậm thêm, tạo cảm giác tương tác */
+    .toolbar:hover {
+      border-top-color: #d35400;
+      transition: border-top-color 0.2s ease;
+    }
+
+    /* Đảm bảo các control trong toolbar vẫn rõ ràng */
+    .toolbar .form-control,
+    .toolbar .form-select,
+    .toolbar .btn {
+      border: 1px solid #ddd;
+    }
+
+    .toolbar .form-control:focus,
+    .toolbar .form-select:focus,
+    .toolbar .btn:focus {
+      outline: none;
+      border-color: #f39c12;
+      box-shadow: none;
+    }
+  </style>
+
+
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-card-list me-2"></i>Quản lý Khuyến mãi</h4>
+        <a href="/pages/admin/promotions/add_promotions.html" class="btn btn-light">
+          <i class="bi bi-plus-lg me-1"></i>Thêm Promotion
+        </a>
+      </div>
+      <div class="card-body">
+        <!-- Toolbar -->
+        <div class="toolbar mb-4 d-flex flex-wrap gap-2">
+          <div class="input-group flex-grow-1">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm mã hoặc mô tả">
+          </div>
+          <select id="filterStatus" class="form-select" style="width:180px;">
+            <option value="">Tất cả trạng thái</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+
+          <select id="filterQuantity" class="form-select" style="width:180px;">
+            <option value="">Tất cả số lượng</option>
+            <option value="exhausted">Đã hết mã</option>
+            <option value="available">Còn mã</option>
+          </select>
+
+          <!-- NEW: End‑date filter -->
+          <select id="filterEndDate" class="form-select" style="width:180px;">
+            <option value="">Tất cả ngày hết hạn</option>
+            <option value="valid">Chưa hết hạn</option>
+            <option value="expired">Đã hết hạn</option>
+          </select>
+
+          <select id="pageSize" class="form-select" style="width:100px;">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+          </select>
+          <button class="btn btn-outline-danger" id="bulkDelete"><i class="bi bi-trash me-1"></i>Xóa chọn</button>
+          <button class="btn btn-outline-secondary" id="bulkToggle"><i class="bi bi-toggle-on me-1"></i>Bật/Tắt</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table align-middle" id="promotionsTable">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>Mã</th>
+                <th>Giảm</th>
+                <th>Còn lại</th>
+                <th>Bắt đầu</th>
+                <th>Kết thúc</th>
+                <th>Status</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <div id="paginationInfo" class="small text-muted"></div>
+          <nav>
+            <ul class="pagination mb-0" id="pagination"></ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-gradient" style="background: linear-gradient(90deg, #172234, #2a3450);">
+          <h5 class="modal-title text-white"><i class="bi bi-ticket-perforated-fill me-2"></i>Chi tiết Promotion</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light p-4">
+          <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Mã Promotion</h6>
+                <p id="detailCode" class="fw-bold mb-0">PROMO3</p>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Giảm</h6>
+                <p id="detailValue" class="fw-bold mb-0">10%</p>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Thời gian</h6>
+                <p id="detailTime" class="fw-bold mb-0">2025-01-01 → 2025-12-31</p>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Số lượng mã</h6>
+                <p id="detailQuantity" class="fw-bold mb-0">0 / 0</p>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Người tạo</h6>
+                <p id="detailUser" class="fw-bold mb-0">User4</p>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="card p-3 h-100">
+                <h6 class="text-muted mb-2">Mô tả</h6>
+                <p id="detailDesc" class="mb-0">Mô tả ngắn gọn về promotion</p>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="text-muted mt-4">Áp dụng cho</h6>
+          <div id="detailLinesContainer" class="d-flex flex-wrap gap-3">
+            <!-- Các thẻ match-section sẽ được sinh ra ở đây -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/js/pages/admin/promotions/promotions.js"></script>
+
+</div>

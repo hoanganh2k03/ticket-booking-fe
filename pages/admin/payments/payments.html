@@ -1,0 +1,307 @@
+<div class="payments-page">
+    <style>
+        :root {
+            --primary: #004085;
+            --primary-light: rgba(13, 110, 253, 0.1);
+            --success: #198754;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --card-bg: #ffffff;
+            --bg: #f8f9fa;
+        }
+
+        .payments-page {
+            background-color: var(--bg);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .payments-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 1rem;
+        }
+
+        h2 {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .filters-card,
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filters-card .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            color: #555;
+        }
+
+        .input-group-text {
+            background: var(--bg);
+            border-right: 0;
+        }
+
+        .form-control,
+        .form-select {
+            border-left: 0;
+        }
+
+        table.payments-table th,
+        table.payments-table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        table.payments-table th {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+
+        }
+
+        .btn-outline-primary {
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary) !important;
+            color: #fff !important;
+        }
+
+
+        .badge-status {
+            padding: 0.4em 0.8em;
+            font-size: 0.85rem;
+            border-radius: 0.5rem;
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .badge-failed {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .badge-pending {
+            background: var(--warning);
+            color: #212529;
+        }
+
+        .bg-primary {
+            background-color: var(--primary) !important;
+            color: #fff !important;
+        }
+
+        /* Toàn bộ modal */
+        #paymentDetailModal .modal-content {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        #paymentDetailModal .modal-header {
+            background-color: var(--primary-light);
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+        }
+
+        #paymentDetailModal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Body */
+        #paymentDetailModal .modal-body {
+            padding: 1.5rem;
+            background: #fff;
+        }
+
+        /* Định dạng dl */
+        #paymentDetailModal dl.row {
+            margin: 0;
+        }
+
+        #paymentDetailModal dl.row dt {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: .25rem;
+        }
+
+        #paymentDetailModal dl.row dd {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+
+        /* Badge đẹp cho phương thức và trạng thái */
+        #paymentDetailModal dd .badge {
+            font-size: 0.85rem;
+            padding: 0.4em 0.75em;
+            border-radius: 0.5rem;
+        }
+
+        #paymentDetailModal dd#detailMethod .badge {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        #paymentDetailModal dd#detailStatus .badge {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        /* Footer */
+        #paymentDetailModal .modal-footer {
+            border-top: none;
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            #paymentDetailModal .modal-dialog {
+                max-width: 90%;
+            }
+
+            #paymentDetailModal .modal-title {
+                font-size: 1.25rem;
+                color: var(--primary);  
+            }
+        }
+    </style>
+
+    <div class="payments-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Quản lý Thanh toán</h2>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <div>
+                <label class="form-label">Tìm kiếm</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="filterSearch" class="form-control" placeholder="Mã đơn / Mã giao dịch">
+                </div>
+            </div>
+            <div>
+                <label class="form-label">Trạng thái</label>
+                <select id="filterStatus" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="success">Thành công</option>
+                    <option value="pending">Đang chờ</option>
+                    <option value="failed">Thất bại</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Phương thức</label>
+                <select id="filterMethod" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="bank_card">Thẻ ngân hàng</option>
+                    <option value="transfer">Chuyển khoản</option>
+                    <option value="cash">Tiền mặt</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Từ ngày</label>
+                <input type="date" id="filterFrom" class="form-control">
+            </div>
+            <div>
+                <label class="form-label">Đến ngày</label>
+                <input type="date" id="filterTo" class="form-control">
+            </div>
+            <div class="actions d-flex gap-2 justify-content-end w-100">
+                <button id="btnFilter" class="btn btn-outline-primary text-nowrap">
+                    <i class="bi bi-filter"></i>&nbsp;Áp dụng
+                </button>
+                <button id="btnReset" class="btn btn-outline-secondary text-nowrap text-end">
+                    <i class="bi bi-arrow-counterclockwise"></i>&nbsp;Làm mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="table table-hover payments-table mb-0">
+                <thead>
+                    <tr>
+                        <th data-key="payment_id">ID</th>
+                        <th data-key="order_id">Mã đơn</th>
+                        <th data-key="payment_method">Phương thức</th>
+                        <th data-key="payment_status">Trạng thái</th>
+                        <th data-key="transaction_code">Mã giao dịch</th>
+                        <th data-key="created_at">Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTableBody">
+                    <!-- populated via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+        </nav>
+
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal fade" id="paymentDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết Thanh toán #<span id="detailPaymentId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Order ID:</dt>
+                        <dd class="col-sm-7" id="detailOrderId"></dd>
+                        <dt class="col-sm-5">Phương thức:</dt>
+                        <dd class="col-sm-7" id="detailMethod"></dd>
+                        <dt class="col-sm-5">Trạng thái:</dt>
+                        <dd class="col-sm-7" id="detailStatus"></dd>
+                        <dt class="col-sm-5">Mã giao dịch:</dt>
+                        <dd class="col-sm-7" id="detailCode"></dd>
+                        <dt class="col-sm-5">Ngày tạo:</dt>
+                        <dd class="col-sm-7" id="detailDate"></dd>
+                    </dl>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/js/pages/admin/payments/payments.js"></script>

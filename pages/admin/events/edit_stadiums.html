@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cập nhật Sân Vận Động</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="card">
+      <div class="card-header text-white bg-primary d-flex justify-content-between">
+        <h4 class="mb-0"><i class="bi bi-building me-2"></i>Cập nhật Sân Vận Động</h4>
+        <button type="button" class="btn btn-light" onclick="window.history.back()">
+          <i class="bi bi-arrow-return-left"></i> Quay lại
+        </button>
+      </div>
+      <div class="card-body">
+        <form id="editStadiumForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="stadiumCode" class="form-label">Mã sân</label>
+              <input type="text" id="stadiumCode" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label for="stadiumName" class="form-label">Tên sân</label>
+              <input type="text" id="stadiumName" class="form-control" required />
+            </div>
+            <div class="col-md-12">
+              <label for="stadiumLocation" class="form-label">Địa điểm</label>
+              <input type="text" id="stadiumLocation" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-save2 me-1"></i> Cập nhật sân
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script type="module">
+    import CONFIG from "../../../js/utils/settings.js";
+    const BASE_URL = CONFIG.BASE_URL;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const stadiumId = urlParams.get('id');
+
+    if (!stadiumId) {
+      Swal.fire('Lỗi', 'Không tìm thấy ID sân vận động!', 'error');
+    } else {
+      fetch(`${BASE_URL}/api/events/stadiums/${stadiumId}/`)
+        .then(res => res.json())
+        .then(stadium => {
+          document.getElementById('stadiumCode').value = stadium.stadium_code;
+          document.getElementById('stadiumName').value = stadium.stadium_name;
+          document.getElementById('stadiumLocation').value = stadium.location;
+        })
+        .catch(err => {
+          console.error(err);
+          Swal.fire('Lỗi', 'Không thể tải thông tin sân vận động', 'error');
+        });
+    }
+
+    document.getElementById('editStadiumForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const updatedStadium = {
+    stadium_code: document.getElementById('stadiumCode').value.trim(),
+    stadium_name: document.getElementById('stadiumName').value.trim(),
+    location: document.getElementById('stadiumLocation').value.trim()
+  };
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/events/stadiums/${stadiumId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedStadium)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      Swal.fire('Thành công', 'Đã cập nhật sân vận động!', 'success')
+      .then(() => {
+        window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/stadiums';
+      });
+    } else {
+      let errorMessage = 'Đã xảy ra lỗi khi cập nhật.';
+
+      if (data.stadium_code && data.stadium_code[0].includes("already exists")) {
+        errorMessage = "Mã sân vận động đã tồn tại.";
+      } else if (data.stadium_name && data.stadium_name[0].includes("already exists")) {
+        errorMessage = "Tên sân vận động đã tồn tại.";
+      } else if (data.detail) {
+        errorMessage = data.detail;
+      }
+
+      Swal.fire('Lỗi', errorMessage, 'error');
+    }
+  } catch (err) {
+    console.error('🔥 Lỗi kết nối hoặc phản hồi không hợp lệ:', err);
+    Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ hoặc phản hồi không hợp lệ.', 'error');
+  }
+});
+
+  </script>
+</body>
+</html>

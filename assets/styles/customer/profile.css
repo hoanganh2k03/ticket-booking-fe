@@ -1,0 +1,142 @@
+/* Reset margin, padding, and set default font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Page background */
+body {
+    background-image: url('/assets/images/soccer_field.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: black;
+    min-height: 100vh;
+}
+
+/* Container */
+#profile-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 60%;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* Heading styles */
+h1 {
+    font-size: 36px;
+    color: #006400;
+}
+
+/* Profile card */
+.profile-card {
+    background-color: #eaf1e4;
+    border: 1px solid #006400;
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: scale(1.02);
+}
+
+/* Profile header */
+.profile-header {
+    margin-bottom: 20px;
+}
+
+.profile-header i {
+    color: #006400;
+}
+
+.profile-header h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Profile info */
+.profile-info p {
+    margin: 10px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.profile-info i {
+    color: #006400;
+    margin-right: 10px;
+}
+
+.profile-info strong {
+    color: #006400;
+    margin-right: 5px;
+}
+
+/* Button */
+.btn-success {
+    font-size: 1rem;
+    padding: 5px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-success:hover {
+    background-color: #228b22;
+    transform: translateY(-2px);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    .profile-card {
+        padding: 15px;
+    }
+
+    .profile-info p {
+        font-size: 16px;
+    }
+
+    .btn-success {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+
+/* Wrapper for password input + toggle icon */
+.password-input-group {
+    position: relative;
+}
+
+.password-input-group input {
+    padding-right: 40px; /* Chừa không gian cho icon bên phải */
+}
+
+/* Toggle visibility icon */
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #006400; /* Match with main theme color */
+}

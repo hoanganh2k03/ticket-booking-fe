@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles/components/navbar.css">
+    <link rel="stylesheet" href="/assets/styles/customer/profile.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <div class="navbar" id="navbar-placeholder"></div>
+
+    <div id="profile-container" class="container mt-5">
+        <h1 class="text-center mb-4">Thông tin cá nhân</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="profile-card">
+                    <div class="profile-header text-center">
+                        <i class="fas fa-user-circle fa-5x mb-3"></i>
+                        <h3 id="full-name">Loading...</h3>
+                    </div>
+                    <div class="profile-info">
+                        <p><i class="fas fa-user me-2"></i><strong>Tên đăng nhập:</strong> <span id="username">Loading...</span></p>
+                        <p><i class="fas fa-phone-alt me-2"></i><strong>Số điện thoại:</strong> <span id="phone-number">Loading...</span></p>
+                        <p><i class="fas fa-envelope me-2"></i><strong>Email:</strong> <span id="email">Loading...</span></p>
+                        <p><i class="fas fa-calendar-plus me-2"></i><strong>Thời gian tạo:</strong> <span id="created-at">Loading...</span></p>
+                        <p><i class="fas fa-calendar-check me-2"></i><strong>Chỉnh sửa lúc:</strong> <span id="updated-at">Loading...</span></p>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">Chỉnh sửa thông tin</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Chỉnh sửa thông tin cá nhân</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-profile-form">                       
+                        <div class="mb-3">
+                            <label for="edit-full-name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="edit-full-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-phone-number" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="edit-phone-number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit-email" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" id="save-profile-btn">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="change-password-form">
+                        <div class="mb-3">
+                            <label for="old-password" class="form-label">Mật khẩu cũ</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="old-password" required>
+                                <i class="fas fa-eye password-toggle" toggle="#old-password"></i>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="new-password" required>
+                                <i class="fas fa-eye password-toggle" toggle="#new-password"></i>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm-new-password" class="form-label">Xác nhận mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirm-new-password" required>
+                                <i class="fas fa-eye password-toggle" toggle="#confirm-new-password"></i>
+                            </div>
+                        </div>
+                    </form>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="save-password-btn">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script type="module" src="/js/services/customer/profile.js"></script>
+    <script src="/js/components/navbar.js"></script>
+</body>
+</html>
