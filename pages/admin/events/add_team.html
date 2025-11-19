@@ -21,6 +21,12 @@
       <div class="card-body">
         <form id="teamForm">
           <div class="mb-3">
+            <label for="sport" class="form-label">Môn thể thao</label>
+            <select class="form-select" id="sport" name="sport" required>
+              <option value="" disabled selected>Đang tải danh sách...</option>
+            </select>
+          </div>
+          <div class="mb-3">
             <label for="team_name" class="form-label">Tên đội</label>
             <input type="text" class="form-control" id="team_name" name="team_name" required />
           </div>
@@ -47,65 +53,139 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script type="module">
-    import CONFIG from "../../../js/utils/settings.js";
-    const BASE_URL = CONFIG.BASE_URL;
+  import CONFIG from "../../../js/utils/settings.js";
+  const BASE_URL = CONFIG.BASE_URL;
 
-    document.getElementById("teamForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const form = e.target;
+  // Lấy các element
+  const teamForm = document.getElementById("teamForm");
+  const sportSelect = document.getElementById("sport");
+  const logoInput = document.getElementById("logo"); 
 
-      // Lấy thông tin từ form
-      const teamName = form.team_name.value.trim();
-      const headCoach = form.head_coach.value.trim();
-      const description = form.description.value.trim();
+  /**
+   * 1. TẢI DANH SÁCH MÔN THỂ THAO
+   */
+  async function loadSports() {
+    const SPORTS_API_URL = `${BASE_URL}/api/events/sports/`;
 
-      // Kiểm tra các trường hợp không hợp lệ
-      if (!teamName || !headCoach || !description) {
-        Swal.fire("Lỗi", "Bạn phải điền đầy đủ thông tin đội bóng!", "error");
+    try {
+      // KHÔNG gửi header Authorization ở đây
+      const res = await fetch(SPORTS_API_URL);
+
+      if (!res.ok) {
+        throw new Error(`Lỗi tải danh sách: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Xử lý dữ liệu: Nếu API trả về phân trang (có .results) thì lấy .results, không thì lấy data gốc
+      const sportsList = Array.isArray(data) ? data : (data.results || []);
+
+      if (!sportsList.length) {
+        sportSelect.innerHTML = '<option value="" disabled selected>Không có dữ liệu môn thể thao</option>';
         return;
       }
 
-      // Chuẩn bị dữ liệu
-      const teamData = {
-        team_name: teamName,
-        head_coach: headCoach,
-        description: description
-      };
+      sportSelect.innerHTML = '<option value="" disabled selected>-- Chọn môn thể thao --</option>';
 
-      try {
-        const res = await fetch(`${BASE_URL}/api/events/teams/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json" // Đảm bảo gửi dữ liệu với Content-Type là application/json
-          },
-          body: JSON.stringify(teamData) // Chuyển đổi đối tượng teamData thành JSON
-        });
+      sportsList.forEach(sport => {
+        const option = document.createElement('option');
+        
+        // QUAN TRỌNG: Backend đang dùng SlugRelatedField nên cần gửi TÊN (sport_name)
+        // Nếu sau này đổi sang gửi ID thì sửa thành: option.value = sport.sport_id;
+        // option.value = sport.sport_name; 
+        // option.textContent = sport.sport_name;
+        option.value = sport.sport_id ?? sport.id ?? sport.pk;
+        // Hiển thị tên cho người dùng: dùng sport_name hoặc name
+        option.textContent = sport.sport_name ?? sport.name ?? `Sport ${option.value}`;
+ 
+         sportSelect.appendChild(option);
+       });
 
-        if (res.ok) {
-  const data = await res.json();
-  Swal.fire("Thành công", "Đội bóng đã được tạo!", "success")
-    .then(()  => window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/teams');
-} else {
-  const data = await res.json();
-
-  let errorMessage = "Tạo đội bóng thất bại!";
-  if (data.team_name && data.team_name[0].includes("already exists")) {
-    errorMessage = "Đội bóng đã tồn tại.";
-  } else if (data.detail) {
-    errorMessage = data.detail;
+    } catch (err) {
+      console.error("Lỗi tải sports:", err);
+      sportSelect.innerHTML = '<option value="" disabled selected>Lỗi kết nối</option>';
+    }
   }
 
-  Swal.fire("Lỗi", errorMessage, "error");
-}
 
-      } catch (err) {
-        console.error("🔥 Lỗi kết nối:", err);
-        Swal.fire("Lỗi", "Không thể kết nối đến server", "error");
+  /**
+   * 2. XỬ LÝ SUBMIT FORM
+   */
+  teamForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = e.target; 
+
+    const sportVal = form.sport.value;
+    const teamName = form.team_name.value.trim();
+    const headCoach = form.head_coach.value.trim();
+    const description = form.description.value.trim();
+
+    if (!sportVal || !teamName || !headCoach || !description) {
+      return Swal.fire("Lỗi", "Vui lòng nhập đầy đủ thông tin!", "error");
+    }
+
+    // Dùng FormData để gửi dữ liệu (Hỗ trợ upload ảnh nếu cần)
+    const formData = new FormData();
+    formData.append("sport", sportVal);
+    formData.append("team_name", teamName);
+    formData.append("head_coach", headCoach);
+    formData.append("description", description);
+
+    // Nếu có chọn ảnh thì append vào, không thì thôi (Backend tự lấy default)
+    if (logoInput && logoInput.files.length > 0) {
+      formData.append("logo", logoInput.files[0]);
+    }
+
+    try {
+      // Debug token + URL
+      console.log("POST to:", `${BASE_URL}/api/events/teams/`);
+      console.log("accessToken:", localStorage.getItem("accessToken"));
+      console.log("sportVal sent:", sportVal);
+      const res = await fetch(`${BASE_URL}/api/events/teams/`, {
+        method: "POST",
+        body: formData
+      });
+
+      // Log status & headers for debugging
+      console.log("Response status:", res.status, res.statusText);
+
+      // Cố gắng parse JSON nếu có, nếu không thì lấy text
+      let resBody;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        resBody = await res.json();
+      } else {
+        resBody = await res.text();
       }
-    });
+      console.log("Response body:", resBody);
 
+      if (res.ok) {
+        Swal.fire("Thành công!", "Đã thêm đội bóng!", "success")
+          .then(() => window.location.href = "http://127.0.0.1:5500/pages/admin/base.html#events/teams");
+      } else {
+        // Tạo thông báo rõ hơn dựa trên response
+        let msg = "Không thể tạo đội bóng!";
+        if (typeof resBody === "object" && resBody !== null) {
+          if (resBody.non_field_errors) msg = "Đội bóng đã tồn tại trong môn này.";
+          else if (resBody.team_name) msg = `Tên đội: ${resBody.team_name[0]}`;
+          else if (resBody.detail) msg = resBody.detail;
+          else msg = JSON.stringify(resBody);
+        } else if (typeof resBody === "string") {
+          msg = resBody || msg;
+        }
+        Swal.fire("Lỗi", msg, "error");
+      }
 
-  </script>
+    } catch (error) {
+      console.error("Fetch error:", error);
+      Swal.fire("Lỗi", "Không thể kết nối server", "error");
+    }
+  });
+
+  // Gọi hàm tải danh sách khi trang web load xong
+  document.addEventListener("DOMContentLoaded", loadSports);
+
+</script>
 </body>
 
 </html>

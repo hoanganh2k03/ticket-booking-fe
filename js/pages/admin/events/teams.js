@@ -31,6 +31,7 @@ async function loadTeamsPage(event) {
     teams = data.results
       ? data.results.map((t) => ({
           id: t.team_id,
+          sport: t.sport,
           name: t.team_name,
           logo: t.logo,
           coach: t.head_coach,
@@ -54,10 +55,13 @@ function applyFilter() {
     <tr data-team-id="${team.id}">
       <td>${index + 1}</td> <!-- STT tự tăng -->
       <td>${team.name}</td>
+      
+
       <td>
         <img id="team-logo-${team.id}" src="${team.logo || '/media/team_logos/default.webp'}" alt="${team.name}" width="50" height="50"/>
       </td>
       <td>${team.coach || ''}</td>
+      <td>${team.sport}</td>
       <td>${team.description || ''}</td>
       <td>
         <button class="btn btn-sm btn-outline-warning edit-btn" data-id="${team.id}"><i class="bi bi-pencil-square"></i>Cập nhật</button>

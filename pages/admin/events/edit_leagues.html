@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <title>Cập nhật Giải Đấu</title>
@@ -7,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
+
 <body>
 
   <div class="container py-5">
@@ -16,23 +18,36 @@
         <button type="button" class="btn btn-light" onclick="window.history.back()">
           <i class="bi bi-arrow-return-left"></i> Quay lại
         </button>
-        
+
       </div>
       <div class="card-body">
         <form id="editLeagueForm">
           <div class="row g-3">
             <div class="col-md-6">
+                <label for="sport" class="form-label">Môn thể thao <span class="text-danger">*</span></label>
+                <select id="sport" class="form-select" required>
+                  <option value="" disabled selected>-- Đang tải... --</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
               <label for="leagueName" class="form-label">Tên giải đấu</label>
               <input type="text" id="leagueName" class="form-control" required />
             </div>
+
             <div class="col-md-6">
               <label for="leagueType" class="form-label">Loại giải đấu</label>
               <select id="leagueType" class="form-select" required>
-                <option value="0">Giải Vô địch quốc gia</option>
-                <option value="1">Giải Đấu loại trực tiếp</option>
-                <option value="2">Giải Giao hữu</option>
+                <option value="round_robin">Giải Vô địch quốc gia (Vòng tròn)</option>
+                <option value="knockout">Giải Đấu loại trực tiếp (Cúp)</option>
+                <option value="friendly">Giải Giao hữu</option>
+                <option value="hybrid">Hỗn hợp</option>
+                <option value="other">Khác</option>
               </select>
             </div>
+
+            <div class="col-md-6"></div>
+
             <div class="col-md-6">
               <label for="startDate" class="form-label">Ngày bắt đầu</label>
               <input type="date" id="startDate" class="form-control" required />
@@ -53,127 +68,166 @@
     </div>
   </div>
 
-  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Không đổi phần HTML form -->
+  <script type="module">
+    import CONFIG from "../../../js/utils/settings.js";
+    const BASE_URL = CONFIG.BASE_URL;
 
-<script type="module">
-  import CONFIG from "../../../js/utils/settings.js";
-  const BASE_URL = CONFIG.BASE_URL;
+    const urlParams = new URLSearchParams(window.location.search);
+    const leagueId = urlParams.get('id');
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const leagueId = urlParams.get('id');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const sportSelect = document.getElementById('sport');
+    const leagueNameInput = document.getElementById('leagueName');
+    const leagueTypeSelect = document.getElementById('leagueType');
 
-  const startDateInput = document.getElementById('startDate');
-  const endDateInput = document.getElementById('endDate');
+    // Tự động set min cho endDate khi thay đổi startDate
+    startDateInput.addEventListener('change', () => {
+      const startDate = new Date(startDateInput.value);
+      if (!isNaN(startDate)) {
+        const minEndDate = new Date(startDate);
+        minEndDate.setMonth(minEndDate.getMonth() + 3);
+        endDateInput.min = minEndDate.toISOString().split('T')[0];
+      }
+    });
 
-  // Tự động set min cho endDate khi thay đổi startDate
-  startDateInput.addEventListener('change', () => {
-    const startDate = new Date(startDateInput.value);
-    if (!isNaN(startDate)) {
+    // --- QUY TRÌNH TẢI DỮ LIỆU (Async/Await để đảm bảo thứ tự) ---
+    async function initPage() {
+        if (!leagueId) {
+            Swal.fire('Lỗi', 'Không tìm thấy ID giải đấu!', 'error');
+            return;
+        }
+
+        try {
+            // BƯỚC 1: Tải danh sách Môn thể thao trước
+            const resSports = await fetch(`${BASE_URL}/api/events/sports/`);
+            const sportsData = await resSports.json();
+            const sportsList = Array.isArray(sportsData) ? sportsData : (sportsData.results || []);
+
+            sportSelect.innerHTML = '<option value="" disabled>-- Chọn môn thể thao --</option>';
+            sportsList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.sport_id; // Backend cần ID
+                opt.textContent = s.sport_name;
+                sportSelect.appendChild(opt);
+            });
+
+            // BƯỚC 2: Tải thông tin Giải đấu
+            const resLeague = await fetch(`${BASE_URL}/api/events/leagues/${leagueId}/`);
+            if (!resLeague.ok) throw new Error("Không thể tải thông tin giải đấu");
+            
+            const league = await resLeague.json();
+
+            // BƯỚC 3: Điền dữ liệu vào form
+            sportSelect.value = league.sport; // Chọn đúng môn thể thao cũ
+            leagueNameInput.value = league.league_name;
+            leagueTypeSelect.value = league.league_type; // Chọn đúng loại giải cũ (chuỗi)
+
+            // Xử lý ngày tháng
+            if (league.start_date) {
+                startDateInput.value = league.start_date;
+                // Cập nhật min date cho end date
+                const start = new Date(league.start_date);
+                const minEnd = new Date(start);
+                minEnd.setMonth(minEnd.getMonth() + 3);
+                endDateInput.min = minEnd.toISOString().split('T')[0];
+            }
+            if (league.end_date) {
+                endDateInput.value = league.end_date;
+            }
+
+        } catch (err) {
+            console.error(err);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.', 'error');
+        }
+    }
+
+    // Chạy hàm khởi tạo
+    initPage();
+
+
+    // --- XỬ LÝ SUBMIT FORM ---
+    document.getElementById('editLeagueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const startDateVal = startDateInput.value;
+      const endDateVal = endDateInput.value;
+      const leagueNameVal = leagueNameInput.value.trim();
+      const sportId = sportSelect.value;
+      const leagueTypeVal = leagueTypeSelect.value;
+
+      // 1. Validation cơ bản
+      const specialCharRegex = /[^a-zA-Z0-9\sÀ-ỹ]/;
+
+      if (!sportId) {
+          Swal.fire('Lỗi', 'Vui lòng chọn môn thể thao', 'error');
+          return;
+      }
+      if (!leagueNameVal) {
+        Swal.fire('Lỗi', 'Tên giải không được để trống.', 'error');
+        return;
+      }
+      if (specialCharRegex.test(leagueNameVal)) {
+        Swal.fire('Lỗi', 'Tên giải không được chứa ký tự đặc biệt.', 'error');
+        return;
+      }
+
+      // 2. Validation ngày tháng (3 tháng)
+      const startDate = new Date(startDateVal);
+      const endDate = new Date(endDateVal);
       const minEndDate = new Date(startDate);
       minEndDate.setMonth(minEndDate.getMonth() + 3);
-      endDateInput.min = minEndDate.toISOString().split('T')[0];
-    }
-  });
 
-  if (!leagueId) {
-    Swal.fire('Lỗi', 'Không tìm thấy ID giải đấu!', 'error');
-  } else {
-    fetch(`${BASE_URL}/api/events/leagues/${leagueId}/`)
-      .then(res => res.json())
-      .then(league => {
-        document.getElementById('leagueName').value = league.league_name;
-        document.getElementById('leagueType').value = league.league_type;
+      if (endDate < minEndDate) {
+        Swal.fire('Lỗi', 'Ngày kết thúc phải cách ngày bắt đầu ít nhất 3 tháng.', 'error');
+        return;
+      }
 
-        // Chỉ gán ngày nếu hợp lệ
-        if (league.start_date && league.start_date !== "0000-00-00") {
-          startDateInput.value = league.start_date;
-          const startDate = new Date(league.start_date);
-          if (!isNaN(startDate)) {
-            const minEndDate = new Date(startDate);
-            minEndDate.setMonth(minEndDate.getMonth() + 3);
-            endDateInput.min = minEndDate.toISOString().split('T')[0];
-          }
-        }
+      // 3. Chuẩn bị Payload
+      const updatedLeague = {
+        sport: sportId,         // Phải gửi ID môn thể thao
+        league_name: leagueNameVal,
+        league_type: leagueTypeVal, // Gửi chuỗi (round_robin...)
+        start_date: startDateVal,
+        end_date: endDateVal
+      };
 
-        if (league.end_date && league.end_date !== "0000-00-00") {
-          endDateInput.value = league.end_date;
-        }
+      // 4. Gửi API PUT
+      fetch(`${BASE_URL}/api/events/leagues/${leagueId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedLeague)
       })
-      .catch(err => {
-        console.error(err);
-        Swal.fire('Lỗi', 'Không thể tải thông tin giải đấu', 'error');
-      });
-  }
-
-  document.getElementById('editLeagueForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const startDateVal = startDateInput.value;
-    const endDateVal = endDateInput.value;
-    
-    
-    const startDate = new Date(startDateVal);
-    const endDate = new Date(endDateVal);
-    const minEndDate = new Date(startDate);
-    minEndDate.setMonth(minEndDate.getMonth() + 3);
-
-    if (endDate < minEndDate) {
-      Swal.fire('Lỗi', 'Ngày kết thúc phải cách ngày bắt đầu ít nhất 3 tháng.', 'error');
-      return;
-    }
-    // ------------------
-    
-  const leagueNameVal = document.getElementById('leagueName').value.trim();
-
-
-  const specialCharRegex = /[^a-zA-Z0-9\sÀ-ỹ]/;
-
-  if (!leagueNameVal) {
-    Swal.fire('Lỗi', 'Tên giải không được để trống.', 'error');
-    return;
-  }
-
-  if (specialCharRegex.test(leagueNameVal)) {
-    Swal.fire('Lỗi', 'Tên giải không được chứa ký tự đặc biệt.', 'error');
-    return;
-  }
-
-
-    const updatedLeague = {
-      league_name: document.getElementById('leagueName').value,
-      league_type: parseInt(document.getElementById('leagueType').value),
-      start_date: startDateVal,
-      end_date: endDateVal
-    };
-
-    fetch(`${BASE_URL}/api/events/leagues/${leagueId}/`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updatedLeague)
-    })
-      .then(res => {
-        if (!res.ok) {
-          return res.text().then(text => { throw new Error(text); });
-        }
-        return res.json();
-      })
-      .then(data => {
-        Swal.fire('Thành công', 'Đã cập nhật giải đấu!', 'success').then(() => {
-          window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/leagues';
+        .then(res => {
+          return res.json().then(data => {
+              if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+              return data;
+          });
+        })
+        .then(data => {
+          Swal.fire('Thành công', 'Đã cập nhật giải đấu!', 'success').then(() => {
+            window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/leagues';
+          });
+        })
+        .catch(err => {
+          console.error('Lỗi chi tiết:', err);
+          let msg = "Cập nhật thất bại";
+          try {
+             // Thử parse lỗi nếu server trả về object
+             const errObj = JSON.parse(err.message);
+             if (errObj.league_name) msg = `Tên giải: ${errObj.league_name[0]}`;
+             else if (errObj.detail) msg = errObj.detail;
+          } catch(e) {}
+          
+          Swal.fire('Lỗi', msg, 'error');
         });
-      })
-      .catch(err => {
-        console.error('Lỗi chi tiết:', err);
-        Swal.fire('Lỗi', `Cập nhật thất bại: ${err.message || err}`, 'error');
-      });
-  });
-</script>
+    });
+  </script>
 
 </body>
 </html>
