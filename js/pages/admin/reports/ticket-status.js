@@ -2,7 +2,7 @@
 import { showToast } from "../../../components/toast.js";
 import CONFIG from "../../../utils/settings.js";
 
-const API_BASE = `${CONFIG.BASE_URL}/api/reports/ticket-status`;
+const API_BASE = `${CONFIG.BASE_URL}/api/reports/ticket-status/`;
 
 // Fetch data từ API
 async function fetchReport(params = {}) {

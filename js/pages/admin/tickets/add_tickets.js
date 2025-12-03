@@ -161,151 +161,151 @@ function getLocalDatetimeString(date) {
 
 
 
-function loadMatchDetailPage(matchId) { 
-  document.getElementById("matches-list-container").style.display = "none";  // Ẩn bảng hiện tại
+window.loadMatchDetailPage = function(matchId) {
+  // Ẩn bảng danh sách, hiện loading
+  document.getElementById("matches-list-container").style.display = "none";
+  const content = document.getElementById('content-container');
+  content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Đang tải thông tin trận đấu...</p></div>';
+
   fetch(`${BASE_URL}/api/tickets/match-detail/${matchId}/`)
     .then(response => response.json())
     .then(data => {
       const now = new Date();
       const matchTime = new Date(data.match_time);
-      const content = document.getElementById('content-container');
-      window.matchTime = matchTime; // Lưu để dùng ở hàm createTicket
+      window.matchTime = matchTime;
       window.currentMatchId = matchId;
 
+      const timeStr = matchTime.toLocaleString('vi-VN', { dateStyle: 'full', timeStyle: 'short' });
+
+      // Render Layout Chính
       content.innerHTML = `
-  <button class="btn btn-outline-secondary mb-3" onclick="backToMatchList()">
-    <i class="bi bi-arrow-left-circle"></i> Quay lại danh sách trận
-  </button>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-outline-secondary border-0 ps-0" onclick="backToMatchList()">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </button>
+            <h4 class="fw-bold text-primary mb-0">Quản Lý Vé Trận Đấu</h4>
+        </div>
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <h4 class="mb-3 text-warning">
-        <i class="bi bi-ticket-detailed"></i> 
-        ${matchTime < now ? 'Chi tiết vé - Trận đã kết thúc' : 'Tạo vé từng khu vực'}
-      </h4>
+        <div class="card border-0 shadow-sm mb-4 bg-white rounded-3 overflow-hidden">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-${matchTime < now ? 'secondary' : 'success'} me-2">
+                                ${matchTime < now ? 'Đã kết thúc' : 'Sắp diễn ra'}
+                            </span>
+                            <h5 class="card-title fw-bold mb-0 text-dark">${data.stadium_name}</h5>
+                        </div>
+                        <h3 class="fw-bold text-primary mb-1">${data.description || 'Chi tiết trận đấu'}</h3>
+                        <p class="text-muted mb-0"><i class="bi bi-clock-history me-1"></i> ${timeStr}</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        ${matchTime >= now ? `
+                            <button class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm" onclick="openAiPriceSuggestion(${data.match_id})">
+                                <i class="bi bi-stars"></i> AI Gợi ý Giá Tối ưu
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-      <table class="table table-borderless mb-0">
-        <tbody>
-          <tr>
-            <th style="width: 180px;">Mô tả:</th>
-            <td>${data.description}</td>
-          </tr>
-          <tr>
-            <th>Sân vận động:</th>
-            <td>${data.stadium_name}</td>
-          </tr>
-          <tr>
-            <th>Thời gian thi đấu:</th>
-            <td>${matchTime.toLocaleString()}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h5 class="mb-3">Danh sách khu vực chỗ ngồi của sân <strong>${data.stadium_name}</strong></h5>
-  <form id="ticket-form">
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle text-center">
-        <thead class="table-light">
-          <tr>
-            <th>STT</th>
-            <th>Khu vực</th>
-            <th>Giá vé</th>
-            <th>Ngày mở bán</th>
-
-            <th>Số ghế còn lại</th>
-            ${matchTime >= now ? '<th>Thao tác</th>' : ''}
-          </tr>
-        </thead>
-        <tbody>
-          ${data.sections.map((section, index) => {
-            const price = section.has_price ? parseFloat(section.price).toLocaleString('vi-VN') + ' đ' : '';
-            const sellDateObj = section.has_price ? new Date(section.sell_date) : null;
-            const sellDate = sellDateObj ? getLocalDatetimeString(sellDateObj) : '';
-            const availableSeats = section.available_seats;
-
-            let actionButton = '';
-
-            if (!section.has_price) {
-              actionButton = availableSeats === 0 
-                ? `<button class="btn btn-sm btn-outline-secondary" disabled>
-                    <i class="bi bi-x-circle"></i> Không thể tạo vé
-                  </button>` 
-                : `<button id="btn-create-${section.section_id}" class="btn btn-sm btn-outline-primary"
-                    onclick="createTicket(${data.match_id}, ${section.section_id}, event)">
-                    <i class="bi bi-ticket-detailed"></i> Tạo vé
-                  </button>`;
-            } else {
-              if (!section.is_closed) {
-                actionButton = ` 
-                  <button class="btn btn-sm btn-outline-warning" onclick="event.preventDefault();redirectToEdit(${section.pricing_id})">
-                    <i class="bi bi-pencil-square"></i> Cập nhật vé đang bán
-                  </button> 
-                  `
-                  ;
-              } else {
-                if (sellDateObj > now) {
-                  actionButton = `
-  
-      <button class="btn btn-sm btn-outline-primary" onclick="showUpdateTicketForm(${section.pricing_id})">
-        <i class="bi bi-pencil-square"></i> Cập nhật vé chưa bán
-      </button>
-      <button class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); deleteTicket(${section.pricing_id})">
-  <i class="bi bi-trash"></i> Xóa vé
-</button>
-
-   
-                     `;
-                } else if (matchTime < now) {
-                  actionButton = `
-                    <button class="btn btn-sm btn-outline-secondary" disabled>
-                      <i class="bi bi-flag-fill"></i> Trận đã đấu
-                    </button>`;
-                } else {
-                  actionButton = `<span class="text-muted">Không thể cập nhật</span>`;
-                }
-              }
-            }
-
-            return `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${section.section_name}</td>
-                <td>
-                  <input type="text" id="price-${section.section_id}" 
-                    class="form-control text-end ${section.has_price ? 'bg-light' : ''}" 
-                    value="${price}" ${section.has_price || matchTime < now ? 'readonly' : ''}>
-                </td>
-                <td>
-                  <input type="datetime-local" id="sell-${section.section_id}" 
-                    class="form-control ${section.has_price ? 'bg-light' : ''}" 
-                    value="${sellDate}" 
-                    ${section.has_price || matchTime < now ? 'readonly' : ''} 
-                    min="${getLocalDatetimeString(new Date(Date.now() + 60000))}" 
-                    max="${getLocalDatetimeString(new Date(matchTime.getTime() - 60000))}">
-                </td>
-                <td>
-                  <input type="text" id="available-seats-${section.section_id}" class="form-control bg-light text-center" value="${availableSeats}" readonly>
-                </td>
-                ${matchTime >= now ? `<td>${actionButton}</td>` : ''}
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-  </form>
-`;
-
-
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-grid-3x3-gap me-2"></i>Danh sách Khu vực & Giá vé</h6>
+            </div>
+            <div class="card-body p-0">
+                <form id="ticket-form">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-secondary small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Khu vực</th>
+                                    <th class="text-center">Số ghế còn lại</th>
+                                    <th class="text-end" style="width: 200px;">Giá vé (VNĐ)</th>
+                                    <th class="text-center" style="width: 220px;">Ngày mở bán</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    ${matchTime >= now ? '<th class="text-end pe-4">Thao tác</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.sections.map(section => renderSectionRow(section, matchTime, now, data.match_id)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+      `;
     })
-    
     .catch(error => {
-      console.error('Lỗi khi lấy chi tiết trận:', error);
-      Swal.fire('Lỗi', 'Không thể tải chi tiết trận đấu', 'error');
+      console.error('Lỗi:', error);
+      Swal.fire('Lỗi', 'Không thể tải dữ liệu.', 'error');
     });
 }
+
+// --- 2. HÀM RENDER DÒNG BẢNG (HELPER) ---
+function renderSectionRow(section, matchTime, now, matchId) {
+    const hasPrice = section.has_price;
+    const priceDisplay = hasPrice ? parseFloat(section.price).toLocaleString('vi-VN') : '';
+    const sellDateVal = hasPrice ? getLocalDatetimeString(new Date(section.sell_date)) : '';
+    
+    // Logic nút bấm
+    let actionBtn = '';
+    if (!hasPrice) {
+        actionBtn = section.available_seats === 0 
+            ? `<button class="btn btn-sm btn-light text-muted" disabled>Hết chỗ</button>`
+            : `<button id="btn-create-${section.section_id}" class="btn btn-sm btn-outline-primary" onclick="createTicket(${matchId}, ${section.section_id}, event)">
+                 <i class="bi bi-plus-lg"></i> Tạo vé
+               </button>`;
+    } else {
+        if (!section.is_closed && matchTime > now) {
+            actionBtn = `<button class="btn btn-sm btn-outline-warning" onclick="event.preventDefault();redirectToEdit(${section.pricing_id})"><i class="bi bi-pencil"></i> Sửa</button>`;
+        } else if (new Date(section.sell_date) > now) {
+             actionBtn = `
+                <button class="btn btn-sm btn-light text-primary" onclick="showUpdateTicketForm(${section.pricing_id})"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-light text-danger" onclick="event.preventDefault(); deleteTicket(${section.pricing_id})"><i class="bi bi-trash"></i></button>
+             `;
+        } else {
+            actionBtn = `<span class="badge bg-light text-secondary">Đã chốt</span>`;
+        }
+    }
+
+    return `
+        <tr>
+            <td class="ps-4 fw-medium">${section.section_name}</td>
+            
+            <td class="text-center">
+                <span class="badge bg-info bg-opacity-10 text-info" style="font-size: 0.9em;">
+                    ${section.available_seats} ghế
+                </span>
+                <input type="hidden" id="available-seats-${section.section_id}" value="${section.available_seats}">
+            </td>
+
+            <td class="text-end">
+                <input type="text" id="price-${section.section_id}" 
+                    class="form-control form-control-sm text-end fw-bold ${hasPrice ? 'bg-light border-0' : ''}" 
+                    value="${priceDisplay}" placeholder="0"
+                    ${hasPrice || matchTime < now ? 'readonly' : ''} 
+                    oninput="formatCurrencyInput(this)">
+            </td>
+
+            <td class="text-center">
+                <input type="datetime-local" id="sell-${section.section_id}" 
+                    class="form-control form-control-sm ${hasPrice ? 'bg-light border-0' : ''}" 
+                    value="${sellDateVal}" ${hasPrice || matchTime < now ? 'readonly' : ''}>
+            </td>
+
+            <td class="text-center">
+                ${hasPrice ? '<span class="text-success small"><i class="bi bi-check-circle-fill"></i> Đã tạo</span>' : '<span class="text-muted small">Chưa tạo</span>'}
+            </td>
+            
+            ${matchTime >= now ? `<td class="text-end pe-4">${actionBtn}</td>` : ''}
+        </tr>
+    `;
+}
+
+
 
 // 
 function createTicket(matchId, sectionId, event) {
@@ -575,6 +575,239 @@ function deleteTicket(pricingId) {
     }
   });
 }
+// AI gợi ý giá
+// 1. Hàm mở Popup AI
+window.openAiPriceSuggestion = function(matchId) {
+    // Hiển thị loading
+    Swal.fire({
+        title: 'AI đang tính toán...',
+        text: 'Đang phân tích sức mạnh đội bóng, lịch sử đấu và sức chứa sân...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading() }
+    });
+
+    // Gọi API Suggest Price
+    fetch(`${BASE_URL}/api/tickets/suggest-price/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Bearer ...' // Nếu có token
+        },
+        body: JSON.stringify({ match_id: matchId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        Swal.close();
+        if (data.status === 'success') {
+            showAiResultModal(data);
+        } else {
+            Swal.fire('Lỗi', data.error || 'Không thể lấy dữ liệu AI', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Lỗi', 'Lỗi kết nối đến Server', 'error');
+    });
+}
+
+// 2. Hàm hiển thị Modal Kết quả
+function showAiResultModal(data) {
+    const rec = data.recommendation;
+    const info = data.match_info;
+    const chartData = data.chart_data;
+
+    // Format tiền tệ
+    const fmtMoney = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+    const htmlContent = `
+        <div class="row text-start">
+            <div class="col-md-5">
+                <div class="alert alert-light border">
+                    <h6><strong>Thông tin trận đấu:</strong></h6>
+                    <ul class="mb-0 ps-3 small">
+                        <li>Trận: <b>${info.name}</b></li>
+                        <li>Độ HOT: ${info.is_hot ? '<span class="badge bg-danger">Rất HOT</span>' : '<span class="badge bg-secondary">Bình thường</span>'}</li>
+                        <li>Độ quan trọng: <b>${info.importance}/5</b></li>
+                        <li>Sức chứa sân: <b>${info.stadium_capacity}</b> ghế</li>
+                    </ul>
+                </div>
+                
+                <div class="card bg-success text-white mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="card-title"><i class="bi bi-star-fill text-warning"></i> AI ĐỀ XUẤT:</h6>
+                        <h3 class="mb-0 fw-bold text-center">${fmtMoney(rec.optimal_avg_price)}</h3>
+                        <p class="small text-center mb-0 opacity-75">Giá trung bình tối ưu</p>
+                    </div>
+                </div>
+
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Dự báo bán:</span>
+                        <strong>${rec.estimated_sold} vé (${rec.fill_rate}%)</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Doanh thu dự kiến:</span>
+                        <strong class="text-success">${fmtMoney(rec.estimated_revenue)}</strong>
+                    </li>
+                </ul>
+                
+                <div class="mt-3 p-2 bg-light rounded small fst-italic border-start border-4 border-warning">
+                    "${getReasonText(rec.reason)}"
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <h6 class="text-center mb-2">Biểu đồ Phân tích Giá & Doanh thu</h6>
+                <canvas id="aiPriceChart" height="250"></canvas>
+            </div>
+        </div>
+    `;
+
+    Swal.fire({
+        title: '🤖 Phân tích Chiến lược Giá',
+        html: htmlContent,
+        width: '900px',
+        showCancelButton: true,
+        confirmButtonText: 'Áp dụng mức giá này',
+        cancelButtonText: 'Đóng',
+        didOpen: () => {
+            renderAiChart(chartData);
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            applyPriceToInputs(rec.optimal_avg_price);
+        }
+    });
+}
+
+// 3. Hàm vẽ biểu đồ (Chart.js)
+function renderAiChart(chartData) {
+    const ctx = document.getElementById('aiPriceChart').getContext('2d');
+    
+    const labels = chartData.map(d => (d.price / 1000) + 'k'); // 100000 -> 100k
+    const revenueData = chartData.map(d => d.revenue);
+    const fillData = chartData.map(d => d.fill_rate);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Doanh thu (VNĐ)',
+                    data: revenueData,
+                    backgroundColor: 'rgba(25, 135, 84, 0.6)', // Màu xanh
+                    yAxisID: 'y',
+                    order: 2
+                },
+                {
+                    label: 'Tỷ lệ lấp đầy (%)',
+                    data: fillData,
+                    type: 'line',
+                    borderColor: 'rgba(220, 53, 69, 1)', // Màu đỏ
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    yAxisID: 'y1',
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: false, // Ẩn trục số tiền cho đỡ rối
+                    position: 'left',
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    min: 0,
+                    max: 100,
+                    grid: { drawOnChartArea: false }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) { label += ': '; }
+                            if (context.dataset.yAxisID === 'y') {
+                                label += new Intl.NumberFormat('vi-VN').format(context.raw) + ' đ';
+                            } else {
+                                label += context.raw + '%';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 4. Hàm áp dụng giá vào Form
+function applyPriceToInputs(avgPrice) {
+    const inputs = document.querySelectorAll('input[id^="price-"]');
+    let count = 0;
+
+    inputs.forEach(input => {
+        if (input.readOnly) return; // Bỏ qua ô đã khóa
+
+        const row = input.closest('tr');
+        
+        // --- SỬA Ở ĐÂY: Index là 0 (Cột đầu tiên) ---
+        // Thêm toUpperCase() để so sánh không phân biệt hoa thường
+        const sectionName = row.cells[0].textContent.trim().toUpperCase(); 
+
+        let finalPrice = avgPrice;
+
+        // Logic định giá (Bạn có thể chỉnh hệ số tùy ý)
+        if (sectionName.includes('VIP')) {
+            finalPrice = avgPrice * 2.0;  // VIP đắt gấp đôi
+        } else if (sectionName.includes('STAND A') || sectionName.includes('KHÁN ĐÀI A')) {
+            finalPrice = avgPrice * 1.5;  // Khán đài A đắt hơn chút
+        } else if (sectionName.includes('STAND B') || sectionName.includes('KHÁN ĐÀI B')) {
+            finalPrice = avgPrice * 1.2;
+        } else if (sectionName.includes('C') || sectionName.includes('D')) {
+            finalPrice = avgPrice * 0.8;  // Khán đài góc rẻ hơn
+        }
+
+        // Làm tròn đến hàng nghìn
+        finalPrice = Math.round(finalPrice / 1000) * 1000;
+
+        // Gán giá trị và FORMAT lại (thêm dấu chấm) để hiển thị đẹp
+        input.value = finalPrice.toLocaleString('vi-VN'); 
+        
+        count++;
+    });
+
+    if (count > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Đã áp dụng',
+            text: `Đã tự động phân bổ giá vé cho ${count} khu vực!`,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+}
+
+// 5. Helper text
+function getReasonText(code) {
+    const map = {
+        "OPTIMAL_FILL": "Mức giá này giúp Lấp đầy sân tối đa (Cháy vé).",
+        "BALANCED": "Điểm cân bằng hoàn hảo giữa Doanh thu và Lượng khách.",
+        "PROFIT_MAX": "Tối ưu hóa Lợi nhuận cho trận HOT (chấp nhận một số ghế trống).",
+        "SAFE_OPTION": "Mức giá an toàn nhất để tránh lỗ vốn."
+    };
+    return map[code] || code;
+}
+// 
 window.deleteTicket = deleteTicket; 
 window.backToMatchList= backToMatchList; // Để có thể gọi từ HTML
 window.backToTicketsList = backToTicketsList; // Để có thể gọi từ HTML

@@ -9,76 +9,134 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
 
-<body>
+<body class="bg-light">
   <div class="container py-5">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"><i class="bi bi-dribbble me-2"></i>Tạo Trận Đấu Mới</h4>
+        <h4 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Quản Lý Trận Đấu</h4>
         <button type="button" class="btn btn-light btn-sm" onclick="window.history.back()">
           <i class="bi bi-arrow-return-left"></i> Quay lại
         </button>
       </div>
       <div class="card-body">
-        <form id="createMatchForm">
-          <div class="row g-3">
+
+        <ul class="nav nav-tabs nav-fill mb-4" id="matchTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-content" type="button" role="tab">
+                    <i class="bi bi-pencil-square"></i> Tạo Thủ Công
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-success" id="import-tab" data-bs-toggle="tab" data-bs-target="#import-content" type="button" role="tab">
+                    <i class="bi bi-file-earmark-excel"></i> Import Excel (Mới)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="matchTabsContent">
             
-            <div class="col-md-12">
-              <label for="leagueSelect" class="form-label fw-bold">Giải đấu <span class="text-danger">*</span></label>
-              <select class="form-select" name="league" id="leagueSelect" required>
-                <option value="" disabled selected>-- Đang tải giải đấu... --</option>
-              </select>
-              <small class="text-muted fst-italic" id="leagueInfo"></small>
+            <div class="tab-pane fade show active" id="manual-content" role="tabpanel">
+                <form id="createMatchForm">
+                  <div class="row g-3">
+                    
+                    <div class="col-md-12">
+                      <label for="leagueSelect" class="form-label fw-bold">Giải đấu <span class="text-danger">*</span></label>
+                      <select class="form-select" name="league" id="leagueSelect" required>
+                        <option value="" disabled selected>-- Đang tải giải đấu... --</option>
+                      </select>
+                      <small class="text-muted fst-italic" id="leagueInfo"></small>
+                    </div>
+        
+                    <div class="col-md-6">
+                      <label for="match_time" class="form-label">Ngày giờ trận đấu <span class="text-danger">*</span></label>
+                      <input type="datetime-local" class="form-control" id="match_time" name="match_time" required disabled />
+                      <div class="form-text" id="dateHint">Vui lòng chọn giải đấu trước.</div>
+                    </div>
+        
+                    <div class="col-md-6">
+                      <label for="stadiumSelect" class="form-label">Sân vận động <span class="text-danger">*</span></label>
+                      <select class="form-select" name="stadium" id="stadiumSelect" required>
+                        <option value="" disabled selected>-- Chọn sân --</option>
+                      </select>
+                    </div>
+        
+                    <div class="col-md-6">
+                      <label for="roundContainer" class="form-label">Vòng đấu <span class="text-danger">*</span></label>
+                      <div id="roundContainer">
+                        <input type="text" class="form-control" placeholder="Vui lòng chọn giải đấu trước" disabled>
+                      </div>
+                      <small class="text-muted" id="leagueTypeInfo"></small>
+                    </div>
+        
+                    <div class="col-md-6">
+                      <label for="description" class="form-label">Mô tả trận đấu</label>
+                      <input type="text" class="form-control" id="description" name="description" placeholder="VD: Trận khai mạc, Lượt đi..."  />
+                    </div>
+        
+                    <hr class="my-4">
+        
+                    <div class="col-md-6">
+                      <label for="team1Select" class="form-label">Đội 1 (Chủ nhà) <span class="text-danger">*</span></label>
+                      <select class="form-select" name="team_1" id="team1Select" required disabled>
+                        <option value="" selected>-- Chọn giải đấu trước --</option>
+                      </select>
+                    </div>
+        
+                    <div class="col-md-6">
+                      <label for="team2Select" class="form-label">Đội 2 (Khách) <span class="text-danger">*</span></label>
+                      <select class="form-select" name="team_2" id="team2Select" required disabled>
+                        <option value="" selected>-- Chọn giải đấu trước --</option>
+                      </select>
+                    </div>
+                  </div>
+        
+                  <div class="text-end mt-5">
+                    <button type="submit" class="btn btn-success btn-lg px-4">
+                      <i class="bi bi-check-circle me-1"></i> Tạo trận đấu
+                    </button>
+                  </div>
+                </form>
             </div>
 
-            <div class="col-md-6">
-              <label for="match_time" class="form-label">Ngày giờ trận đấu <span class="text-danger">*</span></label>
-              <input type="datetime-local" class="form-control" id="match_time" name="match_time" required disabled />
-              <div class="form-text" id="dateHint">Vui lòng chọn giải đấu trước.</div>
+            <div class="tab-pane fade" id="import-content" role="tabpanel">
+                <form id="importMatchForm">
+                    <div class="alert alert-warning border-warning d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                        <div>
+                            <strong>Lưu ý quan trọng:</strong><br>
+                            Vui lòng đảm bảo <strong>Tên Đội Bóng</strong> và <strong>Tên Sân Vận Động</strong> trong file Excel đã tồn tại chính xác trong Database.<br>
+                            Nếu chưa có, vui lòng tạo Đội/Sân trước khi Import để tránh lỗi.
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label for="leagueImportSelect" class="form-label fw-bold">Chọn Giải Đấu để Import <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-lg" id="leagueImportSelect" required>
+                                <option value="" disabled selected>-- Chọn giải đấu --</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="excelFile" class="form-label fw-bold mb-0">File Lịch Thi Đấu (.xlsx) <span class="text-danger">*</span></label>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.downloadTemplate()">
+                                    <i class="bi bi-download"></i> Tải file mẫu
+                                </button>
+                            </div>
+                            <input class="form-control form-control-lg" type="file" id="excelFile" accept=".xlsx, .xls" required>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <i class="bi bi-cloud-upload me-2"></i> Tiến Hành Import
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <div class="col-md-6">
-              <label for="stadiumSelect" class="form-label">Sân vận động <span class="text-danger">*</span></label>
-              <select class="form-select" name="stadium" id="stadiumSelect" required>
-                <option value="" disabled selected>-- Chọn sân --</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="roundContainer" class="form-label">Vòng đấu <span class="text-danger">*</span></label>
-              <div id="roundContainer">
-                <input type="text" class="form-control" placeholder="Vui lòng chọn giải đấu trước" disabled>
-              </div>
-              <small class="text-muted" id="leagueTypeInfo"></small>
-          </div>
-
-            <div class="col-md-6">
-              <label for="description" class="form-label">Mô tả trận đấu</label>
-              <input type="text" class="form-control" id="description" name="description" placeholder="VD: Trận khai mạc, Lượt đi..." required />
-            </div>
-
-            <hr class="my-4">
-
-            <div class="col-md-6">
-              <label for="team1Select" class="form-label">Đội 1 (Chủ nhà) <span class="text-danger">*</span></label>
-              <select class="form-select" name="team_1" id="team1Select" required disabled>
-                <option value="" selected>-- Chọn giải đấu trước --</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="team2Select" class="form-label">Đội 2 (Khách) <span class="text-danger">*</span></label>
-              <select class="form-select" name="team_2" id="team2Select" required disabled>
-                <option value="" selected>-- Chọn giải đấu trước --</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="text-end mt-5">
-            <button type="submit" class="btn btn-success btn-lg px-4">
-              <i class="bi bi-check-circle me-1"></i> Tạo trận đấu
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
@@ -93,9 +151,9 @@
   // Biến toàn cục
   let leaguesData = [];
   let teamsData = [];
-  let sportsData = []; // <-- THÊM BIẾN NÀY
+  let sportsData = []; 
 
-  // Element DOM
+  // Element DOM (CỦA FORM CŨ)
   const leagueSelect = document.getElementById('leagueSelect');
   const stadiumSelect = document.getElementById('stadiumSelect');
   const team1Select = document.getElementById('team1Select');
@@ -104,35 +162,46 @@
   const roundContainer = document.getElementById('roundContainer');
   const dateHint = document.getElementById('dateHint');
   const leagueInfo = document.getElementById('leagueInfo');
-  const leagueTypeInfo = document.getElementById('leagueTypeInfo');  
-  // --- 1. INIT DATA (Tải thêm Sports) ---
+  const leagueTypeInfo = document.getElementById('leagueTypeInfo'); 
+  
+  // Element DOM (CỦA FORM MỚI)
+  const leagueImportSelect = document.getElementById('leagueImportSelect');
+
+  // --- 1. INIT DATA (Đã bổ sung load dữ liệu cho Tab Import) ---
   async function initData() {
     try {
-      // Gọi song song 4 API (Thêm api sports)
       const [resLeagues, resStadiums, resTeams, resSports] = await Promise.all([
         fetch(`${BASE_URL}/api/events/leagues/`),
         fetch(`${BASE_URL}/api/events/stadiums/`),
         fetch(`${BASE_URL}/api/events/teams/`),
-        fetch(`${BASE_URL}/api/events/sports/`) // <-- Gọi thêm cái này
+        fetch(`${BASE_URL}/api/events/sports/`)
       ]);
 
-      // 1. Xử lý Sports (Để tra cứu ID <-> Tên)
       const dSports = await resSports.json();
       sportsData = Array.isArray(dSports) ? dSports : (dSports.results || []);
 
-      // 2. Xử lý Leagues
       const dLeagues = await resLeagues.json();
       leaguesData = Array.isArray(dLeagues) ? dLeagues : (dLeagues.results || []);
       
+      // Đổ data vào Form Cũ
       leagueSelect.innerHTML = '<option value="" disabled selected>-- Chọn giải đấu --</option>';
+      // Đổ data vào Form Mới
+      leagueImportSelect.innerHTML = '<option value="" disabled selected>-- Chọn giải đấu --</option>';
+
       leaguesData.forEach(l => {
-        const opt = document.createElement('option');
-        opt.value = l.league_id;
-        opt.textContent = l.league_name;
-        leagueSelect.appendChild(opt);
+        // Option cho form cũ
+        const opt1 = document.createElement('option');
+        opt1.value = l.league_id;
+        opt1.textContent = l.league_name;
+        leagueSelect.appendChild(opt1);
+
+        // Option cho form mới
+        const opt2 = document.createElement('option');
+        opt2.value = l.league_id;
+        opt2.textContent = l.league_name;
+        leagueImportSelect.appendChild(opt2);
       });
 
-      // 3. Xử lý Stadiums
       const dStadiums = await resStadiums.json();
       const stadiums = Array.isArray(dStadiums) ? dStadiums : (dStadiums.results || []);
       stadiumSelect.innerHTML = '<option value="" disabled selected>-- Chọn sân vận động --</option>';
@@ -143,7 +212,6 @@
         stadiumSelect.appendChild(opt);
       });
 
-      // 4. Xử lý Teams
       const dTeams = await resTeams.json();
       teamsData = Array.isArray(dTeams) ? dTeams : (dTeams.results || []);
 
@@ -152,104 +220,57 @@
       Swal.fire("Lỗi", "Không thể tải dữ liệu ban đầu. Vui lòng F5 lại trang.", "error");
     }
   }
-  // --- 2. HÀM TẠO GIAO DIỆN VÒNG ĐẤU (CORE LOGIC) ---
+
+  // --- CODE CŨ CỦA BẠN (GIỮ NGUYÊN LOGIC) ---
   function renderRoundInput(leagueType) {
     let html = '';
     let infoText = '';
 
     switch (leagueType) {
-      case 'round_robin': // Đấu vòng tròn
+      case 'round_robin': 
         infoText = 'Giải đấu vòng tròn tính điểm';
-        html = `
-          <div class="input-group">
-            <span class="input-group-text">Vòng</span>
-            <input type="number" id="roundInput" class="form-control" min="1" placeholder="Nhập số (1, 2...)" required>
-          </div>`;
+        html = `<div class="input-group"><span class="input-group-text">Vòng</span><input type="number" id="roundInput" class="form-control" min="1" placeholder="Nhập số (1, 2...)" required></div>`;
         break;
-
-      case 'knockout': // Đấu loại trực tiếp (Cúp)
+      case 'knockout': 
         infoText = 'Giải đấu loại trực tiếp (Cúp)';
-        html = `
-          <select id="roundInput" class="form-select" required>
-            <option value="" selected disabled>-- Chọn vòng đấu --</option>
-            <option value="Vòng loại">Vòng loại</option>
-            <option value="Vòng 1/32">Vòng 1/32</option>
-            <option value="Vòng 1/16">Vòng 1/16</option>
-            <option value="Vòng 1/8">Vòng 1/8</option>
-            <option value="Tứ kết">Tứ kết</option>
-            <option value="Bán kết">Bán kết</option>
-            <option value="Tranh hạng 3">Tranh hạng 3</option>
-            <option value="Chung kết">Chung kết</option>
-          </select>`;
+        html = `<select id="roundInput" class="form-select" required><option value="" selected disabled>-- Chọn vòng đấu --</option><option value="Vòng loại">Vòng loại</option><option value="Vòng 1/16">Vòng 1/16</option><option value="Vòng 1/8">Vòng 1/8</option><option value="Tứ kết">Tứ kết</option><option value="Bán kết">Bán kết</option><option value="Chung kết">Chung kết</option></select>`;
         break;
-
-      case 'hybrid': // Hỗn hợp (World Cup, C1)
-        infoText = 'Giải hỗn hợp (Vòng bảng & Knockout)';
-        // Dùng input list để vừa gợi ý vừa cho nhập (VD: Bảng A, Bảng B...)
-        html = `
-          <input class="form-control" list="hybridOptions" id="roundInput" placeholder="Nhập 'Bảng A' hoặc chọn vòng đấu..." required>
-          <datalist id="hybridOptions">
-            <option value="Vòng bảng">
-            <option value="Bảng A">
-            <option value="Bảng B">
-            <option value="Bảng C">
-            <option value="Bảng D">
-            <option value="Vòng 1/16">
-            <option value="Vòng 1/8">
-            <option value="Tứ kết">
-            <option value="Bán kết">
-            <option value="Chung kết">
-          </datalist>`;
+      case 'hybrid':
+        infoText = 'Giải hỗn hợp';
+        html = `<input class="form-control" list="hybridOptions" id="roundInput" placeholder="Nhập 'Bảng A' hoặc chọn..." required><datalist id="hybridOptions"><option value="Vòng bảng"><option value="Tứ kết"><option value="Bán kết"><option value="Chung kết"></datalist>`;
         break;
-
-      case 'friendly': // Giao hữu
+      case 'friendly':
         infoText = 'Giao hữu';
         html = `<input type="text" id="roundInput" class="form-control" value="Giao hữu" placeholder="Nhập tên trận đấu">`;
         break;
-
-      default: // Khác
+      default:
         infoText = 'Khác';
         html = `<input type="text" id="roundInput" class="form-control" placeholder="Nhập tên vòng đấu" required>`;
         break;
     }
-
     roundContainer.innerHTML = html;
     leagueTypeInfo.textContent = infoText;
   }
-  // --- 2. XỬ LÝ KHI CHỌN GIẢI ĐẤU ---
+
   leagueSelect.addEventListener('change', function() {
     const selectedId = parseInt(this.value);
     const selectedLeague = leaguesData.find(l => l.league_id === selectedId);
 
     if (!selectedLeague) return;
     renderRoundInput(selectedLeague.league_type);
-    // --- LOGIC LỌC ĐỘI (Đã sửa lỗi ID vs Name) ---
+    
     team1Select.disabled = false;
     team2Select.disabled = false;
     team1Select.innerHTML = '<option value="">-- Chọn Đội 1 --</option>';
     team2Select.innerHTML = '<option value="">-- Chọn Đội 2 --</option>';
 
-    // Bước 1: Tìm thông tin môn thể thao của giải đấu này
-    // selectedLeague.sport thường là ID (ví dụ: 1)
     const currentSportID = selectedLeague.sport; 
-    
-    // Bước 2: Tìm tên môn thể thao từ ID (Dùng danh sách sportsData vừa tải)
-    // Ví dụ: ID 1 -> Name "Bóng đá"
     const sportObj = sportsData.find(s => s.sport_id == currentSportID);
     const currentSportName = sportObj ? sportObj.sport_name : "";
 
-    // Bước 3: Lọc đội (Chấp nhận cả trường hợp team lưu ID hoặc lưu Tên)
     const filteredTeams = teamsData.filter(t => {
-        // t.sport có thể là 1 (ID) hoặc "Bóng đá" (Tên)
-        // So sánh lỏng (==) với ID hoặc so sánh chính xác (===) với Tên
-        return (t.sport == currentSportID) || 
-               (t.sport_id == currentSportID) || 
-               (t.sport === currentSportName);
+        return (t.sport == currentSportID) || (t.sport_id == currentSportID) || (t.sport === currentSportName);
     });
-
-    // Debug để bạn xem nó tìm thấy gì (Bật F12 -> Console xem dòng này)
-    console.log(`Giải: ${selectedLeague.league_name}, SportID: ${currentSportID}, SportName: ${currentSportName}`);
-    console.log(`Tìm thấy ${filteredTeams.length} đội phù hợp.`);
 
     if (filteredTeams.length === 0) {
         Swal.fire("Cảnh báo", `Không tìm thấy đội nào thuộc môn: ${currentSportName || currentSportID}`, "warning");
@@ -263,9 +284,6 @@
         team2Select.appendChild(opt.cloneNode(true));
     });
 
-    // --- (Giữ nguyên các logic Time và Round cũ) ---
-    
-    // A. Thời gian
     matchTimeInput.disabled = false;
     const now = new Date();
     const startDate = new Date(selectedLeague.start_date);
@@ -278,36 +296,10 @@
     dateHint.textContent = `Thời gian hợp lệ: ${formatDateVN(minDate)} đến ${formatDateVN(endDate)}`;
     dateHint.className = "form-text text-primary";
 
-    // B. Vòng đấu
-    roundContainer.innerHTML = '';
-    const type = selectedLeague.league_type; 
-    leagueInfo.textContent = `Thể thức: ${type} | Môn: ${currentSportName}`;
-
-    let roundInputHtml = '';
-    if (type === 'round_robin') {
-      roundInputHtml = `
-          <div class="input-group">
-              <span class="input-group-text">Vòng</span>
-              <input type="number" class="form-control" id="roundInput" min="1" placeholder="Nhập số (1, 2...)" required>
-          </div>`;
-    } else if (type === 'knockout') {
-      roundInputHtml = `
-          <select class="form-select" id="roundInput" required>
-              <option value="" selected disabled>-- Chọn vòng đấu --</option>
-              <option value="Vòng loại"> loại</option>
-              <option value="Vòng 1/16"> 1/16</option>
-              <option value="Vòng 1/8">1/8</option>
-              <option value="Tứ kết">Tứ kết</option>
-              <option value="Bán kết">Bán kết</option>
-              <option value="Chung kết">Chung kết</option>
-          </select>`;
-    } else {
-      roundInputHtml = `<input type="text" class="form-control" id="roundInput" placeholder="Nhập tên vòng đấu" required>`;
-    }
-    roundContainer.innerHTML = roundInputHtml;
+    roundContainer.innerHTML = ''; 
+    renderRoundInput(selectedLeague.league_type); // Render lại input round cho chắc chắn
   });
 
-  // --- 3. CÁC LOGIC PHỤ & SUBMIT (GIỮ NGUYÊN) ---
   function handleTeamSelection(sourceSelect, targetSelect) {
       const selectedVal = sourceSelect.value;
       Array.from(targetSelect.options).forEach(opt => {
@@ -330,10 +322,6 @@
     
     const roundEl = document.getElementById('roundInput');
     let roundVal = roundEl.value.trim();
-    // const selectedLeague = leaguesData.find(l => l.league_id == leagueId);
-    // if (selectedLeague && selectedLeague.league_type === 'round_robin') {
-    //     roundVal = `Vòng ${roundVal}`;
-    // }
 
     const payload = {
       match_time: timeVal,
@@ -367,6 +355,79 @@
       console.error(err);
       Swal.fire('Lỗi', 'Không thể kết nối đến Server', 'error');
     }
+  });
+
+  // --- CODE MỚI: XỬ LÝ FORM IMPORT ---
+  
+  // Hàm tải template (đưa vào window để nút HTML gọi được)
+  window.downloadTemplate = function() {
+      window.location.href = `${BASE_URL}/api/events/download-template/`;
+  }
+
+  document.getElementById('importMatchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const leagueId = leagueImportSelect.value;
+      const fileInput = document.getElementById('excelFile');
+      const file = fileInput.files[0];
+
+      if (!leagueId || !file) {
+          Swal.fire('Thiếu thông tin', 'Vui lòng chọn giải đấu và file Excel', 'warning');
+          return;
+      }
+
+      // Tạo FormData
+      const formData = new FormData();
+      formData.append('league_id', leagueId);
+      formData.append('file', file);
+
+      Swal.fire({
+          title: 'Đang Import...',
+          text: 'Hệ thống đang xử lý file Excel...',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+      });
+
+      try {
+          const response = await fetch(`${BASE_URL}/api/events/import-schedule/`, {
+              method: 'POST',
+              body: formData // Không set Content-Type, để tự động
+          });
+          
+          const result = await response.json();
+
+          if (response.ok) {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Import Thành Công',
+                  text: result.message,
+                  confirmButtonText: 'Tuyệt vời'
+              }).then(() => {
+                 document.getElementById('importMatchForm').reset();
+              });
+          } else {
+              // Xử lý hiển thị lỗi chi tiết
+              let errorHtml = `<div class="text-start text-danger small" style="max-height: 200px; overflow-y: auto;">`;
+              if (result.errors && Array.isArray(result.errors)) {
+                  errorHtml += `<ul>`;
+                  result.errors.forEach(err => { errorHtml += `<li>${err}</li>`; });
+                  errorHtml += `</ul>`;
+              } else {
+                  errorHtml += `<p>${result.message || 'Lỗi không xác định'}</p>`;
+              }
+              errorHtml += `</div>`;
+
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Import Thất Bại',
+                  html: errorHtml,
+                  width: '600px'
+              });
+          }
+      } catch (error) {
+          console.error(error);
+          Swal.fire('Lỗi', 'Lỗi kết nối Server', 'error');
+      }
   });
 
   initData();
