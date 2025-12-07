@@ -2,7 +2,8 @@
 import CONFIG from "../utils/settings.js";
 const BASE_URL = CONFIG.BASE_URL;
 (function(){
-  const API_URL = `${BASE_URL}/api/chat/`;
+  const API_URL = `${BASE_URL}/api/chat/send/`;
+  const HISTORY_API_URL = `${BASE_URL}/api/chat/history/`;
 
   function el(tag, cls, attrs){
     const e = document.createElement(tag);
@@ -23,9 +24,30 @@ const BASE_URL = CONFIG.BASE_URL;
 
     const header = el('div','chatbot-header');
     header.innerHTML = '<span>🤖 Sport Ticket Chatbot</span>';
-    const closeBtn = el('button'); closeBtn.innerHTML = '✕'; closeBtn.style.background='transparent'; closeBtn.style.border='none'; closeBtn.style.color='#fff'; closeBtn.style.fontSize='16px';
+    // make header a flex container so controls inside align nicely
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.gap = '8px';
+    // reserve space on the right so the absolute close button doesn't overlap header content
+    header.style.paddingRight = '48px';
+    const closeBtn = el('button');
+    closeBtn.innerHTML = '✕';
+    closeBtn.style.background='transparent';
+    closeBtn.style.border='none';
+    closeBtn.style.color='#fff';
+    closeBtn.style.fontSize='18px';
+    closeBtn.style.width = '32px';
+    closeBtn.style.height = '32px';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+    closeBtn.style.lineHeight = '1';
+    // style as absolute positioned button so it's visually outside the header element
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '10px';
+    closeBtn.style.right = '10px';
+    closeBtn.style.cursor = 'pointer';
     closeBtn.addEventListener('click', ()=>{ windowBox.style.display='none'; });
-    header.appendChild(closeBtn);
 
     const messages = el('div','chatbot-messages');
 
@@ -34,7 +56,11 @@ const BASE_URL = CONFIG.BASE_URL;
     const sendBtn = el('button','send'); sendBtn.textContent = 'Gửi';
     inputBar.appendChild(input); inputBar.appendChild(sendBtn);
 
+    // make windowBox a positioned container so closeBtn can be absolute inside it
+    windowBox.style.position = 'relative';
     windowBox.appendChild(header);
+    // append close button as a sibling inside windowBox (visually outside header)
+    windowBox.appendChild(closeBtn);
     windowBox.appendChild(messages);
     windowBox.appendChild(inputBar);
 
@@ -42,16 +68,110 @@ const BASE_URL = CONFIG.BASE_URL;
     const initMsg = { sender: 'bot', text: 'Xin chào 👋! Tôi có thể giúp gì cho bạn hôm nay?' };
     addMessage(messages, initMsg);
 
+    // current active session id (null => will try load latest from server)
+    let currentSessionId = null;
+    // Load chat history khi widget khởi tạo: cố gắng lấy phiên gần nhất
+    loadChatHistory();
+
+    // Thêm nút + để tạo session mới
+    const newBtn = el('button','chatbot-new');
+    newBtn.innerText = '+';
+    newBtn.setAttribute('aria-label','Tạo cuộc trò chuyện mới');
+    newBtn.title = 'Tạo cuộc trò chuyện mới';
+    newBtn.style.background = 'transparent';
+    newBtn.style.border = '1px solid rgba(255,255,255,0.2)';
+    newBtn.style.color = '#fff';
+    newBtn.style.borderRadius = '6px';
+    newBtn.style.width = '30px';
+    newBtn.style.height = '30px';
+    newBtn.style.display = 'inline-flex';
+    newBtn.style.alignItems = 'center';
+    newBtn.style.justifyContent = 'center';
+    newBtn.style.cursor = 'pointer';
+    newBtn.style.transition = 'all 120ms ease';
+    newBtn.style.boxSizing = 'border-box';
+    // hover effect
+    newBtn.addEventListener('mouseenter', ()=>{
+      newBtn.style.background = 'rgba(255,255,255,0.08)';
+      newBtn.style.transform = 'translateY(-1px) scale(1.05)';
+      newBtn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+    });
+    newBtn.addEventListener('mouseleave', ()=>{
+      newBtn.style.background = 'transparent';
+      newBtn.style.transform = 'none';
+      newBtn.style.boxShadow = 'none';
+    });
+    newBtn.addEventListener('click', ()=>{
+      // tạo session mới, xoá nội dung hiển thị và thêm greeting
+      currentSessionId = 'frontend-session-' + Date.now();
+      localStorage.setItem('currentSessionId', currentSessionId);
+      messages.innerHTML = '';
+      addMessage(messages, initMsg);
+    });
+    header.appendChild(newBtn);
+
     // toggle behavior
     toggle.addEventListener('click', ()=>{
-      if(windowBox.style.display === 'none') windowBox.style.display = 'flex';
-      else windowBox.style.display = 'none';
+      if(windowBox.style.display === 'none') {
+        windowBox.style.display = 'flex';
+      } else {
+        windowBox.style.display = 'none';
+      }
     });
 
     sendBtn.addEventListener('click', ()=>{ sendMessage(); });
     input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(); });
 
     let loading = false;
+
+    async function loadChatHistory(sessionId){
+      try {
+        const customerId = localStorage.getItem('customer_id') || '1';
+        let url = `${HISTORY_API_URL}?customer_id=${customerId}`;
+        if(sessionId) url = `${HISTORY_API_URL}?session_id=${sessionId}&customer_id=${customerId}`;
+
+        const resp = await fetch(url);
+
+        if(!resp.ok) {
+          console.warn('Load lịch sử chat thất bại, status:', resp.status);
+          return;
+        }
+
+        const data = await resp.json();
+
+        // server có thể trả session_id (phiên gần nhất)
+        if(data.session_id) {
+          currentSessionId = data.session_id;
+          localStorage.setItem('currentSessionId', currentSessionId);
+        }
+
+        if(data.messages && data.messages.length > 0){
+          // Xóa tin nhắn khởi tạo nếu có lịch sử
+          const existingMsgs = messages.querySelectorAll('.chatbot-message');
+          if(existingMsgs.length === 1) existingMsgs[0].remove();
+
+          // Load lại lịch sử
+          data.messages.forEach(msg => {
+            addMessage(messages, {
+              sender: 'user',
+              text: msg.user_message
+            });
+            addMessage(messages, {
+              sender: 'bot',
+              text: msg.bot_response
+            });
+          });
+        } else {
+          // nếu server không có session, tạo mới và lưu
+          if(!currentSessionId){
+            currentSessionId = localStorage.getItem('currentSessionId') || 'frontend-session-' + Date.now();
+            localStorage.setItem('currentSessionId', currentSessionId);
+          }
+        }
+      } catch(err) {
+        console.warn('Không thể load lịch sử chat:', err.message);
+      }
+    }
 
     async function sendMessage(){
       const text = input.value.trim();
@@ -61,11 +181,17 @@ const BASE_URL = CONFIG.BASE_URL;
       setLoading(messages,true);
       loading = true;
 
+      // đảm bảo có session id
+      if(!currentSessionId){
+        currentSessionId = localStorage.getItem('currentSessionId') || 'frontend-session-' + Date.now();
+        localStorage.setItem('currentSessionId', currentSessionId);
+      }
+
       try{
         const resp = await fetch(API_URL,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ message: text, customer_id: 1, session_id: 'frontend-test' })
+          body: JSON.stringify({ message: text, customer_id: parseInt(localStorage.getItem('customer_id')  || '1'), session_id: currentSessionId })
         });
         const data = await resp.json();
         if(resp.ok && data.reply){
