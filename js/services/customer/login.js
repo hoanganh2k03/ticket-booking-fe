@@ -2,6 +2,143 @@ import CONFIG from "../../utils/settings.js";
 const BASE_URL = CONFIG.BASE_URL;
 import { showCusToast } from "../../components/toast.js";
 
+// Initialize Google Sign-In (Identity Services)
+function handleCredentialResponse(response) {
+    // response.credential is the ID token (JWT)
+    const id_token = response.credential;
+
+    fetch(`${BASE_URL}/api/accounts/auth/customer/google/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token })
+    }).then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+            showCusToast('Đăng nhập bằng Google thành công!', 'success');
+            localStorage.clear();
+            localStorage.setItem('access_token', data.data.access_token);
+            localStorage.setItem('refresh_token', data.data.refresh_token);
+            localStorage.setItem('customer_id', data.data.customer.customer_id);
+            localStorage.setItem('full_name', data.data.customer.full_name);
+            localStorage.setItem('email', data.data.customer.email);
+            window.location.href = '/pages/customer/index.html';
+        } else {
+            showCusToast(data.message || 'Đăng nhập Google thất bại', 'danger');
+        }
+      }).catch(err => {
+        showCusToast('Lỗi khi kết nối đến server cho Google Sign-In', 'danger');
+        console.error(err);
+      });
+}
+
+// Wait for the Google Identity Services script to be available, then render the button
+function setupGoogleSignIn() {
+    try {
+        // eslint-disable-next-line no-undef
+        if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+            // GSI not loaded yet; try again shortly
+            setTimeout(setupGoogleSignIn, 300);
+            return;
+        }
+
+        // import CONFIG lazily to avoid circular issues
+        import('../../utils/settings.js').then(({ default: CONFIG }) => {
+            const clientId = CONFIG.GOOGLE_CLIENT_ID || '<YOUR_GOOGLE_CLIENT_ID>';
+
+            // Initialize
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: handleCredentialResponse
+            });
+
+            // Render the button
+            google.accounts.id.renderButton(
+                document.getElementById('google-signin-button'),
+                { theme: 'outline', size: 'large', text: 'signin_with' }
+            );
+
+            // Optionally prompt one-tap
+            // google.accounts.id.prompt();
+        });
+    } catch (e) {
+        console.warn('Google Sign-In injection failed, will not render button', e);
+    }
+}
+
+setupGoogleSignIn();
+
+// Initialize Facebook SDK (optional if FACEBOOK_APP_ID in CONFIG)
+function setupFacebookSDK() {
+    import('../../utils/settings.js').then(({ default: CONFIG }) => {
+        const facebookAppId = CONFIG.FACEBOOK_APP_ID || '';
+        if (!facebookAppId) return; // not configured
+
+        // Inject FB SDK script
+        if (!window.fbAsyncInit) {
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: facebookAppId,
+                    cookie: true,
+                    xfbml: false,
+                    version: 'v16.0'
+                });
+            };
+
+            (function(d, s, id){
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {return;}
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/vi_VN/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        }
+    }).catch(err => console.warn('Unable to setup Facebook SDK', err));
+}
+
+setupFacebookSDK();
+
+function postFacebookAccessToken(access_token) {
+    fetch(`${BASE_URL}/api/accounts/auth/customer/facebook/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token })
+    }).then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+            showCusToast('Đăng nhập bằng Facebook thành công!', 'success');
+            localStorage.clear();
+            localStorage.setItem('access_token', data.data.access_token);
+            localStorage.setItem('refresh_token', data.data.refresh_token);
+            localStorage.setItem('customer_id', data.data.customer.customer_id);
+            localStorage.setItem('full_name', data.data.customer.full_name);
+            localStorage.setItem('email', data.data.customer.email);
+            window.location.href = '/pages/customer/index.html';
+        } else {
+            showCusToast(data.message || 'Đăng nhập Facebook thất bại', 'danger');
+        }
+      }).catch(err => {
+        showCusToast('Lỗi khi kết nối đến server cho Facebook Sign-In', 'danger');
+        console.error(err);
+      });
+}
+
+// Attach click listener on facebook button
+document.getElementById('facebook-signin-button').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (typeof FB !== 'undefined') {
+        FB.login(function(response) {
+            if (response.authResponse) {
+                const access_token = response.authResponse.accessToken;
+                postFacebookAccessToken(access_token);
+            } else {
+                showCusToast('Quyền Facebook không được cấp.', 'danger');
+            }
+        }, { scope: 'public_profile,email' });
+    } else {
+        showCusToast('Facebook SDK chưa được cấu hình.', 'warning');
+    }
+});
+
 let lastRegisteredEmail = "";
 
 // Form Đăng nhập
