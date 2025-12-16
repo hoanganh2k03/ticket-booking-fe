@@ -150,7 +150,7 @@ function displayOrders(orders) {
     orders.forEach(order => {
         const orderCard = document.createElement('div');
         orderCard.classList.add('order-card');
-
+        orderCard.id = `order-${order.order_id}`;
         const statusClass = `status-${order.order_status.toLowerCase()}`;
         const formattedDate = new Date(order.created_at).toLocaleString('vi-VN', {
             dateStyle: 'short',

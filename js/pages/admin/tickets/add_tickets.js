@@ -781,7 +781,7 @@ function applyPriceToInputs(avgPrice) {
         finalPrice = Math.round(finalPrice / 1000) * 1000;
 
         // Gán giá trị và FORMAT lại (thêm dấu chấm) để hiển thị đẹp
-        input.value = finalPrice.toLocaleString('vi-VN'); 
+        input.value = finalPrice;
         
         count++;
     });

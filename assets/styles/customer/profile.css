@@ -29,13 +29,13 @@ body {
 /* Heading styles */
 h1 {
     font-size: 36px;
-    color: #006400;
+    color: #198754;
 }
 
 /* Profile card */
 .profile-card {
     background-color: #eaf1e4;
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 12px;
     padding: 20px;
     transition: transform 0.3s ease;
@@ -51,13 +51,13 @@ h1 {
 }
 
 .profile-header i {
-    color: #006400;
+    color: #198754;
 }
 
 .profile-header h3 {
     font-size: 24px;
     font-weight: bold;
-    color: #333;
+    color: #198754;
 }
 
 /* Profile info */
@@ -69,12 +69,12 @@ h1 {
 }
 
 .profile-info i {
-    color: #006400;
+    color: #198754;
     margin-right: 10px;
 }
 
 .profile-info strong {
-    color: #006400;
+    color: #198754;
     margin-right: 5px;
 }
 
@@ -138,5 +138,5 @@ h1 {
 }
 
 .password-toggle:hover {
-    color: #006400; /* Match with main theme color */
+    color: #198754; /* Match with main theme color */
 }

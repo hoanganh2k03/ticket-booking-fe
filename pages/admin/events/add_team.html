@@ -38,7 +38,10 @@
             <label for="description" class="form-label">Mô tả</label>
             <textarea class="form-control" id="description" name="description" required></textarea>
           </div>
-
+          <div class="mb-3">
+            <label for="rating" class="form-label">Chỉ số sức mạnh </label>
+            <textarea class="form-control" id="rating" name="rating" required></textarea>
+          </div>
           <div class="text-end mt-4">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-check-circle me-1"></i> Thêm đội bóng
@@ -118,9 +121,11 @@
     const sportVal = form.sport.value;
     const teamName = form.team_name.value.trim();
     const headCoach = form.head_coach.value.trim();
+    const rating = form.rating.value.trim();
+
     const description = form.description.value.trim();
 
-    if (!sportVal || !teamName || !headCoach || !description) {
+    if (!sportVal || !teamName || !headCoach || !description|| !rating) {
       return Swal.fire("Lỗi", "Vui lòng nhập đầy đủ thông tin!", "error");
     }
 
@@ -129,6 +134,7 @@
     formData.append("sport", sportVal);
     formData.append("team_name", teamName);
     formData.append("head_coach", headCoach);
+    formData.append("rating", rating);
     formData.append("description", description);
 
     // Nếu có chọn ảnh thì append vào, không thì thôi (Backend tự lấy default)

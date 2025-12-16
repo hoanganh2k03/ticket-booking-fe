@@ -25,12 +25,12 @@ body {
 
 h1 {
     font-size: 36px;
-    color: #006400;
+    color: #198754;
 }
 
 h2 {
     font-size: 28px;
-    color: #006400;
+    color: #198754;
 }
 
 .match-header .team-logo {
@@ -43,7 +43,7 @@ h2 {
 .match-header .match-title {
     font-size: 24px;
     font-weight: bold;
-    color: #333;
+    color: #198754;
 }
 
 .match-info p {
@@ -52,7 +52,7 @@ h2 {
 }
 
 .match-info strong {
-    color: #006400;
+    color: #198754;
 }
 
 .stadium-layout {
@@ -66,7 +66,7 @@ h2 {
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
-    border: 2px solid #006400;
+    border: 2px solid #198754;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -79,7 +79,7 @@ h2 {
 
 #ticket-container .ticket-card {
     background-color: #eaf1e4;
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 12px;
     padding: 20px;
     margin: 15px 0;
@@ -96,7 +96,7 @@ h2 {
 }
 
 .ticket-card .buy-btn {
-    background-color: #32cd32;
+    background-color: #29cca2;
     color: white;
     padding: 5px 15px;
     border: none;
@@ -141,12 +141,12 @@ h2 {
 }
 
 .ticket-card select[id^="quantity-"] {
-    background-color: #ffffff;
-    border: 2px solid #006400;
+    background-color: #fff;
+    border: 2px solid #198754;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 16px;
-    color: #333;
+    color: #198754;
     cursor: pointer;
     transition: border-color 0.3s, box-shadow 0.3s;
     width: 100%;
@@ -159,23 +159,23 @@ h2 {
 }
 
 .ticket-card select[id^="quantity-"]:hover {
-    border-color: #32cd32;
+    border-color: #29cca2;
     box-shadow: 0 0 5px rgba(50, 205, 50, 0.5);
 }
 
 .ticket-card select[id^="quantity-"]:focus {
     outline: none;
-    border-color: #32cd32;
+    border-color: #29cca2;
     box-shadow: 0 0 8px rgba(50, 205, 50, 0.7);
 }
 
 .ticket-card select[id^="promo-code-"] {
-    background-color: #ffffff;
-    border: 2px solid #006400;
+    background-color: #fff;
+    border: 2px solid #198754;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 16px;
-    color: #333;
+    color: #198754;
     cursor: pointer;
     transition: border-color 0.3s, box-shadow 0.3s;
     width: 100%;
@@ -188,18 +188,18 @@ h2 {
 }
 
 .ticket-card select[id^="promo-code-"]:hover {
-    border-color: #32cd32;
+    border-color: #29cca2;
     box-shadow: 0 0 5px rgba(50, 205, 50, 0.5);
 }
 
 .ticket-card select[id^="promo-code-"]:focus {
     outline: none;
-    border-color: #32cd32;
+    border-color: #29cca2;
     box-shadow: 0 0 8px rgba(50, 205, 50, 0.7);
 }
 
 .ticket-card .promo-message {
-    color: #006400;
+    color: #198754;
     font-size: 14px;
     margin-top: 5px;
 }
@@ -214,7 +214,7 @@ h2 {
 #total-order-cost {
     font-size: 20px;
     font-weight: bold;
-    color: #006400;
+    color: #198754;
 }
 
 @media (max-width: 768px) {

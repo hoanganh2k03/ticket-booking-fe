@@ -19,11 +19,21 @@ function displayMatches(matches) {
 
       const team1Logo = match.team_1.logo ? match.team_1.logo : 'https://via.placeholder.com/50';
       const team2Logo = match.team_2.logo ? match.team_2.logo : 'https://via.placeholder.com/50';
-      const matchDate = new Date(match.match_time).toLocaleDateString();
-      const matchTime = new Date(match.match_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // 1. Xử lý Badge HOT (Góc Trái)
+      const hotBadge = match.is_hot_match 
+        ? `<div class="hot-badge"><i class="fas fa-fire"></i> Trận cầu tâm điểm</div>` 
+        : '';
+
+      // 2. Xử lý Badge SALE (Góc Phải) - MỚI THÊM
+      // API trả về số (vd: 30.00), ta dùng parseFloat để bỏ số 0 thừa (thành 30)
+      let saleBadge = '';
+      if (match.discount_percent && match.discount_percent > 0) {
+         saleBadge = `<div class="sale-badge"><i class="fas fa-bolt"></i> Siêu Sale ${parseFloat(match.discount_percent)}%</div>`;
+      }
 
       card.innerHTML = `
-        <div class="logos">
+        ${hotBadge}   ${saleBadge}  <div class="logos">
           <img src="${team1Logo}" alt="${match.team_1.team_name} Logo" class="team-logo">
           <span class="vs">VS</span>
           <img src="${team2Logo}" alt="${match.team_2.team_name} Logo" class="team-logo">
@@ -36,15 +46,13 @@ function displayMatches(matches) {
               <p>🔄 <strong>Vòng ${match.round}</strong></p>
             </div>
             <div class="right">
-              <p>📅 <strong>${new Date(match.match_time).toLocaleString()}</strong></p>
-              <p>🏟️ <strong>Sân vận động ${match.stadium.stadium_name}</strong></p>
+              <p>📅 <strong>${new Date(match.match_time).toLocaleString('vi-VN')}</strong></p>
+              <p>🏟️ <strong>${match.stadium.stadium_name}</strong></p>
             </div>
-          </div>
-          <div style="display: none" class="description">
-            <p>${match.description}</p>
           </div>
         </div>
       `;
+      
       card.addEventListener('click', () => {
         localStorage.setItem('selectedMatch', match.match_id);
         window.location.href = 'match_detail.html';
@@ -62,33 +70,31 @@ function loadMatches() {
   fetch(`${BASE_URL}/api/orders/matches/`)
     .then(response => response.json())
     .then(data => {
-      allMatches = data.results;
+      // Giả sử API trả về { results: [...] } hoặc mảng [...]
+      let rawMatches = data.results || data; 
 
-      const teams = [
-        ...new Set(
-          allMatches.flatMap(match => [match.team_1.team_name, match.team_2.team_name])
-        )
-      ];
+      // --- SẮP XẾP DỮ LIỆU ---
+      // Áp dụng logic sắp xếp ưu tiên HOT và thời gian
+      allMatches = defaultSortMatches(rawMatches);
+      
+      // Xử lý dữ liệu cho bộ lọc (Giữ nguyên logic cũ của bạn)
+      const teams = [...new Set(allMatches.flatMap(match => [match.team_1.team_name, match.team_2.team_name]))];
       allTeams = teams;
 
-      const leagues = [
-        ...new Set(
-          allMatches.map(match => match.league.league_name)
-        )
-      ];
+      const leagues = [...new Set(allMatches.map(match => match.league.league_name))];
       allLeagues = leagues;
 
-      const stadiums = [
-        ...new Set(
-          allMatches.map(match => match.stadium.stadium_name)
-        )
-      ];
+      const stadiums = [...new Set(allMatches.map(match => match.stadium.stadium_name))];
       allStadiums = stadiums;
 
+      // Render Options cho thẻ Select (Giữ nguyên logic cũ)
       const teamSelect = document.getElementById('filter-team');
       const leagueSelect = document.getElementById('filter-league');
       const stadiumSelect = document.getElementById('filter-stadium');
 
+      // (Lưu ý: Bạn nên xóa innerHTML cũ của select trước khi append để tránh duplicate nếu gọi hàm nhiều lần)
+      // teamSelect.innerHTML = '<option value="">All Teams</option>'; 
+      
       teams.forEach(team => {
         const option = document.createElement('option');
         option.value = team;
@@ -110,6 +116,7 @@ function loadMatches() {
         stadiumSelect.appendChild(option);
       });
 
+      // Hiển thị dữ liệu đã sắp xếp
       displayMatches(allMatches);
     })
     .catch(error => {
@@ -173,7 +180,11 @@ function clearFilter() {
   document.getElementById('filter-league').value = '';
   document.getElementById('filter-stadium').value = '';
   document.getElementById('filter-time-sort').value = '';
-  displayMatches(allMatches);
+  
+  // Sắp xếp lại danh sách gốc trước khi hiển thị
+  const sortedMatches = defaultSortMatches([...allMatches]);
+  displayMatches(sortedMatches);
+  
   toggleFilterForm();
 }
 
@@ -200,3 +211,21 @@ document.getElementById('clear-filter').addEventListener('click', clearFilter);
 
 // Gọi hàm khi trang tải xong
 window.onload = loadMatches;
+
+// Hàm sắp xếp mặc định: Ưu tiên HOT -> Thời gian gần nhất -> Importance
+function defaultSortMatches(matches) {
+  return matches.sort((a, b) => {
+    // 1. Ưu tiên trận đấu HOT (is_hot_match = true lên đầu)
+    if (a.is_hot_match && !b.is_hot_match) return -1;
+    if (!a.is_hot_match && b.is_hot_match) return 1;
+
+    // 2. Nếu cùng độ HOT, sắp xếp theo thời gian (Gần nhất lên đầu)
+    const timeA = new Date(a.match_time);
+    const timeB = new Date(b.match_time);
+    if (timeA - timeB !== 0) return timeA - timeB;
+
+    // 3. (Tùy chọn) Nếu cùng thời gian, ưu tiên Importance cao hơn
+    return b.importance - a.importance;
+  });
+}
+allMatches = defaultSortMatches(allMatches);

@@ -29,7 +29,7 @@ body {
 /* Heading styles */
 h1 {
     font-size: 36px;
-    color: #006400;
+    color: #198754;
 }
 
 /* Filter section */
@@ -43,15 +43,15 @@ h1 {
 /* Order list */
 .order-list {
     background-color: #eaf1e4;
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 12px;
     padding: 20px;
 }
 
 /* Order card */
 .order-card {
-    background-color: #ffffff;
-    border: 1px solid #006400;
+    background-color: #f0f3f1;
+    border: 1px solid #198754;
     border-radius: 8px;
     margin-bottom: 15px;
     padding: 15px;
@@ -82,13 +82,13 @@ h1 {
 }
 
 .order-content strong {
-    color: #006400;
+    color: #198754;
     margin-right: 5px;
 }
 
 /* Toggle icon */
 .order-card .toggle-details {
-    color: #006400;
+    color: #198754;
     font-size: 20px;
     margin-left: 10px;
 }
@@ -119,10 +119,10 @@ h1 {
 .order-details .qr-code-container img {
     max-width: 150px;
     height: auto;
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 4px;
     padding: 5px;
-    background-color: #ffffff;
+    background-color: #198754;
 }
 
 /* Status badges */

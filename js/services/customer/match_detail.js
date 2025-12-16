@@ -128,7 +128,7 @@ async function initializeMatchDetails() {
                 ticketDiv.innerHTML = `
                     <p><strong>Khu vực:</strong> ${ticket.section.section_name}</p>
                     <p><strong>Giá:</strong> ${parseFloat(ticket.price).toLocaleString('vi-VN')}VND</p>
-                    <p><strong>Còn lại:</strong> ${ticket.available_seats} vé</p>
+                    <p><strong>Còn lại:</strong> <span id="available-seats-${ticket.section.section_id}">${ticket.available_seats} vé</p>
                     <button id="buy-btn-${ticket.section.section_id}" class="buy-btn">Mua vé</button>
                     <div id="quantity-div-${ticket.section.section_id}" style="display:none;">
                         <label for="quantity-${ticket.section.section_id}">Số lượng:</label>
@@ -326,6 +326,89 @@ async function initializeMatchDetails() {
         }
     } catch (error) {
         handleError(error, 'Có lỗi xảy ra khi tải thông tin trận đấu.');
+    }
+    if (selectedMatchId) {
+        connectWebSocket(selectedMatchId);
+    }
+}
+
+//websocket
+// ... (Code cũ của bạn) ...
+
+// --- TÍCH HỢP WEBSOCKET ---
+function connectWebSocket(matchId) {
+    // 1. Tạo kết nối (Lưu ý: thay đổi ws:// hoặc wss:// tùy môi trường)
+    // Nếu bạn đang chạy local thì dùng ws://127.0.0.1:8000
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socketUrl = `${protocol}//127.0.0.1:8000/ws/book/${matchId}/`; 
+    
+    const bookingSocket = new WebSocket(socketUrl);
+
+    bookingSocket.onopen = function(e) {
+        console.log('✅ Kết nối WebSocket thành công!');
+    };
+
+    bookingSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("📩 WebSocket nhận tin:", data);
+
+        // Trường hợp 1: Nhận danh sách vé ban đầu (khi vừa vào trang)
+        if (data.status === 'success' && data.tickets) {
+            data.tickets.forEach(ticket => {
+                updateSeatCount(ticket.section_id, ticket.available_seats);
+            });
+        }
+
+        // Trường hợp 2: Cập nhật thời gian thực (khi có ai đó mua vé)
+        if (data.status === 'update' && data.updated_sections) {
+            
+            // Hiển thị thông báo nhỏ (Toast)
+            if (typeof showCusToast === 'function') {
+                showCusToast(`⚠️ ${data.message}`, 'info');
+            }
+
+            // Cập nhật số lượng trên giao diện
+            for (const [sectionId, newCount] of Object.entries(data.updated_sections)) {
+                updateSeatCount(sectionId, newCount);
+            }
+        }
+    };
+
+    bookingSocket.onclose = function(e) {
+        console.error('❌ WebSocket bị ngắt kết nối. Đang thử lại...');
+        // Tự động kết nối lại sau 3 giây (nếu muốn)
+        setTimeout(() => connectWebSocket(matchId), 3000);
+    };
+    
+    bookingSocket.onerror = function(e) {
+        console.error('WebSocket lỗi:', e);
+    };
+}
+
+// Hàm cập nhật giao diện
+function updateSeatCount(sectionId, count) {
+    const seatElement = document.getElementById(`available-seats-${sectionId}`);
+    if (seatElement) {
+        // Cập nhật số
+        seatElement.textContent = count;
+        
+        // Hiệu ứng nhấp nháy màu đỏ để gây chú ý
+        seatElement.style.color = "red";
+        seatElement.style.fontWeight = "bold";
+        setTimeout(() => {
+            seatElement.style.color = ""; // Trả về màu cũ
+            seatElement.style.fontWeight = "";
+        }, 2000);
+
+        // (Tùy chọn) Nếu hết vé (count <= 0), ẩn nút mua
+        if (count <= 0) {
+            const buyBtn = document.getElementById(`buy-btn-${sectionId}`);
+            if (buyBtn) {
+                buyBtn.disabled = true;
+                buyBtn.textContent = "Hết vé";
+                buyBtn.classList.add('disabled');
+            }
+        }
     }
 }
 

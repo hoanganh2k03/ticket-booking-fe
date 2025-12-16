@@ -390,3 +390,148 @@ document.getElementById("end_time").addEventListener("input", function () {
         endInput.classList.remove("is-invalid");
     }
 });
+// AI PROMOTION
+// --- LOGIC TÍCH HỢP AI ---
+
+const aiContainer = document.getElementById("ai-analysis-container");
+const aiElements = {
+    tierBadge: document.getElementById("ai-tier-badge"),
+    daysLeft: document.getElementById("ai-days-left"),
+    fillRate: document.getElementById("ai-fill-rate"),
+    soldStats: document.getElementById("ai-sold-stats"),
+    available: document.getElementById("ai-available"),
+    message: document.getElementById("ai-message"),
+    bestDiscount: document.getElementById("ai-best-discount"),
+    extraSold: document.getElementById("ai-extra-sold"),
+    btnUse: document.getElementById("btn-use-ai-suggestion")
+};
+
+// 1. Khi chọn Match -> Gọi API AI
+matchBulkSel.addEventListener("change", async () => {
+    const matchId = matchBulkSel.value;
+    
+    // Ẩn bảng AI nếu chưa chọn hoặc reset
+    if (!matchId) {
+        aiContainer.style.display = "none";
+        return;
+    }
+
+    // Hiển thị trạng thái loading (Optional: có thể thêm spinner)
+    aiContainer.style.display = "block";
+    aiElements.message.innerHTML = '<span class="spinner-border spinner-border-sm text-warning" role="status"></span> Đang phân tích dữ liệu thị trường...';
+    aiElements.btnUse.disabled = true;
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 2000)); //
+        const res = await fetch(`${API_BASE}/promotions/analyze/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ match_id: matchId })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            // Nếu lỗi (ví dụ: chưa mở bán vé), hiển thị thông báo lỗi
+            aiContainer.style.display = "none";
+            showToast(err.error || "Không thể phân tích trận đấu này", "warning");
+            return;
+        }
+
+        const data = await res.json();
+        renderAiAnalysis(data);
+
+    } catch (err) {
+        console.error("AI Error:", err);
+        aiContainer.style.display = "none";
+        showToast("Lỗi kết nối đến hệ thống AI", "danger");
+    }
+});
+
+// 2. Hàm hiển thị dữ liệu AI lên giao diện
+function renderAiAnalysis(data) {
+    if (data.status === "warning") {
+        // Trường hợp đã bán hết vé -> Chỉ hiện cảnh báo
+        aiElements.message.innerText = data.message;
+        aiElements.message.className = "alert alert-success border-start border-5 border-success mb-3";
+        aiElements.btnUse.disabled = true;
+        return;
+    }
+
+    const info = data.match_info;
+    const rec = data.recommendation;
+
+    // Fill thông tin cơ bản
+    aiElements.tierBadge.innerText = info.tier;
+    
+    // Màu sắc badge theo Tier
+    if (info.tier.includes("Tier 1")) aiElements.tierBadge.className = "badge bg-danger";
+    else if (info.tier.includes("Tier 4")) aiElements.tierBadge.className = "badge bg-secondary";
+    else aiElements.tierBadge.className = "badge bg-primary";
+
+    aiElements.daysLeft.innerText = `${info.days_left} ngày`;
+    // Màu sắc ngày: Gấp (<=3) thì đỏ
+    aiElements.daysLeft.className = info.days_left <= 3 ? "text-danger fw-bold" : "text-primary fw-bold";
+
+    aiElements.fillRate.innerText = `${info.fill_rate}%`;
+    aiElements.soldStats.innerText = `${info.sold_real} / ${info.initial_supply}`;
+    aiElements.available.innerText = info.available_real;
+
+    // Fill lời khuyên & Đề xuất
+    aiElements.message.innerHTML = rec.message;
+    // Reset style alert về mặc định
+    aiElements.message.parentElement.className = "alert alert-light border-start border-5 border-warning mb-3";
+
+    aiElements.bestDiscount.innerText = `Giảm ${rec.best_discount}%`;
+    aiElements.extraSold.innerText = rec.expected_extra_sold;
+
+    // Enable nút "Sử dụng"
+    aiElements.btnUse.disabled = false;
+    
+    // Lưu giá trị đề xuất vào data attribute của nút để dùng sau
+    aiElements.btnUse.dataset.discount = rec.best_discount;
+}
+
+// 3. Xử lý khi bấm nút "Sử dụng đề xuất"
+// --- HÀM TIỆN ÍCH: BỎ DẤU TIẾNG VIỆT & KÝ TỰ ĐẶC BIỆT ---
+function cleanString(str) {
+    return str.normalize('NFD') // Tách dấu ra khỏi chữ
+              .replace(/[\u0300-\u036f]/g, '') // Xóa dấu
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D') // Xử lý chữ đ/Đ
+              .replace(/\(.*?\)/g, "") // Xóa nội dung trong ngoặc đơn (VD: "(Bóng rổ)")
+              .replace(/[^a-zA-Z0-9]/g, "") // Chỉ giữ lại chữ và số (Xóa khoảng trắng, dấu -, ...)
+              .toUpperCase(); // Viết hoa toàn bộ
+}
+
+// 3. Xử lý khi bấm nút "Sử dụng đề xuất"
+aiElements.btnUse.addEventListener("click", () => {
+    const discount = aiElements.btnUse.dataset.discount;
+    
+    if (discount) {
+        // Điền vào form
+        document.getElementById("discount_type").value = "percentage";
+        document.getElementById("discount_value").value = discount;
+        
+        // --- LOGIC TẠO MÃ CODE ĐẸP HƠN ---
+        const matchText = matchBulkSel.options[matchBulkSel.selectedIndex].text;
+        // Lấy tên trận đấu (bỏ phần giờ phía sau dấu gạch ngang)
+        let rawName = matchText.split("—")[0]; 
+        
+        // Làm sạch chuỗi
+        const cleanName = cleanString(rawName); 
+        
+        // Lấy tối đa 12 ký tự để mã không quá dài
+        const shortName = cleanName.substring(0, 12); 
+        
+        // Kết quả: HOT50_TEAMBR5VSTEAMBR4
+        document.getElementById("promo_code").value = `HOT${discount}_${shortName}`;
+        
+        // Tạo mô tả
+        document.getElementById("description").value = `Ưu đãi 'nóng' giảm ${discount}% cho trận ${matchText.split("—")[0].trim()}. Số lượng có hạn!`;
+
+        showToast("Đã áp dụng đề xuất của AI!", "success");
+        
+        // Trigger validate UI
+        document.getElementById("discount_value").classList.remove("is-invalid");
+        document.getElementById("promo_code").dispatchEvent(new Event('input')); // Trigger check pattern
+    }
+});

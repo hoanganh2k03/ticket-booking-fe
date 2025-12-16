@@ -30,7 +30,10 @@
             <label for="description" class="form-label">Mô tả</label>
             <textarea class="form-control" id="description" name="description" required></textarea>
           </div>
-
+         <div class="mb-3">
+  <label for="rating" class="form-label">Chỉ số sức hút (1-10)</label>
+  <input type="number" class="form-control" id="rating" name="rating" min="1" max="10" required />
+</div>
           <div class="text-end mt-4">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-check-circle me-1"></i> Cập nhật đội bóng
@@ -67,6 +70,7 @@
             document.getElementById('team_name').value = data.team_name;
             document.getElementById('head_coach').value = data.head_coach;
             document.getElementById('description').value = data.description;
+            document.getElementById('rating').value = data.rating;
           } else {
             console.error('Không có dữ liệu cho đội bóng này');
           }
@@ -83,19 +87,18 @@
   const params = new URLSearchParams(window.location.search);
   const teamId = params.get('id');
 
-  // Kiểm tra nếu không có teamId
   if (!teamId) {
     Swal.fire("Lỗi", "Không xác định được ID đội bóng", "error");
     return;
   }
 
-  // Lấy thông tin từ form
+  // Lấy giá trị
   const teamName = form.team_name.value.trim();
   const headCoach = form.head_coach.value.trim();
   const description = form.description.value.trim();
+  const rating = form.rating.value.trim();
 
-  // Kiểm tra các trường hợp không hợp lệ
-  if (!teamName || !headCoach || !description) {
+  if (!teamName || !headCoach || !description || !rating) {
     Swal.fire("Lỗi", "Bạn phải điền đầy đủ thông tin đội bóng!", "error");
     return;
   }
@@ -104,14 +107,15 @@
   const teamData = {
     team_name: teamName,
     head_coach: headCoach,
-    description: description
+    description: description,
+    rating: parseInt(rating) // --- SỬA 1: Ép kiểu về số nguyên để an toàn ---
   };
 
   try {
-    console.log("Dữ liệu đội bóng:", teamData);
+    console.log("Dữ liệu gửi đi:", teamData);
 
     const res = await fetch(`${BASE_URL}/api/events/teams/${teamId}/`, {
-      method: "PUT",
+      method: "PATCH", // --- SỬA 2: Đổi PUT thành PATCH (Quan trọng nhất) ---
       headers: {
         "Content-Type": "application/json"
       },
@@ -124,16 +128,15 @@
       Swal.fire("Thành công", "Cập nhật đội bóng thành công!", "success")
         .then(() => window.location.href = 'http://127.0.0.1:5500/pages/admin/base.html#events/teams');
     } else {
-      let errorMessage = "Cập nhật đội bóng thất bại!";
-
-      if (data.team_name && data.team_name[0].includes("already exists")) {
-        errorMessage = "Đội bóng đã tồn tại.";
-      } else if (data.head_coach) {
-        errorMessage = "Tên huấn luyện viên không hợp lệ.";
-      } else if (data.description) {
-        errorMessage = "Mô tả đội bóng không hợp lệ.";
-      } else if (data.detail) {
-        errorMessage = data.detail;
+      console.error("Lỗi từ server:", data); // --- SỬA 3: Log lỗi chi tiết ra console để debug ---
+      
+      let errorMessage = "Cập nhật thất bại!";
+      // Hiển thị lỗi chi tiết từ Server trả về
+      if (typeof data === 'object') {
+          // Lấy lỗi đầu tiên tìm thấy
+          const firstKey = Object.keys(data)[0];
+          const firstError = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+          errorMessage = `${firstKey}: ${firstError}`;
       }
 
       Swal.fire("Lỗi", errorMessage, "error");

@@ -32,7 +32,7 @@
 
 .order-header p span {
     font-weight: bold;
-    color: #006400;
+    color: #198754;
 }
 
 .payment-info, .match-info {
@@ -47,7 +47,7 @@
     font-size: 1.8rem;
     color: #1a3c34;
     margin-bottom: 15px;
-    border-left: 4px solid #32cd32;
+    border-left: 4px solid #29cca2;
     padding-left: 10px;
 }
 
@@ -59,7 +59,7 @@
 
 .payment-info p span, .match-info p span {
     font-weight: 600;
-    color: #006400;
+    color: #198754;
 }
 
 .order-section {
@@ -75,7 +75,7 @@
     color: #1a3c34;
     margin-bottom: 15px;
     padding-left: 10px;
-    border-left: 4px solid #32cd32;
+    border-left: 4px solid #29cca2;
 }
 
 .order-details {
@@ -102,12 +102,12 @@
 .order-detail div {
     flex: 1;
     font-size: 1rem;
-    color: #333;
+    color: #198754;
 }
 
 .order-detail div:nth-child(1) {
     font-weight: bold;
-    color: #006400;
+    color: #198754;
 }
 
 .order-detail div:nth-child(3) {
@@ -122,10 +122,10 @@
 .qr-code {
     max-width: 100px;
     max-height: 100px;
-    border: 2px solid #32cd32;
+    border: 2px solid #29cca2;
     border-radius: 8px;
     padding: 5px;
-    background: #fff;
+    background: #198754;
     transition: transform 0.2s ease;
 }
 
@@ -145,7 +145,7 @@
 }
 
 .total span {
-    color: #006400;
+    color: #198754;
     font-size: 1.4rem;
 }
 

@@ -29,21 +29,21 @@ body {
 /* Heading styles */
 h1 {
     font-size: 36px;
-    color: #006400;
+    color: #198754;
 }
 
 /* Order list */
 .order-list {
     background-color: #eaf1e4;
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 12px;
     padding: 20px;
 }
 
 /* Order card */
 .order-card {
-    background-color: #ffffff;
-    border: 1px solid #006400;
+    background-color: #198754fff;
+    border: 1px solid #198754;
     border-radius: 8px;
     margin-bottom: 15px;
     padding: 15px;
@@ -66,12 +66,12 @@ h1 {
     margin: 0;
     font-size: 18px;
     font-weight: bold;
-    color: #006400;
+    color: #198754;
 }
 
 /* Toggle icon */
 .order-card .toggle-details {
-    color: #006400;
+    color: #198754;
     font-size: 20px;
 }
 
@@ -95,7 +95,7 @@ h1 {
 }
 
 .order-content strong {
-    color: #006400;
+    color: #198754;
     margin-right: 5px;
 }
 
@@ -124,7 +124,7 @@ h1 {
 }
 
 .order-details .ticket button {
-    background-color: #006400;
+    background-color: #198754;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -144,7 +144,7 @@ h1 {
 }
 
 .modal-header {
-    background-color: #006400;
+    background-color: #198754;
     color: white;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -160,8 +160,8 @@ h1 {
 }
 
 .modal-footer .btn-primary {
-    background-color: #006400;
-    border-color: #006400;
+    background-color: #198754;
+    border-color: #198754;
 }
 
 .modal-footer .btn-primary:hover {
@@ -222,12 +222,12 @@ h1 {
 .filter-section .form-select,
 .filter-section .form-control,
 .filter-section .btn {
-    border: 1px solid #006400;
+    border: 1px solid #198754;
     border-radius: 4px;
 }
 
 .filter-section .form-label {
-    color: #006400;
+    color: #198754;
     font-weight: bold;
 }
 
