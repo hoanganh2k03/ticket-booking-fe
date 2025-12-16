@@ -34,7 +34,10 @@ const BASE_URL = CONFIG.BASE_URL;
     closeBtn.innerHTML = '✕';
     closeBtn.style.background='transparent';
     closeBtn.style.border='none';
+
     closeBtn.style.color='#198754';
+
+    // closeBtn.style.color='#fff';
     closeBtn.style.fontSize='18px';
     closeBtn.style.width = '32px';
     closeBtn.style.height = '32px';
@@ -81,6 +84,8 @@ const BASE_URL = CONFIG.BASE_URL;
     newBtn.style.background = 'transparent';
     newBtn.style.border = '1px solid rgba(255,255,255,0.2)';
     newBtn.style.color = '#198754';
+
+    // newBtn.style.color = '#fff';
     newBtn.style.borderRadius = '6px';
     newBtn.style.width = '30px';
     newBtn.style.height = '30px';
@@ -211,6 +216,7 @@ const BASE_URL = CONFIG.BASE_URL;
       const row = el('div','chatbot-message ' + (msg.sender==='user'?'user':'bot'));
       if(msg.sender==='bot'){
         const avatar = el('div'); avatar.textContent='🤖'; avatar.style.width='32px'; avatar.style.height='32px'; avatar.style.display='flex'; avatar.style.alignItems='center'; avatar.style.justifyContent='center'; avatar.style.borderRadius='50%'; avatar.style.background='#4f46e5'; avatar.style.color='#198754'; avatar.style.fontSize='14px'; avatar.style.flex='0 0 32px'; row.appendChild(avatar);
+        // const avatar = el('div'); avatar.textContent='🤖'; avatar.style.width='32px'; avatar.style.height='32px'; avatar.style.display='flex'; avatar.style.alignItems='center'; avatar.style.justifyContent='center'; avatar.style.borderRadius='50%'; avatar.style.background='#4f46e5'; avatar.style.color='#fff'; avatar.style.fontSize='14px'; avatar.style.flex='0 0 32px'; row.appendChild(avatar);
       }
       const bubble = el('div','bubble');
       // Xử lý các link /match_id
@@ -224,7 +230,7 @@ const BASE_URL = CONFIG.BASE_URL;
 });
 
       bubble.innerHTML = processedText;
-      row.appendChild(bubble);
+      // row.appendChild(bubble);
 
       // Gắn event listener cho các link vừa tạo
       if (msg.sender === 'bot') {
@@ -241,7 +247,9 @@ const BASE_URL = CONFIG.BASE_URL;
       }
       row.appendChild(bubble);
       if(msg.sender==='user'){
+
         const avatar = el('div'); avatar.textContent='🧑'; avatar.style.width='32px'; avatar.style.height='32px'; avatar.style.display='flex'; avatar.style.alignItems='center'; avatar.style.justifyContent='center'; avatar.style.borderRadius='50%'; avatar.style.background='#9ca3af'; avatar.style.color='#198754'; avatar.style.fontSize='14px'; avatar.style.flex='0 0 32px'; row.appendChild(avatar);
+        
       }
       container.appendChild(row);
       container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
@@ -264,4 +272,6 @@ const BASE_URL = CONFIG.BASE_URL;
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', createWidget);
   else createWidget();
 
+
 })();
+

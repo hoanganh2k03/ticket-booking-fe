@@ -6,6 +6,10 @@ import { showToast } from "../../../components/toast.js";
 let returnsTable;
 $(document).ready(function () {
     // 2. Khởi tạo DataTable
+    // Kiểm tra xem DataTable đã được khởi tạo chưa, nếu rồi thì destroy trước
+    if ($.fn.DataTable.isDataTable("#returns-table")) {
+        returnsTable.destroy();
+    }
     returnsTable = $("#returns-table").DataTable({
         ajax: {
             url: `${API_BASE}/`,
