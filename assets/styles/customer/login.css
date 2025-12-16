@@ -93,6 +93,81 @@ html {
     color: white;
 }
 
+/* Facebook button styling */
+.btn-facebook {
+    /* Match the Google button visual: white background, simple border, rounded corners */
+    background: #fff;
+    color: #202124; /* Google dark text color */
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.45rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 240px; /* fixed width to match Google button width */
+    max-width: 100%;
+    justify-content: center; /* center like Google button */
+    box-shadow: 0 2px 6px rgba(60, 64, 67, 0.08);
+    white-space: nowrap; /* avoid wrapping the text */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
+}
+
+.btn-facebook .facebook-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1877F2; /* Facebook blue */
+    color: #fff;
+    width: 28px;   /* slightly smaller icon */
+    height: 28px;  /* slightly smaller icon */
+    border-radius: 6px;
+    flex: 0 0 28px;
+    font-size: 0.85rem; /* smaller glyph */
+}
+
+.btn-facebook .facebook-text {
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* nudge text slightly left to better align with Google button visuals */
+    transform: translateX(-6px);
+}
+
+.btn-facebook:hover {
+    background: #f6f6f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(60, 64, 67, 0.12);
+}
+
+.btn-facebook:focus {
+    outline: 3px solid rgba(24, 119, 242, 0.15);
+    outline-offset: 2px;
+}
+
+/* Make sure the button is responsive on small viewports */
+@media (max-width: 480px) {
+    /* Both social buttons become full width on small screens */
+    .btn-facebook, #google-signin-button { width: 100%; }
+    .btn-facebook { min-width: 0; justify-content: center; }
+    .btn-facebook .facebook-text { text-align: center; }
+}
+
+/* Ensure Google button container matches the same width and centers its content */
+#google-signin-button {
+    width: 240px;
+    max-width: 100%;
+    display: inline-block;
+}
+@media (max-width: 480px) {
+    #google-signin-button { width: 100%; }
+}
+
 .form-text a {
     color: white;
     font-weight: 600;
