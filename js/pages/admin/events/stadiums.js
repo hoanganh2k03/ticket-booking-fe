@@ -3,13 +3,15 @@ import CONFIG from "../../../utils/settings.js";
 
 // API endpoint
 const API_URL = CONFIG.BASE_URL + "/api/events/stadiums/";
-const API_URL2= CONFIG.BASE_URL + "/api/tickets/seats/";
+const API_URL2 = CONFIG.BASE_URL + "/api/tickets/seats/";
+const SPORTS_API = CONFIG.BASE_URL + "/api/events/sports/";
 
 console.log("API_URL", API_URL); // In URL API ra console để kiểm tra
 
 // Khai báo biến dữ liệu toàn cục (rỗng ban đầu, sau fetch sẽ được gán)
 let stadiums = [];
 let filteredStadiums = [];
+let sportsMap = {}; // sport_id -> sport_name mapping
 
 // Các tham chiếu đến element của trang
 const contentContainer = document.getElementById('content-container');
@@ -23,7 +25,11 @@ async function loadStadiumsPage(event) {
   document.getElementById('section-container').style.display = 'none';
 
   try {
-    const resp = await fetch(API_URL);
+    const sportSelect = document.getElementById('sportFilter');
+    const selectedSport = sportSelect ? sportSelect.value : '';
+    const url = selectedSport ? `${API_URL}?sport_id=${encodeURIComponent(selectedSport)}` : API_URL;
+
+    const resp = await fetch(url);
     if (!resp.ok) {
       console.error(`Lỗi khi tải dữ liệu sân vận động: ${resp.status}`);
       Swal.fire('Lỗi', 'Không thể tải danh sách sân vận động', 'error');
@@ -31,7 +37,7 @@ async function loadStadiumsPage(event) {
     }
 
     const data = await resp.json();
-    console.log("Dữ liệu từ API:", data);
+    console.debug("Dữ liệu từ API (stadiums):", data);
 
     stadiums = data.results
       ? data.results.map((s) => ({
@@ -41,7 +47,12 @@ async function loadStadiumsPage(event) {
           capacity: s.capacity,
           layout: s.stadium_layouts_url,
         }))
-      : [];
+      : (Array.isArray(data) ? data : (data.data || []));
+
+    // Populate sports dropdown if empty
+    if (Object.keys(sportsMap).length === 0) {
+      await loadSportsAndPopulate();
+    }
 
     applyFilter(); // Sau khi fetch xong thì lọc và render
   } catch (error) {
@@ -57,6 +68,16 @@ function applyFilter() {
   filteredStadiums = stadiums;
 
   const tbody = document.querySelector('#stadiumTable tbody');
+
+  // Destroy existing DataTable to avoid duplicate rows when re-rendering
+  if ($.fn.DataTable.isDataTable('#stadiumTable')) {
+    try {
+      $('#stadiumTable').DataTable().destroy();
+    } catch (err) {
+      console.warn('Error destroying DataTable (ignored):', err);
+    }
+  }
+
   tbody.innerHTML = filteredStadiums.map((stadium, index) => `
     <tr data-stadium-id="${stadium.id}">
       <td>${index + 1}</td>
@@ -93,10 +114,15 @@ function applyFilter() {
 
   attachEventListeners();
 
-  // Nếu table chưa được khởi tạo DataTable thì khởi tạo
-  if (!$.fn.DataTable.isDataTable('#stadiumTable')) {
-    $('#stadiumTable').DataTable();
+  // Reinitialize DataTable
+  $('#stadiumTable').DataTable();
+
+  // Restore search if there was a value
+  const searchVal = document.getElementById('searchStadiumInput').value;
+  if (searchVal) {
+    $('#stadiumTable').DataTable().search(searchVal).draw();
   }
+
   document.querySelectorAll('.view-sections-btn').forEach(button => {
     button.addEventListener('click', function () {
       const stadiumId = this.closest('tr').getAttribute('data-stadium-id');
@@ -663,6 +689,39 @@ $('#sectionTable tbody').on('click', 'tr', function () {
     // Lấy lại stadiumName từ context bên trên
     loadSeatsForSection(stadiumId, sectionId, sectionName, stadiumName);
   });
-// Tải dữ liệu ban đầu
+// Load and populate sports dropdown
+async function loadSportsAndPopulate() {
+  try {
+    const resp = await fetch(SPORTS_API);
+    if (!resp.ok) throw new Error(`Failed to fetch sports: ${resp.status}`);
+    const data = await resp.json();
+    const list = data.results || (Array.isArray(data) ? data : (data.data || []));
 
+    const sportSelect = document.getElementById('sportFilter');
+    if (!sportSelect) return;
+
+    // reset options to default to avoid duplicates
+    sportSelect.innerHTML = '<option value="">-- Tất cả môn thể thao --</option>';
+
+    list.forEach(s => {
+      sportsMap[s.sport_id] = s.sport_name;
+      const opt = document.createElement('option');
+      opt.value = s.sport_id;
+      opt.textContent = s.sport_name;
+      sportSelect.appendChild(opt);
+    });
+
+    // attach change listener only once
+    if (!sportSelect.dataset.listenerAttached) {
+      sportSelect.addEventListener('change', function () {
+        loadStadiumsPage();
+      });
+      sportSelect.dataset.listenerAttached = '1';
+    }
+  } catch (err) {
+    console.error('Error loading sports:', err);
+  }
+}
+
+// Tải dữ liệu ban đầu
 loadStadiumsPage();

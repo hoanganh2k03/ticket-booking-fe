@@ -3,12 +3,14 @@ import CONFIG from "../../../utils/settings.js";
 
 // API endpoint
 const API_URL = CONFIG.BASE_URL + "/api/events/teams/";
+const SPORTS_API = CONFIG.BASE_URL + "/api/events/sports/";
 const BASE_URL = CONFIG.BASE_URL;  // Thêm BASE_URL để dùng cho upload
 console.log("API_URL", API_URL); // In URL API ra console để kiểm tra
 
 // Biến dữ liệu toàn cục
 let teams = [];
 let filteredTeams = [];
+let sportsMap = {}; // sport_id -> sport_name mapping (populated from /api/events/sports/)
 
 // Tham chiếu tới tbody
 const tbody = document.querySelector("#teamTable tbody");
@@ -18,28 +20,36 @@ async function loadTeamsPage(event) {
   if (event) event.preventDefault();
 
   try {
-    const resp = await fetch(API_URL);
+    const sportSelect = document.getElementById('sportFilter');
+    const selectedSport = sportSelect ? sportSelect.value : '';
+    const url = selectedSport ? `${API_URL}?sport_id=${encodeURIComponent(selectedSport)}` : API_URL;
+
+    const resp = await fetch(url);
     if (!resp.ok) {
       console.error(`Lỗi khi tải dữ liệu đội bóng: ${resp.status}`);
       Swal.fire('Lỗi', 'Không thể tải danh sách đội bóng', 'error');
       return;
     }
-
     const data = await resp.json();
-    console.log("Dữ liệu từ API:", data);
+    console.log("Dữ liệu từ API (teams):", data);
 
     teams = data.results
       ? data.results.map((t) => ({
           id: t.team_id,
           sport: t.sport,
+          sport_name: t.sport_name || (typeof t.sport === 'string' ? t.sport : null) || sportsMap[t.sport] || null,
           name: t.team_name,
           logo: t.logo,
           coach: t.head_coach,
           description: t.description,
-          rating:t.rating,
-
+          rating: t.rating,
         }))
       : [];
+
+    // Ensure sports dropdown is populated
+    if (Object.keys(sportsMap).length === 0) {
+      await loadSportsAndPopulate();
+    }
 
     applyFilter(); // Sau khi fetch xong thì lọc và render
   } catch (error) {
@@ -53,6 +63,15 @@ function applyFilter() {
   filteredTeams = teams;
   const tbody = document.querySelector('#teamTable tbody');
 
+  // Destroy existing DataTable to avoid duplicate rows when re-rendering
+  if ($.fn.DataTable.isDataTable('#teamTable')) {
+    try {
+      $('#teamTable').DataTable().destroy();
+    } catch (err) {
+      console.warn('Error destroying DataTable (ignored):', err);
+    }
+  }
+
   tbody.innerHTML = filteredTeams.map((team, index) => `
     <tr data-team-id="${team.id}">
       <td>${index + 1}</td> <!-- STT tự tăng -->
@@ -63,7 +82,7 @@ function applyFilter() {
         <img id="team-logo-${team.id}" src="${team.logo || '/media/team_logos/default.webp'}" alt="${team.name}" width="50" height="50"/>
       </td>
       <td>${team.coach || ''}</td>
-      <td>${team.sport}</td>
+      <td>${team.sport_name || team.sport || ''}</td>
         <td>${team.rating}</td>
       <td>${team.description || ''}</td>
       <td>
@@ -78,8 +97,14 @@ function applyFilter() {
   `).join('');
 
   attachEventListeners();
-  if (!$.fn.DataTable.isDataTable('#teamTable')) {
-    $('#teamTable').DataTable();
+
+  // Reinitialize DataTable
+  $('#teamTable').DataTable();
+
+  // Restore search if there was a search value
+  const searchVal = document.getElementById('searchTeamInput').value;
+  if (searchVal) {
+    $('#teamTable').DataTable().search(searchVal).draw();
   }
 }
 document.getElementById('searchTeamInput').addEventListener('input', function (e) {
@@ -167,6 +192,40 @@ function attachEventListeners() {
         });
     });
   });
+}
+
+// Load and populate sports dropdown
+async function loadSportsAndPopulate() {
+  try {
+    const resp = await fetch(SPORTS_API);
+    if (!resp.ok) throw new Error(`Failed to fetch sports: ${resp.status}`);
+    const data = await resp.json();
+    const list = data.results || (Array.isArray(data) ? data : []);
+
+    const sportSelect = document.getElementById('sportFilter');
+    if (!sportSelect) return;
+
+    // reset options to default to avoid duplicates
+    sportSelect.innerHTML = '<option value="">-- Tất cả môn thể thao --</option>';
+
+    list.forEach(s => {
+      sportsMap[s.sport_id] = s.sport_name;
+      const opt = document.createElement('option');
+      opt.value = s.sport_id;
+      opt.textContent = s.sport_name;
+      sportSelect.appendChild(opt);
+    });
+
+    // attach change listener only once
+    if (!sportSelect.dataset.listenerAttached) {
+      sportSelect.addEventListener('change', function () {
+        loadTeamsPage();
+      });
+      sportSelect.dataset.listenerAttached = '1';
+    }
+  } catch (err) {
+    console.error('Error loading sports:', err);
+  }
 }
 
 // Load dữ liệu ban đầu
