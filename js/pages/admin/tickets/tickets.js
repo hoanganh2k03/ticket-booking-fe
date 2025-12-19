@@ -29,25 +29,29 @@ async function loadTicketPage(event) {
     const ticketData = await ticketResp.json();
     const matches = await matchResp.json();
     const sportsData = sportsResp && sportsResp.ok ? await sportsResp.json() : [];
-
+    console.log('RAW API: section-prices (ticketData):', ticketData);
+    console.log('RAW API: completed-matches (matches):', matches);
+    console.log('RAW API: sports (sportsData):', sportsData);
     // Normalize sports list (handle pagination if necessary)
     const sports = (sportsData.results && sportsData.results.length) ? sportsData.results : (Array.isArray(sportsData) ? sportsData : []);
     sportsList = sports;
 
     // Gán dữ liệu tickets
-    // Tạo map: match_description => match_id
+    // Tạo map: normalized(match_description) => match_id
     const matchMap = {};
     matches.forEach(m => {
-      matchMap[m.description.trim()] = m.match_id;
+      matchMap[normalizeText(m.description)] = m.match_id;
       // build match->sport mapping (serializer now returns sport_id)
-      matchSportMap[m.match_id] = m.sport_id || null;
+      matchSportMap[m.match_id] = m.sport_id != null ? Number(m.sport_id) : null;
     });
 
-    // Gán match_id cho từng ticket dựa vào match_description
+    // Gán match_id và sport cho từng ticket dựa vào match_description
     tickets = ticketData.results.map(t => ({
       ...t,
       id: t.pricing_id,
-      match_id: matchMap[t.match_description.trim()] || null
+      match_id: matchMap[normalizeText(t.match_description)] || null,
+      sport_id: t.sport_id != null ? Number(t.sport_id) : (matchMap[normalizeText(t.match_description)] ? matchSportMap[matchMap[normalizeText(t.match_description)]] : null),
+      sport_name: t.sport_name || null
     }));
 
     // Populate dropdown lọc môn thể thao
@@ -119,7 +123,11 @@ function applyFilter() {
   if (!isNaN(selectedMatchId)) {
     filtered = filtered.filter(t => t.match_id === selectedMatchId);
   } else if (!isNaN(selectedSportId)) {
-    filtered = filtered.filter(t => matchSportMap[t.match_id] === selectedSportId);
+    filtered = filtered.filter(t => {
+      if (t.sport_id != null) return Number(t.sport_id) === selectedSportId;
+      if (t.match_id && matchSportMap[t.match_id] != null) return Number(matchSportMap[t.match_id]) === selectedSportId;
+      return false;
+    });
   }
 
   if (searchTerm) {
