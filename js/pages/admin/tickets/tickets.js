@@ -29,9 +29,6 @@ async function loadTicketPage(event) {
     const ticketData = await ticketResp.json();
     const matches = await matchResp.json();
     const sportsData = sportsResp && sportsResp.ok ? await sportsResp.json() : [];
-    console.log('RAW API: section-prices (ticketData):', ticketData);
-    console.log('RAW API: completed-matches (matches):', matches);
-    console.log('RAW API: sports (sportsData):', sportsData);
     // Normalize sports list (handle pagination if necessary)
     const sports = (sportsData.results && sportsData.results.length) ? sportsData.results : (Array.isArray(sportsData) ? sportsData : []);
     sportsList = sports;
