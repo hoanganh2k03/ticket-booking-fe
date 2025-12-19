@@ -5,26 +5,42 @@ const API_URL = CONFIG.BASE_URL + "/api/tickets/section-prices/";
 const BASE_URL = CONFIG.BASE_URL;
 
 let tickets = [];
+let matchSportMap = {}; // match_id -> sport_id
+let sportsList = [];
+let matchesList = []; // store completed matches list for fallback lookups
+
+// normalize descriptions (trim, collapse whitespace, lowercase)
+function normalizeText(s) {
+  return (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+}
 
 async function loadTicketPage(event) {
   if (event) event.preventDefault();
 
   try {
-    const [ticketResp, matchResp] = await Promise.all([
+    const [ticketResp, matchResp, sportsResp] = await Promise.all([
       fetch(API_URL),
-      fetch(`${BASE_URL}/api/tickets/completed-matches/`)
+      fetch(`${BASE_URL}/api/tickets/completed-matches/`),
+      fetch(`${BASE_URL}/api/events/sports/`)
     ]);
 
     if (!ticketResp.ok || !matchResp.ok) throw new Error("Failed to fetch data");
 
     const ticketData = await ticketResp.json();
     const matches = await matchResp.json();
+    const sportsData = sportsResp && sportsResp.ok ? await sportsResp.json() : [];
+
+    // Normalize sports list (handle pagination if necessary)
+    const sports = (sportsData.results && sportsData.results.length) ? sportsData.results : (Array.isArray(sportsData) ? sportsData : []);
+    sportsList = sports;
 
     // Gán dữ liệu tickets
     // Tạo map: match_description => match_id
     const matchMap = {};
     matches.forEach(m => {
       matchMap[m.description.trim()] = m.match_id;
+      // build match->sport mapping (serializer now returns sport_id)
+      matchSportMap[m.match_id] = m.sport_id || null;
     });
 
     // Gán match_id cho từng ticket dựa vào match_description
@@ -34,8 +50,25 @@ async function loadTicketPage(event) {
       match_id: matchMap[t.match_description.trim()] || null
     }));
 
+    // Populate dropdown lọc môn thể thao
+    const sportFilter = document.getElementById('sport-filter');
+    if (sportFilter) {
+      sportFilter.innerHTML = '<option value="">--Tất cả môn thể thao--</option>' + sports.map(s => `<option value="${s.sport_id}">${s.sport_name}</option>`).join('');
+      sportFilter.addEventListener('change', () => {
+        // Repopulate matches dropdown to show only matches in the selected sport
+        const selected = sportFilter.value;
+        const matchFilter = document.getElementById('match-filter');
+        if (matchFilter) {
+          const filteredMatches = selected ? matches.filter(m => m.sport_id == parseInt(selected)) : matches;
+          matchFilter.innerHTML = `\n            <option value="">--Các trận đã tạo vé--</option>\n            ${filteredMatches.map(m => `<option value="${m.match_id}">${m.description}</option>`).join('')}`;
+          matchFilter.value = '';
+          matchFilter.dispatchEvent(new Event('change'));
+        }
+        applyFilter();
+      });
+    }
 
-    // Populate dropdown lọc trận
+    // Populate dropdown lọc trận (initial)
     const matchFilter = document.getElementById("match-filter");
     matchFilter.innerHTML = `
       <option value="">--Các trận đã tạo vé--</option>
@@ -74,13 +107,28 @@ async function loadTicketPage(event) {
 function applyFilter() {
   const selectedMatchIdRaw = document.getElementById('match-filter').value;
   const selectedMatchId = parseInt(selectedMatchIdRaw);
+  const selectedSportRaw = document.getElementById('sport-filter') ? document.getElementById('sport-filter').value : '';
+  const selectedSportId = parseInt(selectedSportRaw);
 
-  console.log("Selected Match ID:", selectedMatchId);
+  const searchTerm = (document.getElementById('ticketSearchInput').value || '').trim().toLowerCase();
 
-  const filtered = isNaN(selectedMatchId)
-    ? tickets
-    : tickets.filter(t => t.match_id === selectedMatchId);
+  console.log("Selected Match ID:", selectedMatchId, "Selected Sport ID:", selectedSportId, "Search:", searchTerm);
 
+  let filtered = tickets;
+
+  if (!isNaN(selectedMatchId)) {
+    filtered = filtered.filter(t => t.match_id === selectedMatchId);
+  } else if (!isNaN(selectedSportId)) {
+    filtered = filtered.filter(t => matchSportMap[t.match_id] === selectedSportId);
+  }
+
+  if (searchTerm) {
+    filtered = filtered.filter(ticket => {
+      const matchDescription = (ticket.match_description || '').toLowerCase();
+      const stadiumName = (ticket.stadium_name || '').toLowerCase();
+      return matchDescription.includes(searchTerm) || stadiumName.includes(searchTerm);
+    });
+  }
 
   console.log("Filtered Tickets:", filtered);
 
@@ -164,18 +212,9 @@ function renderTable(data) {
   const table = $('#ticketTable').DataTable();
   table.clear().rows.add(rows).draw();
 }
-document.getElementById('ticketSearchInput').addEventListener('input', function (event) {
-  const searchTerm = event.target.value.toLowerCase();  // Lấy giá trị tìm kiếm và chuyển thành chữ thường
-
-  // Lọc danh sách vé theo mô tả trận hoặc tên sân vận động
-  const filteredTickets = tickets.filter(ticket => {
-    const matchDescription = ticket.match_description.toLowerCase();
-    const stadiumName = ticket.stadium_name.toLowerCase();
-    return matchDescription.includes(searchTerm) || stadiumName.includes(searchTerm);
-  });
-
-  // Hiển thị lại bảng sau khi lọc
-  renderTable(filteredTickets);  // Gọi hàm renderTable với dữ liệu đã lọc
+document.getElementById('ticketSearchInput').addEventListener('input', function () {
+  // Khi người dùng gõ, gọi lại applyFilter để kết hợp tìm kiếm với các bộ lọc hiện tại
+  applyFilter();
 });
 
 // Gán hàm cho global

@@ -2,9 +2,11 @@ import CONFIG from "../../utils/settings.js";
 import { showToast } from "../../components/toast.js";
 
 const API_BASE = `${CONFIG.BASE_URL}/api/reports`;
+const API_BASE_SPORTS = `${CONFIG.BASE_URL}/api/events/sports/`;
 const API_BASE_TOURNAMENTS = `${API_BASE}/orders/leagues`;
 const API_BASE_MATCHES = (tournamentId) => `${API_BASE}/orders/leagues/${tournamentId}/matches`;
 
+const selSport = document.getElementById('filterSport');
 const selTournament = document.getElementById('filterTournament');
 const selMatch = document.getElementById('filterMatch');
 
@@ -21,13 +23,34 @@ let revenueChart, fillRateChart;
 
 async function loadTournaments() {
     try {
-        const res = await fetch(API_BASE_TOURNAMENTS);
+        const sportId = selSport ? selSport.value : '';
+        const url = sportId ? `${API_BASE_TOURNAMENTS}?sport_id=${sportId}` : API_BASE_TOURNAMENTS;
+        const res = await fetch(url);
         const data = await res.json();
         selTournament.innerHTML = '<option value="">Tất cả</option>' +
             data.map(t => `<option value="${t.league_id}">${t.league_name}</option>`).join('');
     } catch (e) {
         console.error('Không load được giải đấu', e);
     }
+}
+
+async function loadSports() {
+    if (!selSport) return;
+    try {
+        const res = await fetch(API_BASE_SPORTS);
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data.results || []);
+        selSport.innerHTML = '<option value="">Tất cả</option>' + list.map(s => `<option value="${s.sport_id}">${s.sport_name}</option>`).join('');
+    } catch (e) {
+        console.error('Không load được môn thể thao', e);
+    }
+}
+
+// When sport changes, reload tournaments
+if (selSport) {
+    selSport.addEventListener('change', async () => {
+        await loadTournaments();
+    });
 }
 
 // 2. When a tournament is selected, load its matches
@@ -53,11 +76,13 @@ async function loadDashboard() {
     try {
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
+        const sportId = selSport ? selSport.value : '';
         const leagueId = selTournament.value;
         const matchId = selMatch.value;
         const params = new URLSearchParams();
         if (start) params.append('start_date', start);
         if (end) params.append('end_date', end);
+        if (sportId) params.append('sport_id', sportId);
         if (leagueId) params.append('league_id', leagueId);
         if (matchId) params.append('match_id', matchId);
 
@@ -111,10 +136,7 @@ async function loadDashboard() {
     }
 }
 
-loadTournaments();
-
-document.getElementById('applyFilters').addEventListener('click', () => loadDashboard());
-// On load
+// Load sports first, then tournaments
 (async () => {
     try {
         // Default date range: last 7 days
@@ -122,9 +144,13 @@ document.getElementById('applyFilters').addEventListener('click', () => loadDash
         const past = new Date(now.getTime() - 6 * 24 * 3600 * 1000);
         document.getElementById('endDate').value = now.toISOString().slice(0, 10);
         document.getElementById('startDate').value = past.toISOString().slice(0, 10);
-        // await loadMatches();
+
+        await loadSports();
+        await loadTournaments();
         await loadDashboard();
     } catch (error) {
         showToast("Đã xảy ra lỗi khi tải trang.", "error");
     }
 })();
+
+document.getElementById('applyFilters').addEventListener('click', () => loadDashboard());
