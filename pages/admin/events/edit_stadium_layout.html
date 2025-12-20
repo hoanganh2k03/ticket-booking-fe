@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Stadium Editor</title>
+  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+  <style>
+    body { font-family: Arial }
+    #toolbar { margin-bottom: 10px }
+    button { margin-right: 6px; padding: 6px 12px }
+    #container { border: 1px solid #ccc }
+  </style>
+</head>
+<body>
+
+<h2>ADMIN – CHỈNH SỬA SÂN</h2>
+
+<div id="toolbar">
+  <button onclick="exportJSON()">💾 Export JSON</button>
+  <button onclick="saveLayout()">✅ Lưu Layout</button>
+  <button onclick="goBackToStadiums()">↩️ Quay lại danh sách sân</button>
+</div>
+
+<div id="container"></div>
+<pre id="output"></pre>
+
+<script type="module" src="/js/pages/admin/events/edit_stadium_layout.js"></script>
+
+</body>
+</html>

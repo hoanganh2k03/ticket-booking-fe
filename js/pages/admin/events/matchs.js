@@ -4,28 +4,40 @@ import CONFIG from "../../../utils/settings.js";
 // API endpoints
 const API_URL = CONFIG.BASE_URL + "/api/events/matches/";
 const API_URL2 = CONFIG.BASE_URL + "/api/events/creat/stadiums/";
+const SPORTS_API = CONFIG.BASE_URL + "/api/events/sports/";
 
 console.log("API_URL:", API_URL);
 
 // Biến toàn cục
 let matches = [];
 let filteredMatches = [];
+let sportsMap = {}; // sport_id -> sport_name mapping (populated from /api/events/sports/) 
 
 // Load danh sách trận đấu
 function loadMatchPage() {
   console.log("loadMatchPage được gọi!");
-  fetch(API_URL)
+  const sportSelect = document.getElementById('sportFilter');
+  const selectedSport = sportSelect ? sportSelect.value : '';
+  const url = selectedSport ? `${API_URL}?sport_id=${encodeURIComponent(selectedSport)}` : API_URL;
+
+  fetch(url)
     .then(response => response.json())
     .then(data => {
-      matches = data;
+      const list = data.results || (Array.isArray(data) ? data : (data.data || data));
+      matches = list;
       filteredMatches = [...matches];
       renderMatchTable(filteredMatches);
+
+      // Populate sports dropdown if empty
+      if (Object.keys(sportsMap).length === 0) {
+        loadSportsAndPopulate();
+      }
     })
     .catch(error => {
       console.error('Lỗi khi lấy danh sách trận:', error);
       Swal.fire('Lỗi', 'Không thể tải danh sách trận đấu', 'error');
     });
-}
+} 
 
 // Render bảng trận
 function renderMatchTable(data) {
@@ -33,6 +45,15 @@ function renderMatchTable(data) {
   if (!tbody) {
     console.warn("Không tìm thấy tbody.");
     return;
+  }
+
+  // Destroy existing DataTable to avoid duplicate rows on re-render
+  if ($.fn.DataTable.isDataTable('#matchTable')) {
+    try {
+      $('#matchTable').DataTable().destroy();
+    } catch (err) {
+      console.warn('Error destroying DataTable (ignored):', err);
+    }
   }
 
   tbody.innerHTML = data.map(match => {
@@ -66,9 +87,7 @@ function renderMatchTable(data) {
     `;
   }).join('');
 
-  if (!$.fn.DataTable.isDataTable('#matchTable')) {
-    $('#matchTable').DataTable();
-  }
+  $('#matchTable').DataTable();
 }
 
 // Tìm kiếm realtime
@@ -77,8 +96,42 @@ document.getElementById('searchMatchInput').addEventListener('input', function (
   $('#matchTable').DataTable().search(term).draw();
 });
 
-// Gọi loadMatchPage khi DOM sẵn sàng
-document.addEventListener("DOMContentLoaded", loadMatchPage);
+// Load and populate sports dropdown
+async function loadSportsAndPopulate() {
+  try {
+    const resp = await fetch(SPORTS_API);
+    if (!resp.ok) throw new Error(`Failed to fetch sports: ${resp.status}`);
+    const data = await resp.json();
+    const list = data.results || (Array.isArray(data) ? data : (data.data || []));
+
+    const sportSelect = document.getElementById('sportFilter');
+    if (!sportSelect) return;
+
+    sportSelect.innerHTML = '<option value="">-- Tất cả môn thể thao --</option>';
+    list.forEach(s => {
+      sportsMap[s.sport_id] = s.sport_name;
+      const opt = document.createElement('option');
+      opt.value = s.sport_id;
+      opt.textContent = s.sport_name;
+      sportSelect.appendChild(opt);
+    });
+
+    if (!sportSelect.dataset.listenerAttached) {
+      sportSelect.addEventListener('change', function () {
+        loadMatchPage();
+      });
+      sportSelect.dataset.listenerAttached = '1';
+    }
+  } catch (err) {
+    console.error('Error loading sports:', err);
+  }
+}
+
+// Gọi loadSportsAndPopulate và loadMatchPage khi DOM sẵn sàng
+document.addEventListener("DOMContentLoaded", function () {
+  loadSportsAndPopulate();
+  loadMatchPage();
+});
 
 // Hàm cập nhật trận đấu
 async function showUpdateMatchForm(matchId) {

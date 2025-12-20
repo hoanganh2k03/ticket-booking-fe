@@ -1,5 +1,9 @@
 import CONFIG from "../../utils/settings.js";
 import { showCusToast } from "../../components/toast.js";
+import { getStadiumSections } from '/js/services/admin/stadiumService.js';
+
+
+
 
 const { BASE_URL, TUNNEL_URL } = CONFIG;
 const MAX_TICKETS_PER_SECTION = 5;
@@ -101,21 +105,267 @@ async function initializeMatchDetails() {
         document.getElementById('stadium').textContent = selectedMatch.stadium.stadium_name;
         document.getElementById('description').textContent = selectedMatch.description;
 
+
         const layoutImage = document.getElementById('stadium-layout-image');
-        if (selectedMatch.stadium.stadium_layouts) {
-            layoutImage.src = selectedMatch.stadium.stadium_layouts;
-            layoutImage.alt = `Bố cục sân vận động cho ${selectedMatch.stadium.stadium_name}`;
-        } else {
-            layoutImage.style.display = 'none';
-            document.getElementById('stadium-layout-container').innerHTML = '<p>Không có ảnh bố cục sân vận động.</p>';
-        }
 
         // --- BẮT ĐẦU XỬ LÝ VÉ (LOGIC ĐƯỢC SỬA Ở ĐÂY) ---
         const ticketContainer = document.getElementById('ticket-container');
         const totalOrderCostElement = document.getElementById('total-order-cost');
         const selectedTickets = [];
 
-        // Hàm tính tổng toàn bộ đơn hàng (Ticket - Points)
+
+        // ---- Interactive stadium map (syncs with ticket column) ----
+        const stadiumMapContainer = document.getElementById('stadium-map-container');
+        const shapesBySectionId = {}; // section_id -> { group, rect, text, closed }
+        let konvaStage = null, konvaLayer = null;
+
+        if (selectedMatch.stadium.stadium_layouts) {
+            // hide static image (we will initialize map after tickets are rendered)
+            const layoutImageEl = document.getElementById('stadium-layout-image');
+            if (layoutImageEl) layoutImageEl.style.display = 'none';
+            if (stadiumMapContainer) stadiumMapContainer.style.display = 'block';
+        } else {
+            if (stadiumMapContainer) stadiumMapContainer.innerHTML = '<p>Không có bố cục sân vận động.</p>';
+        }
+
+        async function initStadiumMap(stadiumId, selectedMatchLocal) {
+            try {
+                const token = localStorage.getItem('access_token') || '';
+                const sections = await getStadiumSections(stadiumId, token);
+                // build lookup for section_price for current match
+                const sectionPriceMap = {};
+                (selectedMatchLocal.section_prices || []).forEach(sp => {
+                    sectionPriceMap[sp.section.section_id] = sp;
+                });
+
+                // prepare stadium areas from sections (similar to admin page)
+                const areas = sections.map(section => {
+                    if (section.map_position) {
+                        try {
+                            const [rawType, shapeType, x, y, width, height] = section.map_position.split(',').map(s => s.trim());
+                            const type = rawType ? rawType.toLowerCase() : (section.section_name && section.section_name.toLowerCase().includes('vip') ? 'vip' : 'stand');
+                            return { id: section.section_name, type, shapeType, x: parseFloat(x), y: parseFloat(y), width: parseFloat(width), height: parseFloat(height), section_id: section.section_id };
+                        } catch (e) {
+                            const defaultType = section.section_name && section.section_name.toLowerCase().includes('vip') ? 'vip' : 'stand';
+                            return { id: section.section_name, type: defaultType, shapeType: 'rect', x: Math.random() * 600, y: Math.random() * 300, width: 120, height: 60, section_id: section.section_id };
+                        }
+                    } else {
+                        const type = section.section_name && section.section_name.toLowerCase().includes('vip') ? 'vip' : 'stand';
+                        return { id: section.section_name, type, shapeType: 'rect', x: Math.random() * 600, y: Math.random() * 300, width: 120, height: 60, section_id: section.section_id };
+                    }
+                });
+
+                // destroy any previous stage
+                if (konvaStage) konvaStage.destroy();
+                const containerWidth = stadiumMapContainer.clientWidth || 600;
+                const containerHeight = 400;
+                konvaStage = new Konva.Stage({
+                    container: 'stadium-map-container',
+                    width: containerWidth,
+                    height: containerHeight
+                });
+                konvaLayer = new Konva.Layer();
+                konvaStage.add(konvaLayer);
+
+                // Draw background / pitch and compute uniform scaling so admin coordinates align and are centered
+                const sourceWidth = 1000; // admin editor reference
+                const sourceHeight = 700;
+                const uniformScale = Math.min(containerWidth / sourceWidth, containerHeight / sourceHeight);
+                const scaledStageWidth = Math.round(sourceWidth * uniformScale);
+                const scaledStageHeight = Math.round(sourceHeight * uniformScale);
+                const offsetX = Math.round((containerWidth - scaledStageWidth) / 2);
+                const offsetY = Math.round((containerHeight - scaledStageHeight) / 2);
+
+                // subtle stadium background (full container) and stage area border to reflect admin editor
+                const bg = new Konva.Rect({ x: 0, y: 0, width: containerWidth, height: containerHeight, fill: '#f6fff6', listening: false });
+                konvaLayer.add(bg);
+
+                // stage area (scaled admin stage) - gives precise coordinate mapping
+                const stageArea = new Konva.Rect({ x: offsetX, y: offsetY, width: scaledStageWidth, height: scaledStageHeight, fill: '#ecf6ee', stroke: '#2c3e50', strokeWidth: 2, cornerRadius: 8, listening: false });
+                konvaLayer.add(stageArea);
+
+                // draw pitch exactly where admin placed it: admin pitch is at (300,200) size (400x300)
+                const adminPitch = { x: 300, y: 200, width: 400, height: 300 };
+                const pitchRect = new Konva.Rect({
+                    x: offsetX + Math.round(adminPitch.x * uniformScale),
+                    y: offsetY + Math.round(adminPitch.y * uniformScale),
+                    width: Math.round(adminPitch.width * uniformScale),
+                    height: Math.round(adminPitch.height * uniformScale),
+                    fill: '#2ecc71',
+                    stroke: 'black',
+                    strokeWidth: Math.max(1, Math.round(2 * uniformScale)),
+                    listening: false
+                });
+                konvaLayer.add(pitchRect);
+
+                // Draw areas, applying uniform scaling and clamping so shapes match admin placement
+                areas.forEach(a => {
+                    const sp = sectionPriceMap[a.section_id];
+                    const closed = (!sp || sp.is_closed || sp.available_seats <= 0);
+                    const fill = a.type === 'vip' ? '#f1c40f' : '#3498db';
+
+                    const xScaled = offsetX + Math.round((a.x || 0) * uniformScale);
+                    const yScaled = offsetY + Math.round((a.y || 0) * uniformScale);
+                    const widthScaled = Math.max(8, Math.round((a.width || 40) * uniformScale));
+                    const heightScaled = Math.max(8, Math.round((a.height || 40) * uniformScale));
+
+                    // clamp to the stage area (not entire container)
+                    const xClamped = Math.min(Math.max(xScaled, offsetX), offsetX + scaledStageWidth - widthScaled);
+                    const yClamped = Math.min(Math.max(yScaled, offsetY), offsetY + scaledStageHeight - heightScaled);
+
+                    const group = new Konva.Group({
+                        x: xClamped,
+                        y: yClamped,
+                        id: String(a.section_id),
+                        name: 'section',
+                        draggable: false
+                    });
+
+                    const rect = new Konva.Rect({
+                        width: widthScaled,
+                        height: heightScaled,
+                        fill: fill,
+                        stroke: closed ? '#7f8c8d' : 'black',
+                        strokeWidth: Math.max(1, Math.round(2 * uniformScale)),
+                        opacity: closed ? 0.25 : 1,
+                    });
+
+                    const fontSize = Math.max(10, Math.round(heightScaled * 0.2));
+                    const text = new Konva.Text({
+                        text: a.id,
+                        width: widthScaled,
+                        height: heightScaled,
+                        align: 'center',
+                        verticalAlign: 'middle',
+                        fill: 'white',
+                        fontSize: fontSize
+                    });
+
+                    // center text
+                    text.position({ x: widthScaled / 2, y: heightScaled / 2 });
+                    text.offsetX(text.width() / 2);
+                    text.offsetY(text.height() / 2);
+
+                    group.add(rect);
+                    group.add(text);
+                    konvaLayer.add(group);
+
+                    shapesBySectionId[a.section_id] = { group, rect, text, closed };
+
+                    group.on('click', async (e) => {
+                        e.cancelBubble = true;
+                        if (closed) {
+                            showCusToast('Khu vực không thể mua', 'info');
+                            return;
+                        }
+                        // open quantity modal
+                        const spLocal = sectionPriceMap[a.section_id];
+                        const maxQuantity = Math.min(spLocal.available_seats, MAX_TICKETS_PER_SECTION);
+                        const current = (selectedTickets.find(t => t.section === a.section_id) || {}).quantity || 0;
+
+                        let optionsHtml = `<select id="swal-quantity" class="swal2-select">`;
+                        optionsHtml += `<option value="0">0 (Hủy chọn)</option>`;
+                        for (let i = 1; i <= maxQuantity; i++) optionsHtml += `<option value="${i}" ${i === current ? 'selected' : ''}>${i}</option>`;
+                        optionsHtml += `</select>`;
+
+                        const { value: qty } = await Swal.fire({
+                            title: `Chọn số lượng cho ${a.id}`,
+                            html: optionsHtml,
+                            showCancelButton: true,
+                            confirmButtonText: 'Xác nhận',
+                            preConfirm: () => {
+                                const val = document.getElementById('swal-quantity').value;
+                                return parseInt(val, 10) || 0;
+                            }
+                        });
+
+                        if (typeof qty === 'number') {
+                            setQuantityForSection(a.section_id, qty);
+                        }
+                    });
+
+                    group.on('mouseover', () => { 
+                        try { group.getStage().container().style.cursor = closed ? 'not-allowed' : 'pointer'; } catch (e) {}
+                    });
+                    group.on('mouseout', () => { 
+                        try { group.getStage().container().style.cursor = 'default'; } catch (e) {}
+                    });
+                });
+
+                konvaLayer.draw();
+            } catch (err) {
+                console.error('Lỗi khi khởi tạo bản đồ sân:', err);
+            }
+        }
+
+        // Set quantity for a section and sync UI (ticket column and map highlight)
+        function setQuantityForSection(sectionId, quantity) {
+            const ticketIndex = selectedTickets.findIndex(t => t.section === sectionId);
+            const quantitySelect = document.getElementById(`quantity-${sectionId}`);
+            const buyButton = document.getElementById(`buy-btn-${sectionId}`);
+            const quantityDiv = document.getElementById(`quantity-div-${sectionId}`);
+            const totalPriceElement = document.getElementById(`total-price-${sectionId}`);
+
+            const sp = selectedMatch.section_prices.find(t => t.section.section_id === sectionId);
+            const maxQuantity = sp ? Math.min(sp.available_seats, MAX_TICKETS_PER_SECTION) : MAX_TICKETS_PER_SECTION;
+
+            if (quantity > 0) {
+                if (quantitySelect) {
+                    quantitySelect.value = String(Math.min(quantity, maxQuantity));
+                    quantityDiv.style.display = 'inline-block';
+                    if (buyButton) buyButton.style.display = 'none';
+                }                // fetch promotions for this section when selection is made via map
+                const promoSelectEl = document.getElementById(`promo-code-${sectionId}`);
+                if (promoSelectEl) {
+                    fetchPromotions(selectedMatchId, sectionId, promoSelectEl);
+                }                if (ticketIndex === -1) {
+                    selectedTickets.push({ section: sectionId, quantity: Math.min(quantity, maxQuantity) });
+                } else {
+                    selectedTickets[ticketIndex].quantity = Math.min(quantity, maxQuantity);
+                }
+                if (totalPriceElement && sp) {
+                    const ticketObj = sp;
+                    totalPriceElement.textContent = calculateTotalPrice(ticketObj, Math.min(quantity, maxQuantity)).toFixed(2);
+                }
+            } else {
+                if (quantitySelect) {
+                    quantitySelect.value = '0';
+                    quantityDiv.style.display = 'none';
+                    if (buyButton) buyButton.style.display = 'inline-block';
+                }
+                if (ticketIndex !== -1) selectedTickets.splice(ticketIndex, 1);
+                if (totalPriceElement) totalPriceElement.textContent = '0.00';
+            }
+
+            // Update totals and highlight on map
+            updateTotalOrderCost();
+            updateMapHighlight(sectionId, quantity);
+        }
+
+        // Update map highlight for a section based on quantity
+        function updateMapHighlight(sectionId, quantity) {
+            const s = shapesBySectionId[sectionId];
+            if (!s) return;
+            if (quantity > 0) {
+                s.rect.stroke('#2ecc71'); s.rect.strokeWidth(4);
+            } else {
+                s.rect.stroke(s.closed ? '#7f8c8d' : 'black'); s.rect.strokeWidth(2);
+            }
+            konvaLayer.draw();
+        }
+
+        // Expose a function to update section availability (used by WebSocket updates)
+        window.updateStadiumMapAvailability = function(sectionId, availableCount, isClosedFlag) {
+            const s = shapesBySectionId[sectionId];
+            if (!s) return;
+            const closed = !!isClosedFlag || (typeof availableCount === 'number' && availableCount <= 0);
+            s.closed = closed;
+            s.rect.opacity(closed ? 0.4 : 1);
+            s.rect.stroke(closed ? '#7f8c8d' : 'black');
+            konvaLayer.draw();
+        };
+
+        // Update total order cost
         function updateTotalOrderCost() {
     let totalTicketCost = 0;
     
@@ -339,6 +589,11 @@ async function initializeMatchDetails() {
                         calculateSectionTotal(); // Reset về 0
                         showCusToast(`Tổng số tiền không được vượt quá ${MAX_TOTAL_AMOUNT.toLocaleString()} VND.`, 'danger');
                     }
+
+                    // Sync map highlight
+                    if (typeof updateMapHighlight === 'function') {
+                        updateMapHighlight(ticket.section.section_id, quantity);
+                    }
                 });
 
                 // Handle promo selection (MỚI: Thêm sự kiện này để cập nhật giá khi chọn mã)
@@ -362,6 +617,11 @@ async function initializeMatchDetails() {
                     promoSelect.innerHTML = '<option value="">--Chọn khuyến mãi--</option>';
                     promoMessageDiv.innerHTML = '';
                     updateTotalOrderCost();
+
+                    // Sync map highlight off
+                    if (typeof updateMapHighlight === 'function') {
+                        updateMapHighlight(ticket.section.section_id, 0);
+                    }
                 });
             });
 
@@ -459,6 +719,12 @@ async function initializeMatchDetails() {
         } else {
             ticketContainer.innerHTML = '<p>Không có vé nào khả dụng cho trận đấu này.</p>';
         }
+
+        // initialize interactive stadium map after ticket DOMs rendered
+        if (selectedMatch.stadium.stadium_layouts) {
+            if (stadiumMapContainer) stadiumMapContainer.style.display = 'block';
+            initStadiumMap(selectedMatch.stadium.stadium_id, selectedMatch);
+        }
     } catch (error) {
         handleError(error, 'Có lỗi xảy ra khi tải thông tin trận đấu.');
     }
@@ -536,13 +802,24 @@ function updateSeatCount(sectionId, count) {
         }, 2000);
 
         // (Tùy chọn) Nếu hết vé (count <= 0), ẩn nút mua
+        const buyBtn = document.getElementById(`buy-btn-${sectionId}`);
         if (count <= 0) {
-            const buyBtn = document.getElementById(`buy-btn-${sectionId}`);
             if (buyBtn) {
                 buyBtn.disabled = true;
                 buyBtn.textContent = "Hết vé";
                 buyBtn.classList.add('disabled');
             }
+        } else {
+            if (buyBtn) {
+                buyBtn.disabled = false;
+                buyBtn.textContent = "Mua vé";
+                buyBtn.classList.remove('disabled');
+            }
+        }
+
+        // Update map availability if map exists
+        if (typeof window.updateStadiumMapAvailability === 'function') {
+            window.updateStadiumMapAvailability(sectionId, count, count <= 0);
         }
     }
 }

@@ -35,7 +35,10 @@ function formatDate(isoString) {
 }
 
 // Biến lưu trữ danh sách sport để tra cứu tên (ID -> Name)
-let sportsMap = {}; 
+let sportsMap = {};
+let eventsAttached = false; // prevent attaching duplicate delegated events
+let isLoadingLeagues = false; // prevent concurrent loads
+
 
 async function loadLeaguesPage(event) {
   if (event) event.preventDefault();
@@ -48,11 +51,63 @@ async function loadLeaguesPage(event) {
         const resSport = await fetch(`${CONFIG.BASE_URL}/api/events/sports/`);
         if (resSport.ok) {
             const sportsData = await resSport.json();
+            console.log("Dữ liệu sport từ API:", sportsData);
             const list = sportsData.results || sportsData; // Xử lý pagination nếu có
             list.forEach(s => {
                 // Lưu vào map: key là ID, value là Tên
                 sportsMap[s.sport_id] = s.sport_name; 
             });
+
+            // Populate sport filter dropdown
+            const sportSelect = document.getElementById('sportFilter');
+            if (sportSelect) {
+                // reset options to default (avoid duplicates on repeated loads)
+                sportSelect.innerHTML = '<option value="">-- Tất cả môn thể thao --</option>';
+                list.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.sport_id;
+                    opt.textContent = s.sport_name;
+                    sportSelect.appendChild(opt);
+                });
+                // attach change listener only once
+                if (!sportSelect.dataset.listenerAttached) {
+                    sportSelect.addEventListener('change', async function() {
+                        // When a sport is selected, fetch filtered leagues from server for accuracy
+                        const selected = this.value;
+                        console.debug('sportSelect change -> selected:', selected);
+                        try {
+                            const url = selected ? `${API_URL}?sport_id=${encodeURIComponent(selected)}` : API_URL;
+                            console.debug('Fetching leagues with URL:', url);
+                            const resp = await fetch(url);
+                            if (!resp.ok) {
+                                throw new Error(`Failed to fetch leagues: ${resp.status}`);
+                            }
+                            const data = await resp.json();
+                            console.debug('Fetched leagues response:', data);
+                            const rawList = data.results || (Array.isArray(data) ? data : []);
+                            leagues = rawList.map((l) => ({
+                                id: l.league_id,
+                                name: l.league_name,
+                                type: l.league_type,
+                                sport_id: (l.sport_id !== undefined) ? l.sport_id : l.sport,
+                                sport_name: l.sport_name || sportsMap[(l.sport_id !== undefined) ? l.sport_id : l.sport] || null,
+                                start: l.start_date,
+                                end: l.end_date,
+                                created: l.created_at,
+                                updated: l.updated_at,
+                                has_matches: l.has_matches
+                            }));
+
+                            console.debug('Mapped leagues (first 10):', leagues.slice(0, 10));
+                            applyFilter();
+                        } catch (err) {
+                            console.error('Error fetching filtered leagues:', err);
+                            Swal.fire('Lỗi', 'Không thể tải danh sách giải đấu theo môn đã chọn', 'error');
+                        }
+                    });
+                    sportSelect.dataset.listenerAttached = '1';
+                }
+            }
         }
     } catch (e) {
         console.warn("Không tải được danh sách sport:", e);
@@ -77,7 +132,10 @@ async function loadLeaguesPage(event) {
           id: l.league_id,
           name: l.league_name,
           type: l.league_type, // Giá trị chuỗi: 'round_robin', ...
-          sport_id: l.sport,   // ID môn thể thao
+          // Accept both 'sport' (FK id) and explicit 'sport_id' from API
+          sport_id: (l.sport_id !== undefined) ? l.sport_id : l.sport,
+          // Prefer explicit sport_name if API provides it, otherwise look up in sportsMap
+          sport_name: l.sport_name || sportsMap[(l.sport_id !== undefined) ? l.sport_id : l.sport] || null,
           start: l.start_date,
           end: l.end_date,
           created: l.created_at,
@@ -94,11 +152,24 @@ async function loadLeaguesPage(event) {
 
 // Render bảng
 function applyFilter() {
-  filteredLeagues = leagues; // Có thể thêm logic lọc ở đây nếu cần
+  // Apply sport filter first
+  const sportSelect = document.getElementById('sportFilter');
+  const selectedSport = sportSelect ? sportSelect.value : '';
+  console.debug('applyFilter -> selectedSport:', selectedSport, 'leagues.length:', leagues.length);
+
+  filteredLeagues = leagues.filter(l => {
+    if (selectedSport && selectedSport !== '') {
+      return String(l.sport_id) === String(selectedSport);
+    }
+    return true;
+  });
+  console.debug('applyFilter -> filteredLeagues.length:', filteredLeagues.length);
 
   const tbody = document.querySelector('#leagueTable tbody'); // Đảm bảo lấy đúng tbody
   if (!tbody) return;
-
+if ($.fn.DataTable.isDataTable('#leagueTable')) {
+    $('#leagueTable').DataTable().destroy();
+  }
   tbody.innerHTML = filteredLeagues.map((league, index) => {
     
     // 1. Xử lý hiển thị Loại giải đấu (Dùng Map thay cho switch cũ)
@@ -106,7 +177,7 @@ function applyFilter() {
 
     // 2. Xử lý hiển thị Tên môn thể thao
     // Nếu có trong map thì lấy tên, không thì hiện ID
-    const sportName = sportsMap[league.sport_id] ? sportsMap[league.sport_id] : `Sport ID: ${league.sport_id}`;
+    const sportName = league.sport_name || (sportsMap[league.sport_id] ? sportsMap[league.sport_id] : `Sport ID: ${league.sport_id}`);
 
     // 3. Xử lý nút cập nhật (Logic has_matches)
     let updateColumn = '';
@@ -148,17 +219,17 @@ function applyFilter() {
       </tr>`;
   }).join('');
 
-  // attachEventListeners(); // Gán sự kiện click cho nút sửa/xóa
+  // Recreate DataTable to reflect current rows
+  
 
-  // DataTable (Re-init nếu cần thiết)
-  if ($.fn.DataTable.isDataTable('#leagueTable')) {
-     // Nếu muốn update data trong datatable thì phức tạp hơn chút, 
-     // cách đơn giản là destroy rồi init lại hoặc dùng API của Datatable.
-     // Ở mức đơn giản này ta giữ nguyên logic cũ của bạn:
-  } else {
-    $('#leagueTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json' } // Tiếng Việt cho bảng
-    });
+  $('#leagueTable').DataTable({
+      language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json' } // Tiếng Việt cho bảng
+  });
+
+  // Re-apply current search term if any
+  const searchTerm = document.getElementById('searchLeagueInput')?.value || '';
+  if (searchTerm) {
+    $('#leagueTable').DataTable().search(searchTerm).draw();
   }
 }
 
@@ -285,5 +356,4 @@ function attachDelegatedEvents() {
 // Thay vì gọi loadLeaguesPage(), gọi hàm gán sự kiện ủy quyền.
 attachDelegatedEvents();
 
-// Tải dữ liệu ban đầu
-loadLeaguesPage();
+// NOTE: initial load is triggered inside attachDelegatedEvents(); do not call loadLeaguesPage() again to avoid duplicate fetches.

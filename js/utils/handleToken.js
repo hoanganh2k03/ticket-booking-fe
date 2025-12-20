@@ -1,6 +1,9 @@
-import CONFIG from "../utils/settings.js";
+import CONFIG from "/js/utils/settings.js";
 const BASE_URL = CONFIG.BASE_URL;
 
+export function getToken() {
+  return localStorage.getItem('access');
+}
 
 export function fetchWithToken(url, options = {}) {
     // Lấy access token từ localStorage

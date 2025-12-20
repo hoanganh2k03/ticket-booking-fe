@@ -7,48 +7,48 @@
     "sessions": {
         "default": [
             {
-                "name": "hello",
+                "name": "1) Activate venv",
                 "autoExecuteCommands": true,
-                "icon": "person",
+                "icon": "zap",
                 "color": "terminal.ansiGreen",
                 "commands": [
-                    "echo hello"
+                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1"
                 ]
             },
-            [
-                {
-                    "name": "docker:ros",
-                    "commands": [
-                        ""
-                    ]
-                },
-                {
-                    "name": "docker:k8s",
-                    "commands": [
-                        ""
-                    ]
-                }
-            ],
-            [
-                {
-                    "name": "docker:nats",
-                    "commands": [
-                        ""
-                    ]
-                },
-                {
-                    "name": "docker:fleet",
-                    "commands": [
-                        ""
-                    ]
-                }
-            ]
-        ],
-        "saved-session": [
             {
-                "name": "connect",
+                "name": "2) Django Server",
+                "autoExecuteCommands": true,
+                "icon": "server",
+                "color": "terminal.ansiBlue",
                 "commands": [
-                    ""
+                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python manage.py runserver"
+                ]
+            },
+            {
+                "name": "3) Celery Worker",
+                "autoExecuteCommands": true,
+                "icon": "gear",
+                "color": "terminal.ansiYellow",
+                "commands": [
+                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking worker --loglevel=info --pool=solo"
+                ]
+            },
+            {
+                "name": "4) Celery Beat",
+                "autoExecuteCommands": true,
+                "icon": "clock",
+                "color": "terminal.ansiRed",
+                "commands": [
+                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking beat -l info"
+                ]
+            },
+            {
+                "name": "5) Frontend",
+                "autoExecuteCommands": true,
+                "icon": "browser",
+                "color": "terminal.ansiMagenta",
+                "commands": [
+                    "cd D:/ĐATN/ticket-booking-fe; npx http-server . -p 5500"
                 ]
             }
         ]
