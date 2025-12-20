@@ -103,7 +103,9 @@ function applyFilter() {
         data-stadium-name="${stadium.name}">
   <i class="bi bi-trash"></i> Xóa
 </button>
-
+        <button class="btn btn-sm btn-outline-info edit-layout-btn" data-id="${stadium.id}">
+          <i class="bi bi-bounding-box"></i> Sửa Layout
+        </button>
         <label class="btn btn-sm btn-outline-secondary upload-layout-btn">
           <i class="bi bi-upload"></i> Upload ảnh
           <input type="file" accept="image/*" class="d-none stadium-layout-input" data-id="${stadium.id}">
@@ -195,6 +197,16 @@ function attachEventListeners() {
           console.error('Lỗi upload layout:', error);
           Swal.fire('Lỗi', 'Tải layout thất bại.', 'error');
         });
+    });
+  });
+
+  // Sửa Layout - chuyển sang trang chỉnh sửa layout
+  document.querySelectorAll('.edit-layout-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const stadiumId = this.getAttribute('data-id');
+      console.log('Sửa Layout clicked, stadiumId:', stadiumId);
+      // dùng đường dẫn tuyệt đối đảm bảo không bị lặp 'events/'
+      window.location.href = `/pages/admin/events/edit_stadium_layout.html?stadiumId=${stadiumId}`;
     });
   });
   
