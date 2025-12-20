@@ -137,13 +137,27 @@ function render() {
             (c) => `
         <tr>
           <td>${c.id}</td>
-          <td>${c.full_name}</td>
-          <td>${c.email}</td>
+          <td>
+            <div class="fw-bold">${c.full_name}</div>
+            <small class="text-muted">${c.email}</small>
+          </td>
           <td>${c.phone_number}</td>
+          
+          <td class="text-center">${getTierBadge(c.tier)}</td>
+          
+          <td class="text-center">
+            <span class="fw-bold text-primary">${c.loyalty_score?.toLocaleString() || 0}</span>
+          </td>
+          
+          <td class="text-center">
+            <span class="badge bg-success rounded-pill">
+                ${c.points?.toLocaleString() || 0} pts
+            </span>
+          </td>
+
           <td>${formatDateDMY(c.created_at)}</td>
           <td>
-            <button class="btn btn-sm btn-outline-danger btn-icon btn-icon-danger" data-action="delete" data-id="${c.id
-                }">
+            <button class="btn btn-sm btn-outline-danger btn-icon btn-icon-danger" data-action="delete" data-id="${c.id}">
               <i class="fa fa-trash"></i>
             </button>
           </td>
@@ -300,7 +314,40 @@ form.addEventListener('submit', async (e) => {
         showToast('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
     }
 });
-
+// 
+// Hàm tạo huy hiệu hạng thành viên
+function getTierBadge(tier) {
+    if (!tier) return '<span class="badge bg-secondary">Thành viên</span>';
+    
+    const t = tier.toLowerCase();
+    
+    switch (t) {
+        case 'diamond':
+            // Màu xanh dương sáng + Icon Kim cương
+            return `<span class="badge bg-info text-white border border-light shadow-sm">
+                        <i class="fas fa-gem me-1"></i>Kim Cương
+                    </span>`;
+        case 'gold':
+            // Màu vàng + Icon Vương miện
+            return `<span class="badge bg-warning text-dark border border-warning shadow-sm">
+                        <i class="fas fa-crown me-1"></i>Vàng
+                    </span>`;
+        case 'silver':
+            // Màu xám bạc + Icon Huân chương
+            return `<span class="badge bg-secondary border border-secondary shadow-sm">
+                        <i class="fas fa-medal me-1"></i>Bạc
+                    </span>`;
+        case 'bronze':
+            // Màu đồng (hoặc tối) + Icon Khiên
+            return `<span class="badge" style="background-color: #cd7f32; color: white;">
+                        <i class="fas fa-shield-alt me-1"></i>Đồng
+                    </span>`;
+        default:
+            return `<span class="badge bg-light text-dark border">
+                        <i class="fas fa-user me-1"></i>${tier}
+                    </span>`;
+    }
+}
 
 
 // Khởi tạo

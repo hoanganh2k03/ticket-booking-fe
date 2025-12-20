@@ -21,8 +21,10 @@
             <span>SportsTix</span>
         </div>
         <div class="search-bar">
+            
             <input id="search-input" type="text" placeholder="Tìm kiếm trên sportstix.com">
             <button class="filter-btn" id="filter-btn">Filter</button>
+            
             <div class="filter-form" id="filter-form">
                 <label for="filter-date">Date</label>
                 <input type="date" id="filter-date">
@@ -52,24 +54,60 @@
                     <button id="clear-filter" class="clear-btn">Clear</button>
                 </div>
             </div>
+            
         </div>
+        
         <div class="user-actions nav-links">
+            
             <a id="login-link" href="#">Đăng nhập</a> <!-- Nút đăng nhập -->
             <a id="logout-link" href="#">Đăng xuất</a> <!-- Nút đăng xuất -->
-            <a id="user-icon" href="#"><i class="fas fa-user"></i></a> <!-- Icon người dùng -->
+            <a id="user-icon" href="#"><i class="fas fa-user"></i></a>
+            
+             <!-- Icon người dùng -->
             <div id="user-dropdown" class="dropdown-menu">
                 <a href="#" id="personal-info">Thông tin cá nhân</a>
                 <a href="#" id="booked-tickets">Vé đã đặt</a>
                 <a href="#" id="ticket-returns">Đổi trả vé</a>
             </div>
-        </div>        
+        </div>  
+        <button class="loyalty-btn" id="loyalty-btn" title="Xem điểm và hạng thành viên">
+        <i class="fas fa-crown"></i> Hạng thành viên
+    </button>      
     </nav>
 
     <!-- What's new section -->
     <section class="whats-new">
-        <div class="event-grid" id="match-cards">
+        <section id="recommendation-section" class="popular-section" style="display: none; margin-top: 40px;">
+        <div class="section-header">
+            <h3 class="section-title" id="recommend-title">
+                </h3>
+            <p class="section-subtitle" id="recommend-subtitle">
+                Khám phá những trận cầu rực lửa được chọn lọc cho bạn
+            </p>
         </div>
+        
+        <div id="recommend-cards" class="event-grid"></div>
+        <hr style="margin-top: 40px; border: 0; border-top: 1px solid #eee;">
     </section>
+    <div class="popular-section">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-trophy"></i> Giải đấu nổi bật
+            </h3>
+            <p class="section-subtitle">Các giải đấu hấp dẫn nhất hành tinh đang chờ bạn</p>
+        </div>
+
+        <div class="league-carousel-wrapper">
+            <button id="scroll-left" class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <div id="league-quick-filter" class="league-list"></div>
+            <button id="scroll-right" class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    
+
+    <div class="event-grid" id="match-cards"></div>
+</section>
 
     <section class="pagination" id="pagination"></section>
 

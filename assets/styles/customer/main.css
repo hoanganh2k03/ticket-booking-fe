@@ -371,3 +371,480 @@ body {
     70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
 }
+.popular-section {
+    margin: 20px 0;
+}
+
+.league-list {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto; /* Cho phép cuộn ngang nếu nhiều giải */
+    padding-bottom: 10px;
+}
+
+.league-card {
+    height: 300px;
+    background: #198754;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.league-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Trạng thái khi giải đấu được chọn */
+.league-card.active {
+    border: 2px solid #198754;
+    background-color: #198754; /* Màu chủ đạo của bạn */
+    color: white;
+    border-color: #198754;
+}
+
+.league-card img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.league-card span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+/* Container bao ngoài để định vị nút bấm */
+.league-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Ẩn thanh cuộn mặc định nhưng vẫn cho phép cuộn */
+.league-list {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-behavior: smooth; /* Cuộn mượt mà */
+    padding: 10px 5px; /* Padding để bóng của card không bị cắt */
+    width: 100%;
+    
+    /* Ẩn scrollbar trên các trình duyệt */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.league-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Style chung cho nút điều hướng */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Vị trí cụ thể */
+.prev-btn {
+    left: -20px; /* Đẩy sang trái một chút */
+}
+
+.next-btn {
+    right: -20px; /* Đẩy sang phải một chút */
+}
+
+/* Card giải đấu (Giữ nguyên hoặc chỉnh lại chút width nếu cần) */
+.league-card {
+    flex: 0 0 auto; /* Đảm bảo card không bị co lại */
+    min-width: 350px; 
+    /* ... các thuộc tính cũ ... */
+}
+/* 1. Style mặc định cho nút (Ẩn đi) */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    
+    /* --- CẬP NHẬT MỚI: Ẩn nút & Hiệu ứng --- */
+    opacity: 0;           /* Mờ hoàn toàn */
+    visibility: hidden;   /* Không chiếm tương tác khi ẩn */
+    transition: all 0.3s ease; /* Hiện ra từ từ cho đẹp */
+}
+
+/* 2. Khi hover vào khung bao ngoài -> Hiện nút */
+.league-carousel-wrapper:hover .nav-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 3. (Quan trọng) Giữ nguyên logic JS ẩn nút ở đầu/cuối */
+/* Khi JS set style="display: none", nó sẽ ưu tiên hơn CSS này nên logic cũ vẫn chạy tốt */
+
+.nav-btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: translateY(-50%) scale(1.1); /* Phóng to nhẹ khi rê vào nút */
+}
+
+/* Các class vị trí giữ nguyên */
+.prev-btn { left: -20px; }
+.next-btn { right: -20px; }
+/* 1. Đảm bảo thẻ card có transition để chuyển đổi mượt mà */
+.league-card {
+    transition: all 0.3s ease;
+    /* Các thuộc tính cũ giữ nguyên */
+}
+
+/* 2. KHI HOVER VÀO DANH SÁCH CHA (.league-list) */
+/* Thì làm mờ và thu nhỏ nhẹ TẤT CẢ các thẻ con (.league-card) */
+.league-list:hover .league-card {
+    opacity: 0.4;          /* Mờ đi còn 40% */
+    transform: scale(0.95); /* Thu nhỏ lại chút xíu tạo cảm giác chìm xuống */
+    filter: blur(1px);      /* (Tùy chọn) Làm nhòe nhẹ các thẻ xung quanh */
+}
+
+/* 3. NHƯNG VỚI RIÊNG THẺ ĐANG ĐƯỢC HOVER (.league-card:hover) */
+/* Thì khôi phục lại trạng thái rõ nét, phóng to và nổi lên */
+.league-list .league-card:hover {
+    opacity: 1;            /* Rõ nét hoàn toàn */
+    transform: scale(1.05) translateY(-5px); /* Phóng to và bay lên */
+    filter: blur(0);       /* Xóa nhòe */
+    z-index: 2;            /* Đảm bảo nó nổi lên trên các thẻ khác */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Bóng đổ đậm hơn */
+    border-color: #007bff; /* (Tùy chọn) Viền màu nổi bật */
+}
+.league-card.active .find-btn {
+    background-color: #190eb4;
+}
+.league-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 10px;
+}
+
+.league-header img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.sport-tag {
+    background-color: #198754;
+    color: #333;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Phần nội dung chính */
+.card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content.centered {
+    align-items: center;
+    justify-content: center;
+}
+
+.league-name {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 5px 0 10px 0;
+    color: #ffeb3b;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Cắt dòng nếu tên quá dài */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.league-time {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 15px;
+    background:  #198754;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.league-time p {
+    margin: 2px 0;
+     color: #fff;
+}
+
+/* Nút tìm sự kiện */
+.find-btn {
+    width: 100%;
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: auto; /* Đẩy nút xuống đáy */
+    transition: background 0.2s;
+}
+
+.find-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Hover vào card thì nút sáng lên */
+.league-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+/* Container bao ngoài để căn chỉnh khoảng cách */
+.section-header {
+    margin: 30px 0 20px 0; /* Cách trên 30px, dưới 20px */
+    position: relative;
+    padding-left: 15px; /* Thụt vào một chút */
+    border-left: 5px solid #007bff; /* Đường kẻ dọc màu xanh bên trái tạo điểm nhấn */
+}
+
+/* Style cho chữ tiêu đề chính */
+.section-title {
+    font-size: 28px;        /* Chữ to rõ */
+    font-weight: 800;       /* Chữ siêu đậm */
+    color: #fff;         /* Màu xám đen sang trọng */
+    text-transform: uppercase; /* Viết hoa toàn bộ cho mạnh mẽ */
+    letter-spacing: 1px;    /* Giãn chữ ra một chút cho thoáng */
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;              /* Khoảng cách giữa icon và chữ */
+}
+
+/* Style cho Icon (Cái cúp) */
+.section-title i {
+    color: #ffc107; /* Màu vàng của cúp */
+    font-size: 32px; /* Icon to hơn chữ một chút */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); /* Bóng đổ nhẹ cho icon nổi lên */
+}
+
+/* Style cho dòng phụ đề nhỏ bên dưới (Subtitle) */
+.section-subtitle {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #98ecf3;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* --- HIỆU ỨNG GẠCH CHÂN (TÙY CHỌN) --- */
+/* Nếu bạn thích có đường gạch dưới chữ thay vì đường kẻ dọc bên trái, 
+   hãy xóa thuộc tính "border-left" ở .section-header và dùng đoạn dưới đây: */
+
+/* 
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;          
+    height: 4px;          
+    background: linear-gradient(to right, #007bff, #00d2ff); 
+    margin-top: 8px;
+    border-radius: 2px;
+} */
+/* recommned */
+/* --- SECTION GỢI Ý (RECOMMENDATION) --- */
+#recommendation-section {
+    /* padding: 20px 0; */
+    margin-bottom: 50px;
+    /* Hiệu ứng xuất hiện mượt mà khi section được show (display: block) */
+    animation: slideUpFade 0.6s ease-out;
+}
+
+/* Tiêu đề phần gợi ý */
+#recommend-title {
+
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 5px !important; /* Ghi đè inline style nếu cần */
+    position: relative;
+    /* padding-bottom: 10px; */
+}
+
+/* Hiệu ứng icon ngôi sao */
+#recommend-title i {
+    color: #f1c40f; /* Màu vàng kim cho ngôi sao */
+    filter: drop-shadow(0 0 5px rgba(241, 196, 15, 0.5));
+}
+
+/* Đường gạch chân trang trí dưới tiêu đề */
+/* #recommend-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: #e74c3c;
+    border-radius: 2px;
+} */
+
+/* Grid chứa các thẻ card gợi ý */
+#recommend-cards.match-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* Tùy chỉnh riêng cho Card trong phần Gợi ý để nổi bật hơn danh sách thường */
+#recommend-cards .event-card {
+     background-color: #198754;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #29cca2;
+}
+
+#recommend-cards .event-card:hover {
+    border-color: #e74c3c;
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(231, 76, 60, 0.15);
+}
+
+/* Đường kẻ ngang cuối section */
+#recommendation-section hr {
+    margin-top: 40px;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+/* Hiệu ứng animation */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- ĐIỀU CHỈNH RESPONSIVE --- */
+@media (max-width: 768px) {
+    #recommend-title {
+        font-size: 1.5rem;
+    }
+    
+    #recommend-cards.match-grid {
+        grid-template-columns: 1fr; /* Trên mobile hiện 1 cột cho rõ */
+    }
+}
+.recommend-cards.event-info{
+    text-align: center;
+    color: #f1f1f1;
+    flex-grow: 1;
+    width: 100%;
+}
+/* vàng bạc đá quý */
+/* Style cho nút Loyalty */
+ /* Style cho nút Hạng thành viên (Nằm ở cuối Navbar) */
+.loyalty-btn {
+    background: linear-gradient(45deg, #f1c40f, #f39c12); /* Màu vàng Gold */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px; /* Bo tròn */
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và chữ */
+    transition: all 0.3s ease;
+    
+    /* Quan trọng để không bị co lại trong flexbox */
+    white-space: nowrap; 
+    flex-shrink: 0; 
+    margin-left: 15px; /* Cách phần User Actions ra một chút */
+    height: 40px; /* Chiều cao bằng với các nút khác */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.loyalty-btn:hover {
+    background: linear-gradient(45deg, #f39c12, #d35400);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(241, 196, 15, 0.4);
+}
+
+.loyalty-btn i {
+    font-size: 1.1em;
+}
+
+/* Responsive: Ẩn chữ trên màn hình nhỏ, chỉ hiện vương miện */
+@media (max-width: 992px) {
+    .loyalty-btn span {
+        display: none;
+    }
+    .loyalty-btn {
+        padding: 0 12px;
+        border-radius: 50%; /* Tròn xoe khi chỉ còn icon */
+        width: 40px;
+        justify-content: center;
+    }
+    .loyalty-btn i {
+        margin: 0;
+    }
+}

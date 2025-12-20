@@ -1,0 +1,141 @@
+/* Reset cơ bản */
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f4f7f6; margin: 0; padding: 0; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+/* Navbar giả lập */
+
+.back-link:hover { color: #f1c40f; }
+
+/* Loading */
+.loading-spinner { text-align: center; padding: 50px; font-size: 1.2rem; color: #666; }
+
+/* Card Style chung */
+.card { background: #fff; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+/* --- HEADER CARD (Thông tin User) --- */
+.loyalty-header-card {
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    color: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+}
+
+.user-info { display: flex; align-items: center; gap: 20px; }
+.avatar-circle {
+    width: 70px; height: 70px; background: rgba(255,255,255,0.2);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 30px; border: 2px solid rgba(255,255,255,0.5);
+}
+
+.info-text h2 { margin: 0 0 5px 0; font-size: 1.5rem; }
+
+/* Tier Badge Colors */
+.tier-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tier-badge.bronze { background: #cd7f32; color: #fff; }
+.tier-badge.silver { background: #bdc3c7; color: #333; }
+.tier-badge.gold { background: linear-gradient(45deg, #f1c40f, #f39c12); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.tier-badge.diamond { background: linear-gradient(45deg, #b9f2ff, #3498db); color: #fff; border: 1px solid #fff; }
+
+/* Points Summary */
+.points-summary { display: flex; gap: 30px; text-align: center; }
+.point-box .label { font-size: 0.85rem; opacity: 0.8; margin: 0; }
+.point-box h3 { font-size: 1.8rem; margin: 5px 0; font-weight: 800; }
+.point-box.spending h3 { color: #f1c40f; } /* Vàng cho điểm tiêu */
+.point-box.ranking h3 { color: #ecf0f1; }
+.point-box .sub { font-size: 0.75rem; font-style: italic; opacity: 0.6; margin: 0; }
+
+/* --- PROGRESS SECTION --- */
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #333; }
+.progress-container {
+    background: #e9ecef; border-radius: 10px; height: 15px; overflow: hidden; margin-bottom: 10px;
+}
+.progress-bar {
+    background: linear-gradient(90deg, #f1c40f, #e67e22);
+    height: 100%; width: 0%; transition: width 1s ease-in-out;
+}
+.progress-text { font-size: 0.9rem; color: #666; margin: 0; }
+
+/* --- HISTORY TABLE --- */
+.history-section h4 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 15px; color: #333; }
+.table-responsive { overflow-x: auto; }
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th { text-align: left; padding: 12px; color: #888; font-weight: 600; font-size: 0.9rem; border-bottom: 1px solid #eee; }
+.history-table td { padding: 15px 12px; border-bottom: 1px solid #f9f9f9; color: #333; vertical-align: middle; }
+.history-table tr:last-child td { border-bottom: none; }
+
+/* Change Amount Colors */
+.change-positive { color: #27ae60; font-weight: bold; } /* Xanh lá */
+.change-negative { color: #c0392b; font-weight: bold; } /* Đỏ */
+
+.text-right { text-align: right; }
+.empty-state { text-align: center; padding: 30px; color: #999; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .loyalty-header-card { flex-direction: column; text-align: center; gap: 20px; }
+    .user-info { flex-direction: column; }
+    .points-summary { width: 100%; justify-content: space-around; }
+}
+/* Màu cho Hạng Đồng */
+.bg-bronze {
+    background-color: #cd7f32 !important;
+    color: #fff !important;
+}
+
+/* Background gradient đẹp cho thẻ Header */
+.loyalty-card-bg {
+    background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+}
+/* assets/styles/customer/loyalty.css */
+
+/* Hiệu ứng thanh tiến trình Diamond */
+.bg-diamond {
+    /* Gradient màu xanh ngọc + trắng lấp lánh */
+    background: linear-gradient(45deg, #1cb5e0 0%, #000851 100%); 
+    position: relative;
+    overflow: hidden;
+}
+
+/* Tạo vệt sáng chạy qua để trông xịn hơn */
+.bg-diamond::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+.text-diamond {
+    color: #1cb5e0;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(28, 181, 224, 0.3);
+}
+/* Màu đồng cho hạng Bronze */
+.bg-bronze {
+    background-color: #cd7f32 !important; /* Màu đồng */
+    color: white !important;
+}
+
+/* Hiệu ứng hover cho huy hiệu để người dùng biết là bấm được/xem được */
+.badge[data-bs-toggle="tooltip"]:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}

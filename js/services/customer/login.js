@@ -156,7 +156,22 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             },
             body: JSON.stringify({ username, password })
         });
-
+        // --- ĐOẠN DEBUG QUAN TRỌNG ---
+        if (!res.ok) {
+            // Nếu server trả về lỗi (400, 404, 500)
+            const text = await res.text(); // Đọc dạng text trước xem nó là gì
+            console.error("Lỗi từ Server (Raw Text):", text); // In ra console để đọc
+            
+            try {
+                const jsonError = JSON.parse(text); // Thử ép sang JSON
+                showCusToast(jsonError.message || "Có lỗi xảy ra", 'danger');
+            } catch {
+                // Nếu không ép được sang JSON, nghĩa là Server trả về HTML (Lỗi 500 hoặc 404)
+                showCusToast(`Lỗi Server (${res.status}): Vui lòng xem Console (F12)`, 'danger');
+            }
+            return; // Dừng luôn
+        }
+        // -----------------------------
         const data = await res.json();
         if (data.status === 'success') {
             showCusToast('Đăng nhập thành công!', 'success');

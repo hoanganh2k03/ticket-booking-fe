@@ -243,3 +243,107 @@ h2 {
         margin-bottom: 20px;
     }
 }
+/* tích điểm */
+/* Container chính của phần tích điểm */
+#points-section {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid #f1c40f; /* Viền vàng bên trái tạo điểm nhấn */
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ */
+    transition: all 0.3s ease;
+}
+
+#points-section:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề */
+#points-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Icon tiền xu (Gold) */
+#points-section h4 i.fa-coins {
+    color: #f1c40f; /* Màu vàng kim loại */
+    font-size: 1.3rem;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+}
+
+/* Text hiển thị số điểm đang có */
+#points-section p {
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+#available-points {
+    color: #d35400; /* Màu cam đậm cho số điểm */
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+/* Khu vực nhập liệu */
+#points-section .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+/* Ô input nhập điểm */
+#use-points-input {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fafafa;
+}
+
+#use-points-input:focus {
+    outline: none;
+    border-color: #f1c40f; /* Focus màu vàng */
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(241, 196, 15, 0.2);
+}
+
+/* Placeholder styling */
+#use-points-input::placeholder {
+    color: #aaa;
+    font-weight: 400;
+}
+
+/* Text gợi ý quy đổi (1 điểm = 1000đ) */
+#points-section .helper-text {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+}
+
+/* Phần hiển thị tiền giảm giá */
+.discount-result {
+    padding-top: 15px;
+    border-top: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#points-discount-amount {
+    color: #27ae60; /* Màu xanh lá cây biểu thị giảm giá */
+    font-size: 1.4rem;
+    font-weight: 800;
+}

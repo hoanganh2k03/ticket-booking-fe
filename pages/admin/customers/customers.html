@@ -16,7 +16,7 @@
     }
 
     .filter-card {
-      background: #198754fff;
+      background: #fff;
       border-left: 0.5rem solid var(--primary-color);
       box-shadow: 0 0.75rem 1.5rem var(--primary-shadow);
     }
@@ -144,13 +144,18 @@
         <table class="table table-hover align-middle mb-0 bg-white" id="customerTable">
           <thead class="bg-light">
             <tr>
-              <th data-key="id">ID <i class="fa fa-sort"></i></th>
-              <th data-key="full_name">Họ & Tên <i class="fa fa-sort"></i></th>
-              <th data-key="email">Email <i class="fa fa-sort"></i></th>
-              <th data-key="phone_number">SĐT <i class="fa fa-sort"></i></th>
-              <th data-key="created_at">Ngày tạo <i class="fa fa-sort"></i></th>
-              <th>Hành động</th>
-            </tr>
+             <tr>
+        <th data-key="id">ID</th>
+        <th data-key="full_name">Họ tên / Email</th>
+        <th data-key="phone_number">SĐT</th>
+        
+        <th class="text-center" data-key="tier">Hạng</th>
+        <th class="text-center" data-key="loyalty_score">Điểm thành viên</th>
+        <th class="text-center" data-key="points">Điểm hiện có</th>
+        
+        <th data-key="created_at">Ngày tạo</th>
+        <th>Hành động</th>
+    </tr>
           </thead>
           <tbody></tbody>
         </table>

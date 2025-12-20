@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hạng Thành Viên & Lịch Sử Điểm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="stylesheet" href="/assets/styles/components/navbar.css">
+    <link rel="stylesheet" href="/assets/styles/customer/loyalty.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <div class="navbar" id="navbar-placeholder"></div>
+
+    <div class="container mt-5 mb-5">
+        <div id="loading-spinner" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Đang tải thông tin hạng thành viên...</p>
+        </div>
+
+        <div id="loyalty-content" style="display: none;">
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 overflow-hidden loyalty-card-bg">
+                        <div class="card-body p-4 text-white">
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <div class="avatar-circle bg-white text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; font-size: 30px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                
+                                <div class="flex-grow-1">
+                                    <h2 id="user-name" class="mb-1 fw-bold">...</h2>
+                                    <span id="tier-badge" class="badge rounded-pill bg-secondary px-3 py-2">
+                                        <i class="fas fa-spinner"></i> Đang tải...
+                                    </span>
+                                </div>
+
+                                <div class="d-flex gap-4 text-center">
+                                    <div class="point-box">
+                                        <small class="text-white-50">Điểm khả dụng</small>
+                                        <h3 id="current-points" class="mb-0 fw-bold text-warning">0</h3>
+                                    </div>
+                                    <div class="point-box border-start ps-4 border-white-50">
+                                        <small class="text-white-50">Điểm xét hạng</small>
+                                        <h3 id="loyalty-score" class="mb-0 fw-bold">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Tiến trình thăng hạng</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Hạng hiện tại</span>
+                                <span class="text-muted small" id="next-tier-label">Tiếp theo: ...</span>
+                            </div>
+                            
+                            <div class="progress mb-3" style="height: 15px;">
+                                <div id="tier-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            
+                            <p id="progress-text" class="text-muted small mb-0">
+                                Đang tính toán dữ liệu...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-history text-primary me-2"></i>Lịch sử điểm thưởng</h5>
+                            <span class="badge bg-light text-dark border">Gần đây nhất</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col" class="ps-4">Thời gian</th>
+                                            <th scope="col">Nội dung</th>
+                                            <th scope="col">Đơn hàng</th>
+                                            <th scope="col" class="text-end pe-4">Thay đổi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-list">
+                                        </tbody>
+                                </table>
+                            </div>
+                            
+                            <div id="no-history" class="text-center py-5" style="display: none;">
+                                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Chưa có lịch sử giao dịch nào.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script src="/js/components/navbar.js"></script>
+    
+    <script type="module" src="/js/services/customer/loyalty.js"></script>
+</body>
+</html>

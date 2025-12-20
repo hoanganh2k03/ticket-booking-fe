@@ -73,20 +73,31 @@ function populateStadiumFilters() {
 }
 
 // Setup filter event listeners
+// Setup filter event listeners
 function setupFilterListeners() {
-    const filters = ['orderStatusFilter', 'priceSort', 'stadiumFilter', 'dateFilter', 'dateSort'];
+    // Thêm 'orderIdSearch' vào danh sách lắng nghe sự kiện
+    const filters = ['orderStatusFilter', 'priceSort', 'stadiumFilter', 'dateFilter', 'dateSort', 'orderIdSearch']; // Thêm orderIdSearch vào đây
+    
     filters.forEach(filterId => {
-        document.getElementById(filterId).addEventListener('change', applyFilters);
+        // orderIdSearch dùng sự kiện 'input', các cái khác dùng 'change'
+        const eventType = filterId === 'orderIdSearch' ? 'input' : 'change';
+        
+        const element = document.getElementById(filterId);
+        if (element) {
+             element.addEventListener(eventType, applyFilters);
+        }
     });
 
     document.getElementById('resetFilters').addEventListener('click', () => {
         filters.forEach(filterId => {
-            document.getElementById(filterId).value = '';
+            const element = document.getElementById(filterId);
+            if (element) element.value = '';
         });
         applyFilters();
     });
 }
 
+// Apply filters to orders
 // Apply filters to orders
 function applyFilters() {
     const orderStatus = document.getElementById('orderStatusFilter').value;
@@ -94,8 +105,18 @@ function applyFilters() {
     const stadium = document.getElementById('stadiumFilter').value;
     const date = document.getElementById('dateFilter').value;
     const dateSort = document.getElementById('dateSort').value;
+    // Lấy giá trị từ ô tìm kiếm
+    const searchTerm = document.getElementById('orderIdSearch').value.toLowerCase().trim(); 
 
     let filteredOrders = [...allOrders];
+
+    // --- PHẦN MỚI: Lọc theo mã đơn hàng ---
+    if (searchTerm) {
+        filteredOrders = filteredOrders.filter(order => 
+            order.order_id.toLowerCase().includes(searchTerm)
+        );
+    }
+    // -------------------------------------
 
     // Filter by order status
     if (orderStatus) {
@@ -134,7 +155,7 @@ function applyFilters() {
         });
     }
 
-    displayOrders(filteredOrders);
+    displayOrders(filteredOrders); // Dùng đúng tên hàm displayOrders
 }
 
 // Function to display orders
@@ -258,3 +279,6 @@ function groupOrderDetailsBySection(orderDetails) {
 
     return groupedHTML;
 }
+// Lấy thẻ input
+const searchInput = document.getElementById('orderIdSearch');
+

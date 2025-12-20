@@ -61,7 +61,29 @@
 
                 <!-- Total Cost and Order Button -->
                 <div class="text-center mt-4">
-                    <p><strong>Tổng tiền:</strong> <span id="total-order-cost">0.00</span> VND <small>(chưa tính tiền khuyến mãi)</small></p>
+                    <!-- tích điểm  -->
+                    <div id="points-section" style="display:none;">
+    <h4><i class="fas fa-coins"></i> Sử dụng điểm tích lũy</h4>
+    
+    <p>Bạn đang có: <strong id="available-points">0</strong> điểm</p>
+    
+    <div class="input-group">
+        <input type="number" id="use-points-input" placeholder="Nhập số điểm muốn dùng (VD: 50)" min="0">
+        <span class="helper-text"><i class="fas fa-info-circle"></i> Tỷ lệ: 1 điểm = 1.000 VNĐ</span>
+    </div>
+
+    <div class="discount-result">
+        <span>Số tiền được giảm:</span>
+        <span>-<strong id="points-discount-amount">0</strong> VNĐ</span>
+    </div>
+</div>
+                    <!--  -->
+                    <p><strong>Tổng tiền:</strong> <span id="total-order-cost">0.00</span> VND <small>(Lưu ý!Kiểm tra thông tin trước khi thanh toán)</small>
+                    <span id="earning-points-display" style="margin-left: 10px; font-size: 0.9em; color: #27ae60; font-weight: bold; display: none;">
+                        <i class="fas fa-gift"></i> +<span id="earning-points-value">0</span> điểm
+                    </span>
+                    </p>
+                    
                     <button id="order-button" class="btn btn-success" style="display: none;">Thanh toán</button>
                 </div>
             </div>
