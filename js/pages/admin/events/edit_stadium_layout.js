@@ -1,4 +1,4 @@
-import { getStadiumSections, updateSectionMapPosition } from '/js/services/admin/stadiumService.js';
+import { getStadiumSections, updateSectionMapPosition } from '/js/services/customer/stadiumService.js';
 import { getToken } from '/js/utils/handleToken.js';
 
 console.log('edit_stadium_layout.js loaded');
