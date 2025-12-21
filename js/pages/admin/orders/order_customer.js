@@ -28,7 +28,7 @@ function initiateMomoPayment(orderId, totalAmount) {
         amount: totalAmount,
         order_info: `Thanh toán cho đơn hàng ${orderId}`,
         redirect_url: `${window.location.origin}/pages/admin/orders/qrcode.html`,
-        ipn_url: `https://soccer.miego.store/api/orders/done-payment/`
+        ipn_url: `https://willene-spiriferous-drucilla.ngrok-free.dev/api/orders/done-payment/`
     };
     return fetch(`${BASE_URL}/api/orders/momo-payment/`, {
         method: 'POST',
