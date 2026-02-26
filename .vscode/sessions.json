@@ -12,7 +12,7 @@
                 "icon": "zap",
                 "color": "terminal.ansiGreen",
                 "commands": [
-                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1"
+                    "cd D:/DATN/ticket-booking-be/ticket_booking; . D:/DATN/ticket-booking-be/env/Scripts/Activate.ps1"
                 ]
             },
             {
@@ -21,7 +21,7 @@
                 "icon": "server",
                 "color": "terminal.ansiBlue",
                 "commands": [
-                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python manage.py runserver"
+                    "cd D:/DATN/ticket-booking-be/ticket_booking; . D:/DATN/ticket-booking-be/env/Scripts/Activate.ps1; python manage.py runserver"
                 ]
             },
             {
@@ -30,7 +30,7 @@
                 "icon": "gear",
                 "color": "terminal.ansiYellow",
                 "commands": [
-                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking worker --loglevel=info --pool=solo"
+                    "cd D:/DATN/ticket-booking-be/ticket_booking; . D:/DATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking worker --loglevel=info --pool=solo"
                 ]
             },
             {
@@ -39,7 +39,7 @@
                 "icon": "clock",
                 "color": "terminal.ansiRed",
                 "commands": [
-                    "cd D:/ĐATN/ticket-booking-be/ticket_booking; . D:/ĐATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking beat -l info"
+                    "cd D:/DATN/ticket-booking-be/ticket_booking; . D:/DATN/ticket-booking-be/env/Scripts/Activate.ps1; python -m celery -A ticket_booking beat -l info"
                 ]
             },
             {
@@ -48,7 +48,7 @@
                 "icon": "browser",
                 "color": "terminal.ansiMagenta",
                 "commands": [
-                    "cd D:/ĐATN/ticket-booking-fe; npx http-server . -p 5500"
+                    "cd D:/DATN/ticket-booking-fe; npx http-server . -p 5500"
                 ]
             }
         ]
