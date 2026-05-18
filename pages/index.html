@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ticket Booking Login</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0d47a1, #1e88e5);
+        color: #fff;
+      }
+      .container {
+        width: min(580px, calc(100% - 32px));
+        text-align: center;
+        padding: 32px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+      }
+      h1 {
+        margin-bottom: 16px;
+        font-size: 2rem;
+      }
+      p {
+        margin: 0 0 24px;
+        color: #e0e7ff;
+      }
+      .buttons {
+        display: grid;
+        gap: 16px;
+      }
+      .button {
+        display: inline-block;
+        padding: 14px 24px;
+        border-radius: 999px;
+        color: #0d47a1;
+        background: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+      .secondary {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+      }
+      .note {
+        margin-top: 24px;
+        font-size: 0.95rem;
+        color: #cfd8fc;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Ticket Booking</h1>
+      <p>Chọn loại đăng nhập phù hợp để vào hệ thống.</p>
+      <div class="buttons">
+        <a class="button" href="login_empl.html">Đăng nhập Admin / Nhân viên</a>
+        <a class="button secondary" href="customer/index.html">Xem trang Khách hàng</a>
+      </div>
+      <p class="note">Nếu bạn muốn mở thẳng trang nhân viên, đặt trang này làm trang chính hoặc chuyển hướng đến login_empl.html.</p>
+    </div>
+  </body>
+</html>

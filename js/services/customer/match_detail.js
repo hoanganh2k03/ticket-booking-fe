@@ -688,8 +688,8 @@ async function initializeMatchDetails() {
                             order: orderId,
                             amount: totalAmount,
                             order_info: `Thanh toán cho đơn hàng ${orderId}`,
-                            redirect_url: 'http://127.0.0.1:5500/pages/customer/qrcode.html',
-                            ipn_url: `${TUNNEL_URL}/api/orders/done-payment/`
+                            redirect_url: `${window.location.origin}/pages/customer/qrcode.html`,
+                            ipn_url: `${BASE_URL}/api/orders/done-payment/`
                         };
 
                         const momoResponse = await fetch(`${BASE_URL}/api/orders/momo-payment/`, {
@@ -702,6 +702,7 @@ async function initializeMatchDetails() {
 
                         if (momoResponse.payUrl) {
                             localStorage.setItem('orderID', orderId);
+                            sessionStorage.setItem('pendingMomoOrderId', orderId);
                             window.location.href = momoResponse.payUrl;
                         } else {
                             const momoErr = momoResponse.error || momoResponse.message || 'Lỗi khi tạo liên kết thanh toán MoMo.';

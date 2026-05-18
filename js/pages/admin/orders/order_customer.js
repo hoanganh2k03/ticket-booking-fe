@@ -383,6 +383,7 @@ confirmBtn.addEventListener('click', () => {
                         .then(momoResp => {
                             if (momoResp.payUrl) {
                                 localStorage.setItem('orderId', orderId);
+                                localStorage.setItem('orderID', orderId);
                                 window.location.href = momoResp.payUrl;
                             } else {
                                 showToast('Lỗi khi tạo liên kết thanh toán MoMo.', 'danger');

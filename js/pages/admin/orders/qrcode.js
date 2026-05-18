@@ -68,5 +68,6 @@ document.getElementById('home-btn').onclick = () => {
 };
 document.getElementById('print-btn').onclick = () => window.print();
 
-const orderId = localStorage.getItem('orderId') || 0;
+const query = new URLSearchParams(window.location.search);
+const orderId = query.get('orderId') || query.get('order_id') || localStorage.getItem('orderId') || localStorage.getItem('orderID') || 0;
 if (orderId) loadOrder(orderId);

@@ -16,6 +16,34 @@ function formatMatchTime(matchTime) {
     });
 }
 
+async function updateOrderStatus(orderId) {
+    try {
+        const response = await fetch(`${BASE_URL}/api/orders/update-order-status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                order_id: orderId
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            console.warn("Failed to update order status:", data);
+        }
+    } catch (error) {
+        console.warn("Error updating order status:", error);
+    }
+}
+
+function clearPendingMomoOrder(orderId) {
+    const pendingOrderId = sessionStorage.getItem('pendingMomoOrderId');
+    if (!orderId || pendingOrderId === orderId) {
+        sessionStorage.removeItem('pendingMomoOrderId');
+    }
+}
+
 async function fetchOrderDetails(orderId) {
     try {
         const response = await fetch(`${BASE_URL}/api/orders/order/details/qr/`, {
@@ -23,7 +51,10 @@ async function fetchOrderDetails(orderId) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ order_id: orderId })
+            body: JSON.stringify({ 
+                order_id: orderId,
+                _t: Date.now()  // Cache busting
+            })
         });
         const data = await response.json();
 
@@ -144,5 +175,28 @@ async function fetchOrderDetails(orderId) {
 }
 
 // Lấy Order ID từ URL hoặc từ localStorage
-const orderId = localStorage.getItem('orderID');; 
-fetchOrderDetails(orderId);
+const query = new URLSearchParams(window.location.search);
+const orderId = query.get('orderId') || query.get('order_id') || localStorage.getItem('orderID');
+const resultCode = query.get('resultCode');
+const pendingMomoOrderId = sessionStorage.getItem('pendingMomoOrderId');
+
+if (orderId) {
+    localStorage.setItem('orderID', orderId);
+    
+    // Nếu thanh toán vừa thành công (resultCode=0), chờ 1 giây để backend update xong
+    if (resultCode && resultCode !== '0') {
+        clearPendingMomoOrder(orderId);
+        fetchOrderDetails(orderId);
+    } else if (resultCode === '0' || pendingMomoOrderId === orderId) {
+        console.log("Payment successful, waiting for backend update...");
+        setTimeout(async () => {
+            await updateOrderStatus(orderId);
+            clearPendingMomoOrder(orderId);
+            fetchOrderDetails(orderId);
+        }, 1000);
+    } else {
+        fetchOrderDetails(orderId);
+    }
+} else {
+    alert("Khong tim thay ma don hang.");
+}

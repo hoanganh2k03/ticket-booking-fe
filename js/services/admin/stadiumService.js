@@ -1,4 +1,5 @@
 import CONFIG from "/js/utils/settings.js";
+import { fetchWithToken } from "/js/utils/handleToken.js";
 
 const API_BASE_URL = CONFIG.BASE_URL + "/api/";
 
